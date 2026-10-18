@@ -83,9 +83,27 @@ Claude Code on the command line reads the token from your shell, not from the VS
 - **“Authorization header is badly formatted.”** The shell didn't have the token when you started claude. Run `echo ${GITHUB_PERSONAL_ACCESS_TOKEN:0:11}`; it should print `github_pat_`. If it prints nothing, check the line in `~/.zshrc` and open a new terminal.
 - **401 from GitHub.** Same as in VS Code: the value in `~/.zshrc` is wrong, still the placeholder, or expired.
 
+## Make Claude Code use the plugin instead of command-line git
+
+Even with the plugin connected, Claude Code sometimes reaches for `gh` or `git push` on the command line instead. A line in your personal `~/.claude/CLAUDE.md` tells it to use the plugin. Claude Code in VS Code and on the WSL command line both read this file, so you only add it once.
+
+1. **Open the file.** In WSL, open `~/.claude/CLAUDE.md`, creating it if it doesn't exist.
+2. **Add the instruction.** Paste this at the bottom and save:
+
+    ```
+    For anything involving GitHub (PRs, issues, pushing, reviews, reading remote files), always use the GitHub MCP tools. Never use the gh CLI or git push/pull/fetch.
+    ```
+
+3. **Start a new session.** Claude Code reads the file when a session starts.
+
+The plugin works on GitHub itself, not on the copy of the repository on your computer, so Claude Code still uses local git to commit and switch branches. The instruction leaves those alone.
+
+This is a reminder to Claude, not a rule Claude Code enforces, so it can still slip occasionally. To block the commands outright, add deny rules such as `"Bash(gh *)"` and `"Bash(git push *)"` under `permissions` in `~/.claude/settings.json`; see the permissions docs in Sources.
+
 ## Sources
 
 - [Connect Claude Code to tools via MCP (Claude Code docs)](https://code.claude.com/docs/en/mcp)
+- [Configure permissions (Claude Code docs)](https://code.claude.com/docs/en/permissions)
 - [Use Claude Code in VS Code (Claude Code docs)](https://code.claude.com/docs/en/vs-code)
 - [Use Claude Code in the cloud (Claude Code docs)](https://code.claude.com/docs/en/claude-code-on-the-web)
 - [GitHub plugin config file (.mcp.json)](https://raw.githubusercontent.com/anthropics/claude-plugins-official/main/external_plugins/github/.mcp.json)
