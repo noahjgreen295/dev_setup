@@ -107,7 +107,7 @@ A line in your personal `~/.claude/CLAUDE.md` tells Claude Code which to use. Cl
 
 To change a repository you haven't cloned, either clone it and work with git, or tell Claude explicitly to edit it on GitHub through the plugin. A one-file edit on GitHub is fine when there's no local copy to fall out of sync.
 
-This is a reminder to Claude, not a rule Claude Code enforces, so it can still slip occasionally. Word it plainly: Claude follows the rule as written, so a rule that says to push through the plugin will be followed even when that leaves your local copy out of sync.
+This is a reminder to Claude, not a rule Claude Code enforces, so it can still slip occasionally.
 
 ## Sources
 
