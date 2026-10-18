@@ -104,10 +104,10 @@ Project-specific Ruff rules (line length, which checks to turn on) go in a `[too
 Modern Python projects keep everything in `pyproject.toml`: dependencies, build settings, and config for Ruff, pytest and mypy. Without this extension VS Code treats it as plain text. With it you get colour, error checking as you type, formatting, and autocomplete for the known sections (it knows what belongs under `[project]` and `[tool.ruff]`, for example), so typos get caught before they turn into a confusing build error.
 
 ### Other extensions I use
+There are even more, but they are covered in separate HOWTO docs. For now just these additional ones:
 
 | Extension | Publisher | What it's for |
 | --- | --- | --- |
-| **Snowflake** | Snowflake (`snowflake.snowflake-vsc`) | Connect to Snowflake, write and run SQL, see results in VS Code. |
 | **Rainglow** | Dayle Rees (`daylerees.rainglow`) | 320+ colour themes, including Codecourse Contrast (below). |
 | **Snowflake Theme** | breberaf | Colour theme in Snowflake's colours. |
 | **IBM Color Scheme [DARK]** | PaperFanz | Dark colour theme based on IBM's palette. |
