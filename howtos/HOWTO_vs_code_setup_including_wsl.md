@@ -50,7 +50,7 @@ Check the bottom-left corner of the window: it should say **WSL: Ubuntu**. That'
 
 - **It opens the right kind of window.** Started from WSL, the window is connected to WSL automatically. If you instead open VS Code from the Start menu and use **File > Open Folder** on `\\wsl$\...`, you get a plain Windows window looking at Linux files over a slow network share. Python, the terminal and extensions are then the Windows ones, and things quietly misbehave.
 - **It installs and updates the server.** The first `code .` sets up WSL support, and later runs keep the server in step with Windows VS Code after updates.
-- **It opens the folder you're in.** The `.` means "this folder", so you land in the project with the terminal already in the right place.
+- **It opens the folder you're in.** The `.` means "this folder", so you start in the project with the terminal already in the right place.
 
 If the corner doesn't say **WSL: Ubuntu**, close the window and reopen with `code .` from the WSL terminal.
 
