@@ -2,6 +2,8 @@
 
 Noah's basic dev setup: a Windows machine doing its development work in WSL (Ubuntu), with zsh, GitHub over SSH, VS Code for Python, Claude Code and Docker.
 
+Everything here is written for WSL on Windows, but it should work just as well on macOS or Linux: skip [HOWTO_wsl_setup.md](howtos/HOWTO_wsl_setup.md) and the WSL-specific steps in the others, and use your OS's package manager where a HOWTO says `apt` (Homebrew on a Mac, for example).
+
 ## Order
 
 Work through the HOWTOs in this order. Later ones assume the earlier ones are done.
@@ -9,7 +11,7 @@ Work through the HOWTOs in this order. Later ones assume the earlier ones are do
 1. [HOWTO_wsl_setup.md](howtos/HOWTO_wsl_setup.md): install WSL and Ubuntu.
 2. [HOWTO_shell_config.md](howtos/HOWTO_shell_config.md): zsh, Oh My Zsh, aliases and theme.
 3. [HOWTO_basic_github_setup.md](howtos/HOWTO_basic_github_setup.md): SSH keys so `git` can push and pull from GitHub.
-4. [HOWTO_vs_code_setup_including_wsl.md](howtos/HOWTO_vs_code_setup_including_wsl.md): install VS Code, connect it to WSL, add Python and other extensions.
+4. [HOWTO_vs_code_install.md](howtos/HOWTO_vs_code_install.md): install VS Code, connect it to WSL, add Python and other extensions.
 5. [HOWTO_vs_code_settings_sync.md](howtos/HOWTO_vs_code_settings_sync.md): sync VS Code settings and extensions across computers.
 6. [HOWTO_claude_code_in_wsl_and_vs_code.md](howtos/HOWTO_claude_code_in_wsl_and_vs_code.md): Claude Code on the WSL command line and in VS Code.
 7. [HOWTO_claude_to_github.md](howtos/HOWTO_claude_to_github.md): give Claude access to GitHub.
