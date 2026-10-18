@@ -14,14 +14,15 @@ Connecting GitHub in chat does not give Claude Code GitHub access. Chat connecto
 ### Create the personal access token
 
 1. Go to github.com/settings/personal-access-tokens and create a fine-grained token.
-2. Under repository access, choose All repositories, or pick the repositories Claude should reach. If you pick specific ones, add each new repository to the token as you create it. The token value doesn't change when you do.
-3. Set each permission listed below to Read and write.
-4. Generate the token and copy it right away. GitHub shows it only once.
+2. Set the resource owner. A fine-grained token reaches repositories of one owner only: your personal account or one organization. For repositories that belong to an organization, create a separate token with that organization as the owner; the organization may need to approve it.
+3. Under repository access, choose All repositories, or pick the repositories Claude should reach. If you pick specific ones, add each new repository to the token as you create it. The token value doesn't change when you do.
+4. Set each permission listed below to Read and write.
+5. Generate the token and copy it right away. GitHub shows it only once.
 
 Permissions:
 
 - **Actions:** lets Claude see workflow runs and why CI failed, trigger runs manually, and turn workflows on or off.
-- **Contents:** lets Claude read and push code.
+- **Contents:** lets Claude read code and change files on GitHub directly. If it is left at Read-only, reading works but every write fails with a 403.
 - **Issues:** lets Claude read, create and update issues.
 - **Pull requests:** lets Claude read, open and update pull requests.
 - **Secrets (optional):** lets Claude set repository secrets that workflows use. Leave it off if you would rather add secrets yourself in the repository settings.
@@ -63,6 +64,8 @@ Set the token in this VS Code setting, not in `~/.zshrc`: VS Code doesn't always
 
 - **“Authorization header is badly formatted.”** Claude Code didn't receive the token. Check the setting's name is exactly `GITHUB_PERSONAL_ACCESS_TOKEN`, then reload the window and start a new session.
 - **401 from GitHub.** The token value is wrong or expired. Check that the setting holds your full token, not the `github_pat_...` placeholder. If the token has expired, regenerate it on GitHub and paste the new value.
+- **404 for a repository you know exists.** The token can't see it. Usually the repository belongs to an organization and the token's resource owner is your personal account. See step 2 of Create the personal access token.
+- **403 “Resource not accessible by personal access token.”** Reads work but writes don't: set Contents (and Pull requests or Issues, for those) to Read and write on the token.
 
 ## WSL command line
 
@@ -81,24 +84,30 @@ Claude Code on the command line reads the token from your shell, not from the VS
 ### Troubleshooting
 
 - **“Authorization header is badly formatted.”** The shell didn't have the token when you started claude. Run `echo ${GITHUB_PERSONAL_ACCESS_TOKEN:0:11}`; it should print `github_pat_`. If it prints nothing, check the line in `~/.zshrc` and open a new terminal.
-- **401 from GitHub.** Same as in VS Code: the value in `~/.zshrc` is wrong, still the placeholder, or expired.
+- **401, 404 or 403 from GitHub.** Same causes and fixes as in VS Code.
 
-## Make Claude Code use the plugin instead of command-line git
+## Tell Claude Code when to use the plugin and when to use git
 
-Even with the plugin connected, Claude Code sometimes reaches for `gh` or `git push` on the command line instead. A line in your personal `~/.claude/CLAUDE.md` tells it to use the plugin. Claude Code in VS Code and on the WSL command line both read this file, so you only add it once.
+Use command-line git for anything that touches your local copy of a repository, including push and pull. Use the plugin only for things that exist on GitHub alone.
+
+The reason: the plugin has no real push or pull. When Claude "pushes" through it, it uploads file contents and GitHub creates new commits on its side. Your local branch doesn't get those commits, so it falls behind and shows the same changes as uncommitted, and getting back in sync takes a fetch and reset, or a force push. The plugin also has no rename and no bulk delete, so renaming a folder becomes one commit to add the new files plus one commit per deleted file.
+
+A line in your personal `~/.claude/CLAUDE.md` tells Claude Code which to use. Claude Code in VS Code and on the WSL command line both read this file, so you only add it once.
 
 1. **Open the file.** In WSL, open `~/.claude/CLAUDE.md`, creating it if it doesn't exist.
 2. **Add the instruction.** Paste this at the bottom and save:
 
     ```
-    For anything involving GitHub (PRs, issues, pushing, reviews, reading remote files), always use the GitHub MCP tools. Never use the gh CLI or git push/pull/fetch.
+    Git / Github policy
+    Use GitHub MCP for making PRs and for GitHub-only things (issues, reviews, comments, searching or reading remote repos without cloning)
+    Use git command line for everything else
     ```
 
 3. **Start a new session.** Claude Code reads the file when a session starts.
 
-The plugin works on GitHub itself, not on the copy of the repository on your computer, so Claude Code still uses local git to commit and switch branches. The instruction leaves those alone.
+To change a repository you haven't cloned, either clone it and work with git, or tell Claude explicitly to edit it on GitHub through the plugin. A one-file edit on GitHub is fine when there's no local copy to fall out of sync.
 
-This is a reminder to Claude, not a rule Claude Code enforces, so it can still slip occasionally. To block the commands outright, add deny rules such as `"Bash(gh *)"` and `"Bash(git push *)"` under `permissions` in `~/.claude/settings.json`; see the permissions docs in Sources.
+This is a reminder to Claude, not a rule Claude Code enforces, so it can still slip occasionally. Word it plainly: Claude follows the rule as written, so a rule that says to push through the plugin will be followed even when that leaves your local copy out of sync.
 
 ## Sources
 
