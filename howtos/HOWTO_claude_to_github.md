@@ -57,7 +57,7 @@ The app's permissions come from GitHub's install screen, not from your token: re
 3. **Reload.** Run Developer: Reload Window from the Command Palette, then start a new Claude session.
 4. **Confirm.** Type `/mcp` in the Claude panel. GitHub should show as connected.
 
-Set the token in this VS Code setting, not in `~/.bashrc`: VS Code doesn't always pass your shell's environment to Claude Code. The variable name must be exactly `GITHUB_PERSONAL_ACCESS_TOKEN`, which is what the plugin's config file sends to GitHub as a bearer token.
+Set the token in this VS Code setting, not in `~/.zshrc`: VS Code doesn't always pass your shell's environment to Claude Code. The variable name must be exactly `GITHUB_PERSONAL_ACCESS_TOKEN`, which is what the plugin's config file sends to GitHub as a bearer token.
 
 ### Troubleshooting
 
@@ -69,7 +69,7 @@ Set the token in this VS Code setting, not in `~/.bashrc`: VS Code doesn't alway
 Claude Code on the command line reads the token from your shell, not from the VS Code setting, so it needs its own copy.
 
 1. **Check the plugin.** In a WSL terminal, run `claude` and type `/plugin`. If github isn't listed as installed, run `/plugin install github@claude-plugins-official`.
-2. **Add the token.** Open `~/.bashrc` in WSL and add this line at the bottom, with your full token in place of the placeholder:
+2. **Add the token.** Open `~/.zshrc` in WSL and add this line at the bottom, with your full token in place of the placeholder:
 
     ```
     export GITHUB_PERSONAL_ACCESS_TOKEN="github_pat_..."
@@ -80,8 +80,8 @@ Claude Code on the command line reads the token from your shell, not from the VS
 
 ### Troubleshooting
 
-- **“Authorization header is badly formatted.”** The shell didn't have the token when you started claude. Run `echo ${GITHUB_PERSONAL_ACCESS_TOKEN:0:11}`; it should print `github_pat_`. If it prints nothing, check the line in `~/.bashrc` and open a new terminal.
-- **401 from GitHub.** Same as in VS Code: the value in `~/.bashrc` is wrong, still the placeholder, or expired.
+- **“Authorization header is badly formatted.”** The shell didn't have the token when you started claude. Run `echo ${GITHUB_PERSONAL_ACCESS_TOKEN:0:11}`; it should print `github_pat_`. If it prints nothing, check the line in `~/.zshrc` and open a new terminal.
+- **401 from GitHub.** Same as in VS Code: the value in `~/.zshrc` is wrong, still the placeholder, or expired.
 
 ## Sources
 

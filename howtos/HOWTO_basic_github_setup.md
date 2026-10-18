@@ -34,7 +34,7 @@ An agent holds the unlocked key in memory. WSL doesn't start one on its own, and
 sudo apt install keychain
 ```
 
-Add this line to the end of `~/.bashrc`:
+Add this line to the end of `~/.zshrc`:
 
 ```
 eval "$(keychain --eval --quiet id_ed25519)"
@@ -95,7 +95,7 @@ git remote set-url origin git@github.com:<owner>/<repo>.git
 
 - **`Permission denied (publickey)`.** The key isn't on GitHub, or SSH isn't offering it. Check `ssh-add -l` lists the key; if not, run `ssh-add ~/.ssh/id_ed25519`. Make sure the key on GitHub matches `~/.ssh/id_ed25519.pub`.
 - **Still asked for a username and password.** The repo's remote is HTTPS. See step 6.
-- **Asked for the passphrase in every terminal.** Check the `keychain` line is in `~/.bashrc` and that `keychain` is installed (`which keychain`).
+- **Asked for the passphrase in every terminal.** Check the `keychain` line is in `~/.zshrc` and that `keychain` is installed (`which keychain`).
 - **`bad permissions` / `UNPROTECTED PRIVATE KEY FILE`.** Run `chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519`.
 
 ## Sources

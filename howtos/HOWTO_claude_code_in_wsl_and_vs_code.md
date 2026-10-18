@@ -80,8 +80,8 @@ Claude Code rotates through whimsical verbs while it works. There's no setting t
 - **`claude: command not found`.** `~/.local/bin` isn't on your PATH. Run:
 
     ```
-    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-    source ~/.bashrc
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+    source ~/.zshrc
     ```
 
 - **`cannot execute binary file: Exec format error`.** You're on WSL 1. Convert to WSL 2; see Preliminaries.

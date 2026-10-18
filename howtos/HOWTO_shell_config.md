@@ -111,7 +111,7 @@ TODO: commit `midnight.zsh-theme` to this repo so it can be copied in directly.
 - **`chsh: PAM: Authentication failure`.** Wrong Linux password. If you've forgotten it, see the WSL HOWTO.
 - **Still in bash after `chsh`.** WSL keeps the old session alive. Run `wsl --shutdown` in PowerShell, then reopen Ubuntu.
 - **Aliases or theme not working.** Check the lines are in `~/.zshrc` (not `~/.bashrc`), then `source ~/.zshrc`.
-- **Things from `~/.bashrc` are gone** (like the `keychain` line from the GitHub HOWTO). zsh doesn't read `~/.bashrc`. Copy those lines into `~/.zshrc`.
+- **Things you set up in `~/.bashrc` before switching are gone.** zsh doesn't read `~/.bashrc`. Copy those lines into `~/.zshrc`.
 
 ## Sources
 

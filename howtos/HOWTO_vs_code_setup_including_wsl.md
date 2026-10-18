@@ -1,6 +1,6 @@
 # HOWTO: VS Code setup, including WSL
 
-How to install VS Code on Windows, use it on projects inside WSL, and add the extensions needed for Python. Assumes [HOWTO_wsl_setup.md](HOWTO_wsl_setup.md) is done.
+How to install VS Code on Windows, use it on projects inside WSL, and add the extensions I use, mainly for Python. Assumes [HOWTO_wsl_setup.md](HOWTO_wsl_setup.md) is done.
 
 ## How VS Code and WSL fit together
 
@@ -62,9 +62,9 @@ Other ways in, once it's set up:
 
 Keep projects under `~/projects` in Linux, not under `/mnt/c/...`. Files on the Windows side are much slower to work with from WSL.
 
-## Extensions for Python
+## Extensions
 
-### The essentials
+### Python essentials
 
 | Extension | ID | What it's for |
 | --- | --- | --- |
@@ -73,22 +73,62 @@ Keep projects under `~/projects` in Linux, not under `/mnt/c/...`. Files on the 
 | ↳ **Pylance** | `ms-python.vscode-pylance` | Autocomplete, type checking, go-to-definition. |
 | ↳ **Python Debugger** | `ms-python.debugpy` | Breakpoints and step-through debugging. |
 | ↳ **Python Environments** | `ms-python.vscode-python-envs` | Creating and switching between venvs. |
-| **Ruff** (Astral) | `charliermarsh.ruff` | Linting and formatting in one fast tool. Replaces flake8, Black and isort. |
+| **Ruff** (Astral) | `charliermarsh.ruff` | Linting and formatting. **Install this.** |
+| **Even Better TOML** (tamasfe) | `tamasfe.even-better-toml` | `pyproject.toml` support. **Install this too.** |
 
 Only if you use notebooks: **Jupyter** (`ms-toolsai.jupyter`).
 
-### Set Ruff as the formatter
+### Ruff: strongly recommended
+
+Ruff replaces flake8, Black, isort and a pile of pylint checks with one tool, and it's fast enough that it runs on every keystroke without you noticing. It flags unused imports, undefined names and likely bugs as you type, and fixes most of them itself on save. One extension, nothing else to configure, and every project ends up formatted the same way.
 
 Open **Ctrl+Shift+P** > **Preferences: Open User Settings (JSON)** and add:
 
 ```json
 "[python]": {
   "editor.defaultFormatter": "charliermarsh.ruff",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  }
 }
 ```
 
-Files then tidy themselves each time you save.
+Every save then formats the file, applies Ruff's safe fixes and sorts the imports.
+
+Project-specific Ruff rules (line length, which checks to turn on) go in a `[tool.ruff]` section of the project's `pyproject.toml`. The extension picks them up automatically.
+
+### Even Better TOML: strongly recommended
+
+Modern Python projects keep everything in `pyproject.toml`: dependencies, build settings, and config for Ruff, pytest and mypy. Without this extension VS Code treats it as plain text. With it you get colour, error checking as you type, formatting, and autocomplete for the known sections (it knows what belongs under `[project]` and `[tool.ruff]`, for example), so typos get caught before they turn into a confusing build error.
+
+### Other extensions I use
+
+| Extension | Publisher | What it's for |
+| --- | --- | --- |
+| **Snowflake** | Snowflake (`snowflake.snowflake-vsc`) | Connect to Snowflake, write and run SQL, see results in VS Code. |
+| **Rainglow** | Dayle Rees (`daylerees.rainglow`) | 320+ colour themes, including Codecourse Contrast (below). |
+| **Snowflake Theme** | breberaf | Colour theme in Snowflake's colours. |
+| **IBM Color Scheme [DARK]** | PaperFanz | Dark colour theme based on IBM's palette. |
+| **Material Icon Theme** | Philipp Kief (`PKief.material-icon-theme`) | File and folder icons in the Explorer, by file type. |
+
+Themes and icon packs are UI extensions: they install on Windows and apply to WSL windows too. If one shows an **Install Locally** button while you're in a WSL window, click it so it lives on the Windows side.
+
+### Pick the Codecourse Contrast theme
+
+1. Install **Rainglow**.
+2. Open **Ctrl+Shift+P** > **Preferences: Color Theme** (or **Ctrl+K** then **Ctrl+T**).
+3. Type `codecourse`. Three show up: **Codecourse (rainglow)**, **Codecourse Contrast (rainglow)** and **Codecourse Light (rainglow)**.
+4. Arrow through them to preview, and press **Enter** on **Codecourse Contrast (rainglow)**.
+
+That sets this in your user settings:
+
+```json
+"workbench.colorTheme": "Codecourse Contrast (rainglow)"
+```
+
+For the file icons, run **Ctrl+Shift+P** > **Material Icons: Activate Icon Theme**.
 
 ### Point VS Code at your venv
 
@@ -139,3 +179,7 @@ Every WSL distro gets its own set, so if you add a second distro, do this again 
 - [Getting started with Python in VS Code (VS Code docs)](https://code.visualstudio.com/docs/python/python-tutorial)
 - [Formatting Python in VS Code (VS Code docs)](https://code.visualstudio.com/docs/python/formatting)
 - [Python extension (VS Code Marketplace)](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+- [Ruff extension (VS Code Marketplace)](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
+- [Even Better TOML (VS Code Marketplace)](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
+- [Rainglow (VS Code Marketplace)](https://marketplace.visualstudio.com/items?itemName=daylerees.rainglow)
+- [Material Icon Theme (VS Code Marketplace)](https://marketplace.visualstudio.com/items?itemName=PKief.material-icon-theme)
