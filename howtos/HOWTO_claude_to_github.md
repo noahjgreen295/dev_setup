@@ -1,4 +1,4 @@
-# HOWTO: Set up Claude Code MCP
+# HOWTO: Integrate Claude Code with GitHub
 
 How to give Claude GitHub access from three places: Claude chat, Claude Code in VS Code on WSL, and Claude Code on the WSL command line. Full access here means the permissions set on the token in Preliminaries. Do Preliminaries first, then the section for each place you use.
 
