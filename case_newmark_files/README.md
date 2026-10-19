@@ -12,6 +12,7 @@ For the styled hub, open [sprawl_map.html](sprawl_map.html) in a browser.
 | DOC | [Python Docs Switchboard](python_docs_switchboard.md) | 4 routes | 48 | 9 | Sphinx + MyST, OpenAPI 3.1, Jupyter Book 2 |
 | API | [Python API Stack](python_api_stack.md) | 10 layers + 4 sidecars | 88 | 16 | FastAPI, Pydantic, PostgreSQL |
 | DAT | [Data Engineering Stack](python_data_stack.md) | 10 layers + 4 sidecars | 76 | 12 | dlt, Iceberg, dbt |
+| DEP | [Python Deployment Stack](python_deploy_stack.md) | 10 layers + 3 sidecars | 63 | 16 | python:slim, Cloud Run, GitHub Actions |
 
 Each guide also has a styled HTML version with the same name.
 
@@ -26,20 +27,23 @@ Each guide also has a styled HTML version with the same name.
 
 Tools that cross sector lines. The more sectors a tool appears in, the more worth knowing deeply it is.
 
-| Tool | Role | TCS | DOC | API | DAT |
-|---|---|:-:|:-:|:-:|:-:|
-| uv | Installs, locks, builds, runs | ● | | ● | ● |
-| Pydantic | Validation everywhere data crosses a boundary | ● | ● | ● | ● |
-| pytest | Tests, including doctests | ● | ● | ● | |
-| Ruff | Lint, format, docstring checks | ● | ● | | |
-| FastAPI | Services and data APIs | | ● | ● | ● |
-| OpenAPI | The contract for HTTP services | | ● | ● | |
-| Kafka | Event streams and async contracts | | ● | ● | ● |
-| PostgreSQL | Source system and datastore | | | ● | ● |
-| DuckDB | Analytics in-process | | | ● | ● |
-| Docker | Shipping it | | | ● | ● |
-| ~~Swagger 2.0~~ | Dead: superseded by OpenAPI 3 | | ● | ● | |
-| ~~pydocstyle~~ | Dead: folded into Ruff | ● | ● | | |
+| Tool | Role | TCS | DOC | API | DAT | DEP |
+|---|---|:-:|:-:|:-:|:-:|:-:|
+| uv | Installs, locks, builds, runs | ● | | ● | ● | ● |
+| Pydantic | Validation everywhere data crosses a boundary | ● | ● | ● | ● | ● |
+| Docker | Shipping it | | | ● | ● | ● |
+| pytest | Tests, including doctests | ● | ● | ● | | |
+| FastAPI | Services and data APIs | | ● | ● | ● | |
+| Kafka | Event streams and async contracts | | ● | ● | ● | |
+| PostgreSQL | Source system and datastore | | | ● | ● | ● |
+| Ruff | Lint, format, docstring checks | ● | ● | | | |
+| OpenAPI | The contract for HTTP services | | ● | ● | | |
+| DuckDB | Analytics in-process | | | ● | ● | |
+| Terraform | Infrastructure as code | | | | ● | ● |
+| OpenTelemetry | Traces, metrics and logs | | | ● | | ● |
+| Caddy | Edge proxy with automatic HTTPS | | | ● | | ● |
+| ~~Swagger 2.0~~ | Dead: superseded by OpenAPI 3 | | ● | ● | | |
+| ~~pydocstyle~~ | Dead: folded into Ruff | ● | ● | | | |
 
 ## Also in this folder
 

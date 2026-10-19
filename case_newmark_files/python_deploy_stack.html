@@ -1,0 +1,380 @@
+<title>Python Deployment Stack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tektur:wght@500;700;900&family=Chivo:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a build pipeline. Ten slabs from the lockfile down to infrastructure, with a packet that gets boxed into a container as it descends; then sidecars and Dog Solitude. Same neon identity as the rest of the Sprawl; deliberately single-theme. */
+:root{
+  color-scheme: dark;
+  --void:#0a0912;
+  --slab:#13111f;
+  --slab-2:#1a1729;
+  --line:#2c2742;
+  --ink:#e9e6f5;
+  --dim:#9c96b8;
+  --cyan:#3ef0ff;
+  --magenta:#ff3ea5;
+  --amber:#ffc23e;
+  --violet:#a98bff;
+  --f-display:"Tektur","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Chivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:linear-gradient(rgba(62,240,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(62,240,255,.035) 1px,transparent 1px);
+  background-size:28px 28px}
+.wrap{max-width:1120px;margin:0 auto;padding-block:40px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+code{font-family:var(--f-mono);font-size:.92em;color:var(--cyan)}
+a{color:var(--cyan)}
+
+header{display:grid;gap:14px;margin-bottom:28px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.eyebrow b{color:var(--magenta);font-weight:600}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,6.4vw,64px);line-height:.95;margin:0;letter-spacing:.01em;text-wrap:balance;
+  text-shadow:0 0 18px rgba(255,62,165,.35),2px 0 0 rgba(62,240,255,.55)}
+h1 span{color:var(--magenta)}
+.lede{max-width:70ch;color:var(--dim);margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;font-family:var(--f-mono);font-size:12px;color:var(--dim);margin-top:4px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+
+/* builds */
+.builds{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-bottom:30px}
+.path{border:1px solid var(--line);background:linear-gradient(90deg,rgba(62,240,255,.08),rgba(255,62,165,.06));padding:14px 16px;min-width:0;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.path h2{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin:0 0 8px;font-weight:600}
+.path ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 4px;font-family:var(--f-mono);font-size:13px}
+.path li{display:flex;align-items:center;gap:4px}
+.path li+li::before{content:"→";color:var(--magenta);margin-right:4px}
+
+/* request rail + stack */
+.flow{position:relative;padding-left:40px}
+.rail-line{position:absolute;left:14px;top:30px;bottom:30px;width:2px;background:linear-gradient(var(--cyan),var(--magenta));opacity:.55}
+.rail-tag{position:absolute;left:0;font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg)}
+.rail-tag.top{top:0;color:var(--cyan)} .rail-tag.bot{bottom:0;color:var(--magenta)}
+.packet{position:absolute;left:10px;top:30px;width:10px;height:10px;margin-left:0;background:var(--cyan);box-shadow:0 0 12px var(--cyan);border:2px solid transparent;
+  animation:box 6s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes box{
+  0%{top:30px;opacity:0;width:8px;height:8px;left:11px;background:var(--cyan);border-color:transparent}
+  6%{opacity:1}
+  35%{width:8px;height:8px;left:11px;background:var(--cyan);border-color:transparent;box-shadow:0 0 12px var(--cyan)}
+  45%{width:18px;height:18px;left:6px;background:rgba(62,240,255,.25);border-color:var(--magenta);box-shadow:0 0 14px var(--magenta)}
+  92%{opacity:1}
+  100%{top:calc(100% - 46px);opacity:0;width:18px;height:18px;left:6px;background:rgba(62,240,255,.25);border-color:var(--magenta);box-shadow:0 0 14px var(--magenta)}}
+@media (prefers-reduced-motion:reduce){.packet{animation:none}}
+@media (max-width:560px){.flow{padding-left:0}.rail-line,.rail-tag,.packet{display:none}}
+
+.hint{font-family:var(--f-mono);font-size:12px;color:var(--dim);margin:0 0 10px}
+.hint button{appearance:none;background:none;border:1px solid var(--line);color:var(--magenta);font:inherit;padding:2px 8px;cursor:pointer;margin-left:6px}
+.stack{display:grid;gap:10px}
+.layer{position:relative;display:grid;grid-template-columns:110px minmax(0,1fr);background:var(--slab);border:1px solid var(--line)}
+.layer::before{content:"";position:absolute;inset:-1px auto -1px -1px;width:3px;background:var(--c);box-shadow:0 0 12px var(--c)}
+.layer::after{content:"";position:absolute;left:-27px;top:26px;width:26px;height:1px;background:var(--c);opacity:.6}
+@media (max-width:560px){.layer::after{display:none}}
+.rail{border-right:1px solid var(--line);padding:16px 10px 16px 16px;display:flex;flex-direction:column;gap:4px;background:var(--slab-2)}
+.code{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1;color:var(--c)}
+.rail small{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.body{padding:16px 18px 18px;display:grid;gap:12px;min-width:0}
+.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px}
+h3{font-family:var(--f-display);font-weight:700;font-size:21px;margin:0;letter-spacing:.02em}
+.pick{font-family:var(--f-mono);font-size:12.5px;color:var(--cyan)}
+.pick b{color:var(--ink);font-weight:600}
+.what{margin:0;color:var(--dim);max-width:80ch;font-size:14px}
+.group{display:grid;gap:7px}
+.glabel{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.chip{appearance:none;font:inherit;color:inherit;text-align:left;cursor:pointer;background:rgba(255,255,255,.02);border:1px solid var(--line);
+  padding:9px 11px;display:grid;gap:3px;transition:border-color .15s,background .15s,box-shadow .15s,opacity .15s;min-width:0}
+.chip:hover{border-color:var(--dim)}
+.chip:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.chip .nm{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-weight:600;font-size:14px;flex-wrap:wrap}
+.chip .nt{font-size:13px;color:var(--dim);line-height:1.4}
+.tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;padding:1px 6px;border:1px solid currentColor;text-transform:uppercase;font-weight:600;font-style:normal}
+.t-pick{color:var(--cyan)} .t-alt{color:var(--violet)} .t-edge{color:var(--amber)}
+.multi{font-family:var(--f-mono);font-size:10px;color:var(--magenta);letter-spacing:.06em}
+.chip.is-pick{border-color:rgba(62,240,255,.55);background:rgba(62,240,255,.05)}
+.chip.is-edge{border-style:dashed;border-color:rgba(255,194,62,.5)}
+.chip.lit{border-color:var(--magenta);background:rgba(255,62,165,.10);box-shadow:0 0 0 1px var(--magenta),0 0 18px rgba(255,62,165,.35)}
+.filtering .chip:not(.lit){opacity:.35}
+@media (max-width:560px){
+  .layer{grid-template-columns:1fr}
+  .rail{flex-direction:row;align-items:baseline;gap:10px;border-right:0;border-bottom:1px solid var(--line);padding:10px 16px}
+  .code{font-size:24px}
+  .chips{grid-template-columns:1fr}
+}
+
+/* sections */
+.sect{margin-top:40px}
+.sect > h2{font-family:var(--f-display);font-weight:900;font-size:26px;margin:0 0 4px;letter-spacing:.03em;text-transform:uppercase}
+.sect > p{margin:0 0 14px;color:var(--dim);max-width:80ch}
+.sidecars{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.car{position:relative;border:1px solid var(--line);background:var(--slab);padding:14px 16px 16px;display:grid;gap:10px;align-content:start;min-width:0}
+.car::before{content:"";position:absolute;inset:-1px -1px auto -1px;height:3px;background:var(--c);box-shadow:0 0 12px var(--c)}
+.car h3{font-size:19px}
+.car .chips{grid-template-columns:1fr}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:34px}
+.note{border:1px solid var(--line);background:var(--slab);padding:16px 18px;min-width:0}
+.note h4{font-family:var(--f-display);font-size:17px;margin:0 0 8px;letter-spacing:.02em;color:var(--cyan)}
+.note ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px;color:var(--dim)}
+.note li b{color:var(--ink);font-weight:600}
+.note p{margin:0;font-size:14px;color:var(--dim)}
+
+.dog{margin-top:40px;border:1px dashed rgba(255,194,62,.35);background:repeating-linear-gradient(135deg,rgba(255,194,62,.03) 0 10px,transparent 10px 20px),var(--slab);padding:16px 18px}
+.dog h2{font-family:var(--f-display);font-weight:900;font-size:24px;margin:0 0 2px;color:var(--amber);letter-spacing:.04em;text-transform:uppercase}
+.dog p{margin:0 0 12px;font-size:13px;color:var(--dim)}
+.dog dl{margin:0;display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:6px 14px;font-size:13px}
+.dog dt{display:contents}
+.dog .dc{font-family:var(--f-display);font-weight:700;color:var(--amber)}
+.dog .dn{font-family:var(--f-mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.dog .dn b{color:var(--ink);font-weight:600}
+.dog dd{margin:0;font-family:var(--f-mono);color:var(--dim);text-decoration:line-through;text-decoration-color:rgba(255,62,165,.55);min-width:0}
+@media (max-width:560px){.dog dl{grid-template-columns:auto minmax(0,1fr)}.dog .dn{white-space:normal}.dog dd{grid-column:1/-1;margin-bottom:6px}}
+footer{margin-top:28px;font-family:var(--f-mono);font-size:11.5px;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">stack://python/deploy &nbsp;<b>//</b>&nbsp; part of the Sprawl &nbsp;<b>//</b>&nbsp; state as of Oct 2026</div>
+    <h1>The Python <span>Deployment</span> Stack</h1>
+    <p class="lede">How a commit becomes a running service. Your locked dependencies and code go in at the top, get layered onto a base image by a Dockerfile, built, scanned and signed, pushed to a registry, and pulled down by something that runs and scales it, all on infrastructure you declared in code. Watch the packet: it starts as code and gets boxed into a container on the way down. Tap any tool to light up every place it appears.</p>
+    <div class="legend">
+      <span><i class="tag t-pick">pick</i> modern default</span>
+      <span><i class="tag t-alt">alt</i> solid alternative</span>
+      <span><i class="tag t-edge">edge</i> maintained, but teetering, too new, or overtaken</span>
+      <span><i class="multi">◆ ×N</i> appears in N places</span>
+    </div>
+  </header>
+
+  <div class="builds">
+    <section class="path" aria-label="Single service build">
+      <h2>Single service, minimal ops</h2>
+      <ol><li>uv.lock</li><li>python:slim</li><li>multi-stage Dockerfile</li><li>buildx</li><li>Trivy</li><li>GHCR</li><li>Cloud Run</li><li>GitHub Actions</li></ol>
+    </section>
+    <section class="path" aria-label="AWS team build">
+      <h2>Team on AWS</h2>
+      <ol><li>uv.lock</li><li>python:slim</li><li>multi-stage Dockerfile</li><li>buildx</li><li>Trivy + cosign</li><li>ECR</li><li>ECS Fargate</li><li>Terraform</li></ol>
+    </section>
+    <section class="path" aria-label="Platform build">
+      <h2>Platform team</h2>
+      <ol><li>Chainguard base</li><li>BuildKit</li><li>Syft SBOM + cosign</li><li>Harbor or ECR</li><li>EKS / GKE</li><li>Helm</li><li>Gateway API</li><li>Argo CD</li></ol>
+    </section>
+  </div>
+
+  <p class="hint" id="hint">Showing all tools.<button type="button" id="clear" hidden>clear highlight</button></p>
+  <div class="flow" id="flow">
+    <div class="rail-line" aria-hidden="true"></div>
+    <span class="rail-tag top" aria-hidden="true">commit ▼</span>
+    <span class="rail-tag bot" aria-hidden="true">running ▼</span>
+    <div class="packet" aria-hidden="true"></div>
+    <div class="stack" id="stack"></div>
+  </div>
+
+  <section class="sect" aria-label="Sidecars">
+    <h2>Sidecars</h2>
+    <p>Concerns that apply at every layer once the thing is running. They're where most production incidents actually come from.</p>
+    <div class="sidecars" id="sidecars"></div>
+  </section>
+
+  <section class="notes">
+    <div class="note">
+      <h4>Rules of the road</h4>
+      <ul>
+        <li><b>Bake, don't pull.</b> Everything the service needs goes into the image at build time. An image is an immutable snapshot of one commit, so it starts fast and you can roll back to any version.</li>
+        <li><b>Dependencies before code.</b> Copy the lockfile and install first, then copy your source. Code changes then rebuild in seconds because the dependency layer stays cached.</li>
+        <li><b>Never bake secrets.</b> Anything copied into a layer stays in the image forever, even if a later step deletes it. Inject secrets at runtime.</li>
+        <li><b>One process per container.</b> Let the platform handle restarts and scaling instead of running a process manager inside.</li>
+        <li><b>Logs to stdout.</b> Write logs as JSON to standard output and let the platform collect them. No log files inside containers.</li>
+        <li><b>Pin by digest.</b> Tags like <code>3.15-slim</code> move. Pin base images by digest and let Renovate or Dependabot bump them.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h4>The licensing footnotes</h4>
+      <p>The container world keeps rewriting its terms. Docker Desktop is free for personal use and small businesses but paid above 250 employees or $10M revenue. HashiCorp moved Terraform and Nomad to the Business Source License in 2023, which spawned the OpenTofu fork. Broadcom ended Bitnami's free image catalog in September 2025. Before adopting any piece of this stack, read the current license, not the one you remember.</p>
+    </div>
+  </section>
+
+  <section class="dog" aria-label="Dog Solitude">
+    <h2>Dog Solitude</h2>
+    <p>The scrapyard. Dead, retired, removed or archived tools, by layer.</p>
+    <dl id="dog"></dl>
+  </section>
+
+  <footer>Status checked against project pages and release notes, Oct 19 2026.</footer>
+</div>
+
+<script>
+const DATA = [
+  {code:"L9", rail:"inputs", name:"Lockfile & artifacts", c:"var(--magenta)",
+   what:"What goes into the image. A reproducible build starts with exact, locked dependency versions and a clear list of what to leave out.",
+   pick:"uv.lock, installed with uv sync --frozen",
+   groups:[{items:[
+     ["uvlock","uv.lock","pick","Exact versions and hashes for every dependency. --frozen guarantees the image gets precisely what you tested."],
+     ["wheel","Your package as a wheel","alt","Build your project into a wheel in one stage and install it in the next. Cleanest for libraries and larger apps."],
+     ["reqtxt","requirements.txt (exported)","alt","uv export --format requirements-txt, for platforms or tools that only understand pip."],
+     ["dockerignore",".dockerignore","pick","Keeps .git, .venv, caches and local secrets out of the build context. Smaller, faster and safer builds."]
+   ]}]},
+  {code:"L8", rail:"base", name:"Base image", c:"var(--violet)",
+   what:"The operating system and Python interpreter your app sits on. It decides your image size, your security patch load, and whether prebuilt wheels work.",
+   pick:"python:3.x-slim (Debian, glibc)",
+   groups:[{items:[
+     ["slim","python:slim","pick","Official Debian-based image with the essentials. glibc means every manylinux wheel installs without compiling."],
+     ["uvimage","Astral's uv images","alt","Python plus uv preinstalled on Debian slim or Alpine. Handy for the build stage."],
+     ["chainguard","Chainguard / Wolfi","alt","Minimal images rebuilt daily with near-zero known CVEs. Free tier offers only the latest tags."],
+     ["distroless","distroless","alt","No shell, no package manager, tiny attack surface. Its Python versions lag, and debugging is harder."],
+     ["cuda","NVIDIA CUDA images","alt","For GPU workloads. Huge; pair with multi-stage builds."],
+     ["alpine","python:alpine","edge","Small, but musl libc can't use most prebuilt wheels, so numpy and friends compile from source. Usually slower and bigger in the end."]
+   ]}]},
+  {code:"L7", rail:"recipe", name:"Dockerfile patterns", c:"var(--cyan)",
+   what:"The recipe. Small differences in ordering and structure decide whether a rebuild takes five seconds or five minutes, and whether the image ships with compilers in it.",
+   pick:"Multi-stage build, uv with cache mounts, non-root user",
+   groups:[{items:[
+     ["multistage","Multi-stage build","pick","Build stage has compilers and uv; the runtime stage copies only the finished virtualenv. Smaller and safer."],
+     ["cachemount","uv sync with cache mounts","pick","RUN --mount=type=cache keeps uv's download cache between builds without bloating the image."],
+     ["layerorder","Lockfile before source","pick","COPY pyproject.toml and uv.lock, install, then COPY the code. The dependency layer stays cached."],
+     ["nonroot","Non-root USER","pick","Run as an unprivileged user. Limits the damage if the app is compromised."],
+     ["execform","Exec-form CMD","pick","CMD [\"uvicorn\", ...] so the process gets shutdown signals directly and stops cleanly."],
+     ["pyenv","Python env vars","alt","PYTHONUNBUFFERED=1 for immediate logs; UV_COMPILE_BYTECODE=1 for faster startup."]
+   ]}]},
+  {code:"L6", rail:"build", name:"Build tooling", c:"var(--amber)",
+   what:"The engine that executes the Dockerfile. Modern builders cache aggressively, build in parallel, and produce images for several CPU architectures at once.",
+   pick:"Docker BuildKit via docker buildx",
+   groups:[{items:[
+     ["buildx","BuildKit / buildx","pick","The default builder. Cache mounts, parallel stages, and multi-arch images (amd64 plus arm64) in one command."],
+     ["buildah","Podman / Buildah","alt","Daemonless, rootless builds. Standard on Red Hat systems."],
+     ["depot","Depot","alt","Managed remote builders with persistent cache. Much faster CI builds for a fee."],
+     ["buildpacks","Cloud Native Buildpacks","alt","Build an image from source with no Dockerfile. Cloud Run and Heroku use them; less control."],
+     ["kaniko","kaniko (Chainguard fork)","edge","Builds images inside Kubernetes without a Docker daemon. Google archived it in June 2025; Chainguard keeps a maintenance-only fork."]
+   ]}]},
+  {code:"L5", rail:"verify", name:"Scan, sign & SBOM", c:"var(--magenta)",
+   what:"Prove the image is what you think it is. Scan for known vulnerabilities, record exactly what's inside, and sign it so the runtime can refuse anything you didn't build.",
+   pick:"hadolint + Trivy in CI; cosign once you have more than one service",
+   groups:[{items:[
+     ["hadolint","hadolint","pick","Lints Dockerfiles for common mistakes: unpinned versions, missing cleanup, root users."],
+     ["trivy","Trivy","pick","Scans images, filesystems and IaC for vulnerabilities and misconfigurations. Fails the build on critical findings."],
+     ["syft","Syft + Grype","alt","Syft generates an SBOM (the full parts list); Grype scans it for vulnerabilities."],
+     ["scout","Docker Scout","alt","Docker's built-in scanning and recommendations, integrated with Docker Hub and Desktop."],
+     ["cosign","cosign / Sigstore","pick","Sign images keylessly using your CI's identity. Clusters can then enforce signed-only deploys."]
+   ]}]},
+  {code:"L4", rail:"registry", name:"Registry", c:"var(--violet)",
+   what:"Where built images live, tagged and versioned, until something pulls them. Keep it close to where you run, and in the same cloud account if you can.",
+   pick:"GHCR for GitHub-based projects; your cloud's registry in production",
+   groups:[{items:[
+     ["ghcr","GitHub Container Registry","pick","Free for public images, permissions tied to your repo, trivial to push from Actions."],
+     ["cloudreg","ECR / Artifact Registry / ACR","pick","The registry inside your cloud. Fast pulls, IAM permissions, built-in scanning."],
+     ["dockerhub","Docker Hub","alt","The public default for open-source images. Anonymous pulls are rate-limited, which bites CI."],
+     ["harbor","Harbor","alt","Self-hosted registry with scanning, signing and replication. CNCF graduated."]
+   ]}]},
+  {code:"L3", rail:"local", name:"Local runtime", c:"var(--cyan)",
+   what:"Running containers on your own machine for development and debugging, usually several at once: app, database, cache.",
+   pick:"Docker Desktop or OrbStack, plus Docker Compose",
+   groups:[{items:[
+     ["desktop","Docker Desktop","pick","The standard, on every OS. Free for personal and small-business use; paid for larger companies."],
+     ["orbstack","OrbStack","alt","Mac-only replacement for Docker Desktop. Much faster and lighter; paid for commercial use."],
+     ["podman","Podman Desktop","alt","Daemonless, rootless and fully open source. Docker-compatible CLI."],
+     ["colima","Colima / Rancher Desktop","alt","Free, open-source container runtimes for Mac and Linux. Colima is CLI-only and minimal."],
+     ["compose","Docker Compose","pick","Define app, Postgres and Redis in one YAML file and start them together. The v2 plugin built into docker."],
+     ["wsl","WSL 2","alt","On Windows, Docker runs inside WSL's Linux VM. Keep project files in the WSL filesystem for speed."]
+   ]}]},
+  {code:"L2", rail:"run", name:"Run target", c:"var(--amber)",
+   what:"Where the container actually runs in production. Pick the least platform that fits: every step toward Kubernetes buys control and costs operations time.",
+   pick:"Serverless containers: Cloud Run, ECS Fargate or Azure Container Apps",
+   groups:[
+    {label:"Serverless containers", items:[
+     ["cloudrun","Google Cloud Run","pick","Deploy an image, get HTTPS and autoscaling, including down to zero. Generous free tier."],
+     ["fargate","AWS ECS Fargate","pick","Containers on AWS without managing servers. More setup than Cloud Run; the AWS default."],
+     ["aca","Azure Container Apps","alt","Azure's serverless containers, with scale to zero and Dapr built in."]
+    ]},
+    {label:"PaaS & plain servers", items:[
+     ["paas","Fly.io / Render / Railway","alt","Developer-friendly platforms: push an image or repo, get a URL. Great for side projects."],
+     ["vps","VPS + Compose + Caddy","alt","One Linux box running Docker Compose behind Caddy. Cheap, simple, and you own the patching."],
+     ["swarm","Docker Swarm","edge","Built-in Docker clustering. Mirantis supports it through 2030, but it gets no major features. Fine to keep, not to start."]
+    ]}
+   ]},
+  {code:"L1", rail:"orchestrate", name:"Orchestration", c:"var(--magenta)",
+   what:"Kubernetes and its ecosystem, for when you run many services that need shared networking, policies and deployment patterns. Most single services don't need it.",
+   pick:"A managed cluster (EKS, GKE, AKS), Helm, and Gateway API",
+   groups:[{items:[
+     ["k8s","Managed Kubernetes","pick","EKS, GKE or AKS. Never run your own control plane unless that's your job."],
+     ["helm","Helm","pick","Package and template Kubernetes manifests; installs most third-party software."],
+     ["kustomize","Kustomize","alt","Patch plain YAML per environment, no templating. Built into kubectl."],
+     ["gateway","Gateway API","pick","The successor to Ingress for routing traffic into a cluster. The recommended path since ingress-nginx retired."],
+     ["k3s","k3s","alt","Lightweight Kubernetes in one binary. Edge devices, home labs, small clusters."],
+     ["nomad","Nomad","alt","HashiCorp's simpler orchestrator for containers and plain binaries. Business Source License."]
+   ]}]},
+  {code:"L0", rail:"ground", name:"Infrastructure & delivery", c:"var(--cyan)",
+   what:"The ground everything stands on, declared in code, and the pipeline that moves each commit through all the layers above automatically.",
+   pick:"GitHub Actions for CI/CD; Terraform or OpenTofu for infrastructure",
+   groups:[{items:[
+     ["gha","GitHub Actions","pick","Build, scan, push and deploy on every merge. Authenticate to clouds with OIDC instead of stored keys."],
+     ["terraform","Terraform / OpenTofu","pick","Declare registries, services, networks and permissions in code. OpenTofu is the open-source fork."],
+     ["pulumi","Pulumi","alt","Infrastructure as real Python code instead of HCL. Natural for Python teams."],
+     ["argocd","Argo CD / Flux","alt","GitOps for Kubernetes: the cluster continuously syncs itself to what's in a Git repo."],
+     ["renovate","Renovate / Dependabot","pick","Automated pull requests that bump base images, dependencies and actions."]
+   ]}]}
+];
+
+const SIDECARS = [
+  {name:"Config & secrets", c:"var(--cyan)", items:[
+    ["envvars","Environment variables","pick","Twelve-factor config: the same image runs everywhere, with behavior set by the environment."],
+    ["settings","pydantic-settings","pick","Reads and validates those variables into typed settings at startup, so bad config fails fast."],
+    ["secretmgr","Cloud secret managers","pick","AWS Secrets Manager, Google Secret Manager, Azure Key Vault: inject at runtime, never bake."],
+    ["sops","SOPS / sealed secrets","alt","Keep encrypted secrets in Git and decrypt at deploy time."]
+  ]},
+  {name:"Runtime health", c:"var(--magenta)", items:[
+    ["probes","Liveness & readiness","pick","/healthz says the process is alive; /readyz says it can serve. Platforms restart or route on these."],
+    ["shutdown","Graceful shutdown","pick","Handle SIGTERM, finish in-flight requests, then exit. Required for zero-downtime deploys."],
+    ["otel","OpenTelemetry","pick","Traces and metrics leave the container through a collector; logs go to stdout."]
+  ]},
+  {name:"Cost & scale", c:"var(--violet)", items:[
+    ["scalezero","Scale to zero","pick","Pay nothing when idle. The trade is a cold start on the first request."],
+    ["mininst","Min instances","alt","Keep one warm instance for latency-sensitive services."],
+    ["rightsize","Right-size CPU & memory","pick","Most Python services are over-provisioned. Measure, then shrink."]
+  ]}
+];
+
+const DOG = [
+  ["L8","base","Base image","CentOS images, Python 2 images, Debian stretch/buster-based Python tags"],
+  ["L6","build","Build tooling","Docker legacy builder, kaniko (Google original, archived June 2025)"],
+  ["L4","registry","Registry","Bitnami free image catalog (moved to bitnamilegacy, Sept 2025), Docker Hub free automated builds"],
+  ["L3","local","Local runtime","docker-compose v1 (the Python one), Docker Machine, Docker Toolbox, boot2docker"],
+  ["L1","orchestrate","Orchestration","ingress-nginx (retired March 2026), dockershim, PodSecurityPolicy, classic standalone Swarm, Mesos + Marathon"]
+];
+const count={};
+const all=[...DATA.map(l=>l.groups.flatMap(g=>g.items)), ...SIDECARS.map(s=>s.items)];
+all.forEach(items=>{const seen=new Set(items.map(i=>i[0]));seen.forEach(id=>count[id]=(count[id]||0)+1)});
+const chip=([id,nm,st,nt])=>`<button type="button" class="chip is-${st}" data-tool="${id}"><span class="nm">${nm} <i class="tag t-${st}">${st}</i>${count[id]>1?`<span class="multi">◆ ×${count[id]}</span>`:''}</span><span class="nt">${nt}</span></button>`;
+
+document.getElementById('stack').innerHTML = DATA.map(l=>`
+  <section class="layer" style="--c:${l.c}">
+    <div class="rail"><span class="code">${l.code}</span><small>${l.rail}</small></div>
+    <div class="body">
+      <div class="top"><h3>${l.name}</h3><span class="pick">▸ <b>${l.pick}</b></span></div>
+      <p class="what">${l.what}</p>
+      ${l.groups.map(g=>`<div class="group">${g.label?`<div class="glabel">${g.label}</div>`:''}<div class="chips">${g.items.map(chip).join('')}</div></div>`).join('')}
+    </div>
+  </section>`).join('');
+
+document.getElementById('sidecars').innerHTML = SIDECARS.map(s=>`
+  <section class="car" style="--c:${s.c}"><h3>${s.name}</h3><div class="chips">${s.items.map(chip).join('')}</div></section>`).join('');
+
+document.getElementById('dog').innerHTML = DOG.map(([c,sh,ln,t])=>`<dt><span class="dc">${c}</span><span class="dn">${sh} · <b>${ln}</b></span></dt><dd>${t}</dd>`).join('');
+
+const hint=document.getElementById('hint'), clear=document.getElementById('clear'), wrap=document.querySelector('.wrap');
+let active=null;
+function setActive(id,label){
+  active=id;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('lit', id!==null && c.dataset.tool===id));
+  wrap.classList.toggle('filtering', id!==null);
+  hint.firstChild.textContent = id===null ? 'Showing all tools.' : `Highlighting ${label} in ${count[id]} place${count[id]>1?'s':''}.`;
+  clear.hidden = id===null;
+}
+wrap.addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c) return;
+  const id=c.dataset.tool;
+  setActive(active===id?null:id, c.querySelector('.nm').firstChild.textContent.trim());
+});
+clear.addEventListener('click',()=>setActive(null));
+</script>
