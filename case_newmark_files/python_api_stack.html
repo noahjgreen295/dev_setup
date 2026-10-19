@@ -1,0 +1,408 @@
+<title>Python API Stack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tektur:wght@500;700;900&family=Chivo:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a request path. Ten slabs from the public contract down to the datastore, with a packet tracing the left rail; then sidecars (cross-cutting concerns) and Dog Solitude. Same neon identity as the Toolchain Stack; deliberately single-theme. */
+:root{
+  color-scheme: dark;
+  --void:#0a0912;
+  --slab:#13111f;
+  --slab-2:#1a1729;
+  --line:#2c2742;
+  --ink:#e9e6f5;
+  --dim:#9c96b8;
+  --cyan:#3ef0ff;
+  --magenta:#ff3ea5;
+  --amber:#ffc23e;
+  --violet:#a98bff;
+  --f-display:"Tektur","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Chivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:linear-gradient(rgba(62,240,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(62,240,255,.035) 1px,transparent 1px);
+  background-size:28px 28px}
+.wrap{max-width:1120px;margin:0 auto;padding-block:40px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+code{font-family:var(--f-mono);font-size:.92em;color:var(--cyan)}
+a{color:var(--cyan)}
+
+header{display:grid;gap:14px;margin-bottom:28px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.eyebrow b{color:var(--magenta);font-weight:600}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,6.4vw,64px);line-height:.95;margin:0;letter-spacing:.01em;text-wrap:balance;
+  text-shadow:0 0 18px rgba(255,62,165,.35),2px 0 0 rgba(62,240,255,.55)}
+h1 span{color:var(--magenta)}
+.lede{max-width:70ch;color:var(--dim);margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;font-family:var(--f-mono);font-size:12px;color:var(--dim);margin-top:4px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+
+/* builds */
+.builds{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-bottom:30px}
+.path{border:1px solid var(--line);background:linear-gradient(90deg,rgba(62,240,255,.08),rgba(255,62,165,.06));padding:14px 16px;min-width:0;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.path h2{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin:0 0 8px;font-weight:600}
+.path ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 4px;font-family:var(--f-mono);font-size:13px}
+.path li{display:flex;align-items:center;gap:4px}
+.path li+li::before{content:"→";color:var(--magenta);margin-right:4px}
+
+/* request rail + stack */
+.flow{position:relative;padding-left:40px}
+.rail-line{position:absolute;left:14px;top:30px;bottom:30px;width:2px;background:linear-gradient(var(--cyan),var(--magenta));opacity:.55}
+.rail-tag{position:absolute;left:0;font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg)}
+.rail-tag.top{top:0;color:var(--cyan)} .rail-tag.bot{bottom:0;color:var(--magenta)}
+.packet{position:absolute;left:10px;top:30px;width:10px;height:10px;background:var(--cyan);box-shadow:0 0 12px var(--cyan),0 0 24px var(--cyan);
+  animation:travel 7s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes travel{0%{top:30px;background:var(--cyan)}48%{top:calc(100% - 40px);background:var(--magenta);box-shadow:0 0 12px var(--magenta)}52%{top:calc(100% - 40px);background:var(--magenta);box-shadow:0 0 12px var(--magenta)}100%{top:30px;background:var(--cyan)}}
+@media (prefers-reduced-motion:reduce){.packet{animation:none}}
+@media (max-width:560px){.flow{padding-left:0}.rail-line,.rail-tag,.packet{display:none}}
+
+.hint{font-family:var(--f-mono);font-size:12px;color:var(--dim);margin:0 0 10px}
+.hint button{appearance:none;background:none;border:1px solid var(--line);color:var(--magenta);font:inherit;padding:2px 8px;cursor:pointer;margin-left:6px}
+.stack{display:grid;gap:10px}
+.layer{position:relative;display:grid;grid-template-columns:110px minmax(0,1fr);background:var(--slab);border:1px solid var(--line)}
+.layer::before{content:"";position:absolute;inset:-1px auto -1px -1px;width:3px;background:var(--c);box-shadow:0 0 12px var(--c)}
+.layer::after{content:"";position:absolute;left:-27px;top:26px;width:26px;height:1px;background:var(--c);opacity:.6}
+@media (max-width:560px){.layer::after{display:none}}
+.rail{border-right:1px solid var(--line);padding:16px 10px 16px 16px;display:flex;flex-direction:column;gap:4px;background:var(--slab-2)}
+.code{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1;color:var(--c)}
+.rail small{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.body{padding:16px 18px 18px;display:grid;gap:12px;min-width:0}
+.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px}
+h3{font-family:var(--f-display);font-weight:700;font-size:21px;margin:0;letter-spacing:.02em}
+.pick{font-family:var(--f-mono);font-size:12.5px;color:var(--cyan)}
+.pick b{color:var(--ink);font-weight:600}
+.what{margin:0;color:var(--dim);max-width:80ch;font-size:14px}
+.group{display:grid;gap:7px}
+.glabel{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.chip{appearance:none;font:inherit;color:inherit;text-align:left;cursor:pointer;background:rgba(255,255,255,.02);border:1px solid var(--line);
+  padding:9px 11px;display:grid;gap:3px;transition:border-color .15s,background .15s,box-shadow .15s,opacity .15s;min-width:0}
+.chip:hover{border-color:var(--dim)}
+.chip:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.chip .nm{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-weight:600;font-size:14px;flex-wrap:wrap}
+.chip .nt{font-size:13px;color:var(--dim);line-height:1.4}
+.tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;padding:1px 6px;border:1px solid currentColor;text-transform:uppercase;font-weight:600;font-style:normal}
+.t-pick{color:var(--cyan)} .t-alt{color:var(--violet)} .t-edge{color:var(--amber)}
+.multi{font-family:var(--f-mono);font-size:10px;color:var(--magenta);letter-spacing:.06em}
+.chip.is-pick{border-color:rgba(62,240,255,.55);background:rgba(62,240,255,.05)}
+.chip.is-edge{border-style:dashed;border-color:rgba(255,194,62,.5)}
+.chip.lit{border-color:var(--magenta);background:rgba(255,62,165,.10);box-shadow:0 0 0 1px var(--magenta),0 0 18px rgba(255,62,165,.35)}
+.filtering .chip:not(.lit){opacity:.35}
+@media (max-width:560px){
+  .layer{grid-template-columns:1fr}
+  .rail{flex-direction:row;align-items:baseline;gap:10px;border-right:0;border-bottom:1px solid var(--line);padding:10px 16px}
+  .code{font-size:24px}
+  .chips{grid-template-columns:1fr}
+}
+
+/* sections */
+.sect{margin-top:40px}
+.sect > h2{font-family:var(--f-display);font-weight:900;font-size:26px;margin:0 0 4px;letter-spacing:.03em;text-transform:uppercase}
+.sect > p{margin:0 0 14px;color:var(--dim);max-width:80ch}
+.sidecars{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.car{position:relative;border:1px solid var(--line);background:var(--slab);padding:14px 16px 16px;display:grid;gap:10px;align-content:start;min-width:0}
+.car::before{content:"";position:absolute;inset:-1px -1px auto -1px;height:3px;background:var(--c);box-shadow:0 0 12px var(--c)}
+.car h3{font-size:19px}
+.car .chips{grid-template-columns:1fr}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:34px}
+.note{border:1px solid var(--line);background:var(--slab);padding:16px 18px;min-width:0}
+.note h4{font-family:var(--f-display);font-size:17px;margin:0 0 8px;letter-spacing:.02em;color:var(--cyan)}
+.note ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px;color:var(--dim)}
+.note li b{color:var(--ink);font-weight:600}
+.note p{margin:0;font-size:14px;color:var(--dim)}
+
+.dog{margin-top:40px;border:1px dashed rgba(255,194,62,.35);background:repeating-linear-gradient(135deg,rgba(255,194,62,.03) 0 10px,transparent 10px 20px),var(--slab);padding:16px 18px}
+.dog h2{font-family:var(--f-display);font-weight:900;font-size:24px;margin:0 0 2px;color:var(--amber);letter-spacing:.04em;text-transform:uppercase}
+.dog p{margin:0 0 12px;font-size:13px;color:var(--dim)}
+.dog dl{margin:0;display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:6px 14px;font-size:13px}
+.dog dt{display:contents}
+.dog .dc{font-family:var(--f-display);font-weight:700;color:var(--amber)}
+.dog .dn{font-family:var(--f-mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.dog .dn b{color:var(--ink);font-weight:600}
+.dog dd{margin:0;font-family:var(--f-mono);color:var(--dim);text-decoration:line-through;text-decoration-color:rgba(255,62,165,.55);min-width:0}
+@media (max-width:560px){.dog dl{grid-template-columns:auto minmax(0,1fr)}.dog .dn{white-space:normal}.dog dd{grid-column:1/-1;margin-bottom:6px}}
+footer{margin-top:28px;font-family:var(--f-mono);font-size:11.5px;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">stack://python/api &nbsp;<b>//</b>&nbsp; companion to the Toolchain Stack &amp; Docs Switchboard &nbsp;<b>//</b>&nbsp; state as of Oct 2026</div>
+    <h1>The Python <span>API</span> Stack</h1>
+    <p class="lede">Follow one request down the wire. It enters through the contract you published, passes the edge, gets picked up by a server process, routed by the framework, checked for identity, validated, handled by your code, turned into a query, sent through a driver, and finally hits disk. Then the response climbs back up. Every slab is a choice; tap any tool to light up every layer it appears in.</p>
+    <div class="legend">
+      <span><i class="tag t-pick">pick</i> modern default</span>
+      <span><i class="tag t-alt">alt</i> solid alternative</span>
+      <span><i class="tag t-edge">edge</i> maintained, but teetering, too new, or overtaken</span>
+      <span><i class="multi">◆ ×N</i> appears in N layers</span>
+    </div>
+  </header>
+
+  <div class="builds">
+    <section class="path" aria-label="FastAPI build">
+      <h2>Default build: greenfield service</h2>
+      <ol><li>OpenAPI 3.1</li><li>Caddy</li><li>Uvicorn</li><li>FastAPI</li><li>OIDC + PyJWT</li><li>Pydantic</li><li>pydantic-settings</li><li>SQLAlchemy 2 + Alembic</li><li>psycopg 3</li><li>PostgreSQL</li></ol>
+    </section>
+    <section class="path" aria-label="Django build">
+      <h2>Django shop build</h2>
+      <ol><li>OpenAPI via drf-spectacular</li><li>nginx</li><li>Gunicorn</li><li>Django + DRF (or Django Ninja)</li><li>simplejwt / allauth</li><li>DRF serializers</li><li>Django ORM + migrations</li><li>psycopg 3</li><li>PostgreSQL</li></ol>
+    </section>
+  </div>
+
+  <p class="hint" id="hint">Showing all tools.<button type="button" id="clear" hidden>clear highlight</button></p>
+  <div class="flow" id="flow">
+    <div class="rail-line" aria-hidden="true"></div>
+    <span class="rail-tag top" aria-hidden="true">request ▼</span>
+    <span class="rail-tag bot" aria-hidden="true">disk ▲</span>
+    <div class="packet" aria-hidden="true"></div>
+    <div class="stack" id="stack"></div>
+  </div>
+
+  <section class="sect" aria-label="Sidecars">
+    <h2>Sidecars</h2>
+    <p>Cross-cutting systems that ride alongside the request path rather than sitting in it. Skip these and the stack above still runs, right up until it breaks in production and nobody can see why.</p>
+    <div class="sidecars" id="sidecars"></div>
+  </section>
+
+  <section class="notes">
+    <div class="note">
+      <h4>Rules of the road</h4>
+      <ul>
+        <li><b>One schema, three jobs.</b> The same Pydantic model validates the request, serializes the response and generates the OpenAPI spec. Keep it that way and docs can't drift from code.</li>
+        <li><b>Don't build auth.</b> Delegate login to an identity provider and only verify tokens in your API. Hand-rolled password storage is where breaches start.</li>
+        <li><b>Async all the way, or not at all.</b> One sync database call inside an async endpoint blocks the whole event loop. Pick async drivers or use plain <code>def</code> endpoints, which FastAPI runs in a thread pool.</li>
+        <li><b>Errors are part of the contract.</b> Return RFC 9457 problem-details JSON so clients can handle failures without parsing your prose.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h4>Pydantic &amp; Redis footnotes</h4>
+      <p>Pydantic sits in three layers here and its company also sells Logfire, so the ecosystem leans on one team. Redis switched licenses in 2024, prompting the Linux Foundation fork Valkey, then added an open-source AGPL option in 2025. Both remain drop-in for Python clients via redis-py. For docs and client generation, see the Docs Switchboard.</p>
+    </div>
+  </section>
+
+  <section class="dog" aria-label="Dog Solitude">
+    <h2>Dog Solitude</h2>
+    <p>The scrapyard. Dead, removed, deprecated or abandoned tools, by layer.</p>
+    <dl id="dog"></dl>
+  </section>
+
+  <footer>Status checked against project pages and release notes, Oct 19 2026.</footer>
+</div>
+
+<script>
+const DATA = [
+  {code:"L9", rail:"contract", name:"The contract", c:"var(--magenta)",
+   what:"What the outside world sees: the shape of every endpoint, payload and error. Clients are built against this, so changing it carelessly breaks people you've never met.",
+   pick:"REST over HTTP, described by OpenAPI 3.1, errors as RFC 9457",
+   groups:[
+    {label:"Description format", items:[
+     ["openapi","OpenAPI 3.1","pick","Generated from your code by the framework, not written by hand. Aligned with JSON Schema; every tool reads it."],
+     ["openapi32","OpenAPI 3.2","edge","Released Sept 2025 with streaming, nested tags and a QUERY method. Tooling support is still catching up."],
+     ["rfc9457","RFC 9457 problem details","pick","A standard JSON shape for errors (type, title, status, detail). Clients handle failures uniformly."]
+    ]},
+    {label:"Interface style", items:[
+     ["rest","REST / HTTP+JSON","pick","The default. Cacheable, debuggable with curl, understood by every client."],
+     ["strawberry","GraphQL","alt","One endpoint, client-chosen fields. Good for many front ends with different data needs; harder to cache and rate-limit."],
+     ["grpc","gRPC","alt","Binary protobuf over HTTP/2. Fast and strictly typed; best for service-to-service traffic, awkward for browsers."],
+     ["asyncapi","AsyncAPI","alt","The contract for event-driven APIs: Kafka, MQTT, WebSockets."]
+    ]}
+   ]},
+  {code:"L8", rail:"edge", name:"Edge & gateway", c:"var(--violet)",
+   what:"The front door. Terminates TLS, speaks HTTP/2 and HTTP/3 to clients, compresses, rate-limits and load-balances, so your Python processes only see clean HTTP/1.1.",
+   pick:"Caddy for a single box; your platform's load balancer in the cloud",
+   groups:[{items:[
+     ["caddy","Caddy","pick","Automatic HTTPS with zero config, HTTP/3 out of the box, readable config file."],
+     ["nginx","nginx","alt","The veteran. Fastest and most documented; certificates and HTTP/3 take more setup."],
+     ["traefik","Traefik","alt","Discovers services from Docker and Kubernetes labels automatically. Natural fit for container setups."],
+     ["cloudlb","Cloud load balancer","pick","AWS ALB, Google Cloud Load Balancing, Azure Front Door. On a managed platform this is your edge."],
+     ["gateway","Managed API gateway","alt","AWS API Gateway, Kong, Apigee: keys, quotas, analytics. Worth it when you sell API access or front many services."]
+   ]}]},
+  {code:"L7", rail:"server", name:"Process server", c:"var(--cyan)",
+   what:"The program that actually runs your Python app: accepts connections, speaks ASGI (async) or WSGI (sync) to the framework, and manages worker processes.",
+   pick:"Uvicorn (one process per container, or under Gunicorn on a VM)",
+   groups:[{items:[
+     ["uvicorn","Uvicorn","pick","The standard ASGI server for FastAPI and Starlette. On Kubernetes or Cloud Run, run one process per container and let the platform scale."],
+     ["gunicorn","Gunicorn","pick","The process manager: restarts crashed workers, graceful reloads. Default for sync Django and Flask; supervises Uvicorn via the uvicorn-worker package."],
+     ["granian","Granian","alt","Rust server for ASGI, WSGI and its own RSGI. 2.x series; faster in benchmarks, roughly even with Uvicorn in DB-bound apps."],
+     ["hypercorn","Hypercorn","alt","The most protocol-complete: HTTP/2, HTTP/3 and trio support. Pick it only if Python itself must speak those."],
+     ["uwsgi","uWSGI","edge","Powerful and sprawling. In maintenance mode since 2022; keep working deployments, don't start new ones."],
+     ["rest7","“The Rest”","edge","Daphne, Waitress. Still maintained; Daphne mainly for Django Channels, Waitress for Windows-hosted WSGI. Rarely the right default."]
+   ]}]},
+  {code:"L6", rail:"framework", name:"Framework", c:"var(--magenta)",
+   what:"Routing, middleware, request parsing, dependency injection and response building. The layer people mean when they say \"use FastAPI\".",
+   pick:"FastAPI for new services; Django + DRF or Django Ninja inside a Django shop",
+   groups:[
+    {label:"Async-first", items:[
+     ["fastapi","FastAPI","pick","Type hints drive validation, docs and DI. The most popular Python API framework; huge ecosystem."],
+     ["litestar","Litestar","alt","FastAPI's main rival. More batteries (DTOs, channels, built-in auth primitives), multiple maintainers, fast msgspec core."],
+     ["starlette","Starlette","alt","The toolkit FastAPI is built on. Use directly for minimal services where you want no magic."]
+    ]},
+    {label:"Django & Flask world", items:[
+     ["drf","Django REST Framework","pick","The Django standard: serializers, viewsets, permissions, browsable API. Sync-first and mature."],
+     ["ninja","Django Ninja","alt","FastAPI-style typed endpoints on top of Django and its ORM. Faster and less boilerplate than DRF."],
+     ["flask","Flask + APIFlask","alt","Flask stays great for small services; APIFlask adds typed schemas and OpenAPI."]
+    ]},
+    {label:"Other contracts", items:[
+     ["strawberry","Strawberry","pick","GraphQL from Python type hints. Integrates with FastAPI and Django."],
+     ["grpc","grpcio","pick","The official gRPC runtime. Generate stubs from .proto files with grpcio-tools."],
+     ["rest6","“The Rest”","edge","Sanic, Falcon, Quart, BlackSheep, Tornado, Bottle, Pyramid, Robyn. All maintained, but smaller ecosystems; rarely the right default for a new API."]
+    ]}
+   ]},
+  {code:"L5", rail:"identity", name:"Auth & security", c:"var(--amber)",
+   what:"Who is calling and what they may do. Authentication (identity), authorization (permissions), plus CORS, rate limits and secure headers.",
+   pick:"Delegate login to an OIDC provider; verify JWTs with PyJWT",
+   groups:[
+    {label:"Identity", items:[
+     ["oidc","OIDC provider","pick","Auth0, Okta, Keycloak, Cognito, Entra ID. They handle login, MFA and password storage; your API just checks tokens."],
+     ["authlib","Authlib","pick","The complete OAuth 2 and OpenID Connect toolkit for Python, client and server side."],
+     ["pyjwt","PyJWT","pick","Decode and verify JWTs. The library FastAPI's own docs now use."],
+     ["pwdlib","pwdlib + Argon2","pick","If you must store passwords yourself. Built because passlib stopped working on modern Python."],
+     ["simplejwt","djangorestframework-simplejwt","alt","JWT auth for DRF. Pair with django-allauth for social login."],
+     ["fastapiusers","fastapi-users","edge","Ready-made user management for FastAPI. Maintenance mode as of 2026: security fixes only, successor in development."],
+     ["jose","python-jose","edge","Older JWT library with a long maintenance gap. Replaced by PyJWT in most guides."]
+    ]},
+    {label:"Perimeter", items:[
+     ["cors","CORS middleware","pick","Built into every framework. Allow-list exact origins; never * with credentials."],
+     ["slowapi","slowapi / limits","alt","In-app rate limiting backed by Redis. Better done at the edge (L8) if you can."]
+    ]}
+   ]},
+  {code:"L4", rail:"shape", name:"Validation & serialization", c:"var(--cyan)",
+   what:"Turn untrusted JSON into typed Python objects on the way in, and objects back into JSON on the way out. Most API bugs are shape bugs.",
+   pick:"Pydantic",
+   groups:[{items:[
+     ["pydantic","Pydantic","pick","Rust-core validation from type hints. The same model validates, serializes and feeds the OpenAPI spec."],
+     ["msgspec","msgspec","alt","Faster and leaner than Pydantic for JSON and MessagePack. Litestar supports it natively."],
+     ["orjson","orjson","alt","Very fast JSON encoding. Mostly unneeded now that Pydantic v2 serializes in Rust, but useful for raw dict responses."],
+     ["cattrs","attrs + cattrs","alt","Plain typed classes plus a separate structuring layer. Clean when you want domain objects free of validation logic."],
+     ["drfser","DRF serializers","alt","Django REST Framework's built-in validation. Slower and more verbose, but integrated with the ORM."],
+     ["rest4","“The Rest”","edge","marshmallow, Cerberus, voluptuous. Still maintained, but Pydantic has absorbed most of their audience."]
+   ]}]},
+  {code:"L3", rail:"app", name:"App wiring", c:"var(--violet)",
+   what:"Your actual code and how it's assembled: configuration, dependency injection, and the separation between HTTP handlers, business logic and data access.",
+   pick:"pydantic-settings + FastAPI Depends, routers → services → repositories",
+   groups:[{items:[
+     ["settings","pydantic-settings","pick","Typed config from environment variables and .env files, validated at startup so bad config fails fast."],
+     ["fastapi","FastAPI Depends","pick","Built-in dependency injection: DB sessions, current user, settings, each injected per request and easy to override in tests."],
+     ["layering","Routers → services → repositories","pick","Keep HTTP code thin, business logic framework-free, and database access behind one interface. Makes testing and framework changes cheap."],
+     ["di","dependency-injector / svcs","alt","Container-style DI for larger apps or when you need it outside request handlers (workers, CLIs)."]
+   ]}]},
+  {code:"L2", rail:"data", name:"Data access & migrations", c:"var(--magenta)",
+   what:"How Python objects become SQL, and how the schema evolves without losing data. Migrations are code; review them like code.",
+   pick:"SQLAlchemy 2.0 + Alembic",
+   groups:[{items:[
+     ["sqlalchemy","SQLAlchemy 2.0","pick","The Python ORM and SQL toolkit. Fully typed 2.0 API, first-class async, drops to raw SQL whenever you want."],
+     ["alembic","Alembic","pick","Migrations for SQLAlchemy. Autogenerates diffs from your models; always read them before applying."],
+     ["sqlmodel","SQLModel","alt","SQLAlchemy and Pydantic in one class, from FastAPI's author. Pleasant for simple CRUD; slower-moving project."],
+     ["djangoorm","Django ORM","pick","Inside Django, use it. Built-in migrations and admin; async support is still partial."],
+     ["tortoise","Tortoise ORM / Piccolo","alt","Async-native ORMs with Django-like ergonomics. Smaller communities."],
+     ["rawsql","Raw SQL","alt","asyncpg or psycopg with hand-written queries. Fastest and most transparent; you own the mapping."],
+     ["rest2","“The Rest”","edge","Peewee, Pony ORM. Still maintained, but few new projects choose them over SQLAlchemy."]
+   ]}]},
+  {code:"L1", rail:"drivers", name:"Drivers & clients", c:"var(--amber)",
+   what:"The libraries that speak each datastore's wire protocol, plus the HTTP client for calling other services.",
+   pick:"psycopg 3, redis-py, httpx",
+   groups:[{items:[
+     ["psycopg","psycopg 3","pick","The modern PostgreSQL driver. Sync and async in one package, binary protocol, connection pooling."],
+     ["asyncpg","asyncpg","alt","Async-only PostgreSQL driver, the fastest available. Great with SQLAlchemy async or raw SQL."],
+     ["psycopg2","psycopg2","edge","Still receiving maintenance releases, but psycopg 3 is the successor. Fine in existing code."],
+     ["redispy","redis-py","pick","The official Redis client, with built-in asyncio. Works with Valkey too."],
+     ["pymongo","PyMongo (async API)","pick","For MongoDB, PyMongo now ships a native async API."],
+     ["motor","Motor","edge","The old async MongoDB driver. Deprecated May 2025, end of life May 2026; migrate to PyMongo async."],
+     ["httpx","httpx","pick","Sync and async HTTP client with a requests-style API. Also powers FastAPI's TestClient."],
+     ["aiohttp","aiohttp client","alt","Mature async HTTP client; slightly faster, less friendly API."]
+   ]}]},
+  {code:"L0", rail:"disk", name:"Datastore", c:"var(--cyan)",
+   what:"Where the data finally rests. Choose the boring, durable option unless you have a measured reason not to.",
+   pick:"PostgreSQL",
+   groups:[{items:[
+     ["postgres","PostgreSQL","pick","The default answer. Relational, JSONB for documents, full-text search, pgvector for embeddings."],
+     ["sqlite","SQLite","alt","Zero-ops, single file. Great for development, tests, small internal services and read-heavy apps."],
+     ["mysql","MySQL / MariaDB","alt","Solid and widespread. Pick it when your org or host already runs it."],
+     ["redis","Redis / Valkey","pick","In-memory cache, rate-limit counters, sessions, queues. Valkey is the Linux Foundation fork."],
+     ["mongo","MongoDB","alt","Document store. Reach for it when your data really is schemaless; PostgreSQL JSONB covers many such cases."],
+     ["duckdb","DuckDB","alt","In-process analytics database. Ideal behind read-only analytical endpoints over Parquet or large tables."]
+   ]}]}
+];
+
+const SIDECARS = [
+  {name:"Testing", c:"var(--cyan)", items:[
+    ["pytest","pytest + httpx","pick","Call your app in-process with FastAPI's TestClient or httpx.AsyncClient. Override dependencies for fakes."],
+    ["schemathesis","Schemathesis","pick","Reads your OpenAPI spec and fires generated requests at every endpoint, finding crashes and contract violations you didn't think of."],
+    ["testcontainers","Testcontainers","pick","Spin up a real PostgreSQL or Redis in Docker for integration tests. No more SQLite-in-tests surprises."],
+    ["polyfactory","polyfactory","alt","Generates test data straight from Pydantic models and dataclasses."],
+    ["respx","respx","alt","Mock outbound httpx calls."],
+    ["locust","Locust / k6","alt","Load testing. Locust scripts are Python; k6 scripts are JavaScript."]
+  ]},
+  {name:"Observability", c:"var(--magenta)", items:[
+    ["otel","OpenTelemetry","pick","Vendor-neutral traces, metrics and logs. Auto-instrumentation for FastAPI, SQLAlchemy and httpx."],
+    ["structlog","structlog","pick","Structured JSON logging with request IDs bound to every line."],
+    ["sentry","Sentry","alt","Error tracking with stack traces and the request that caused them."],
+    ["prom","Prometheus client","alt","Expose /metrics for scraping. Standard on Kubernetes."],
+    ["logfire","Logfire","alt","Hosted observability from the Pydantic team, built on OpenTelemetry. Very low setup for FastAPI."]
+  ]},
+  {name:"Background work", c:"var(--violet)", items:[
+    ["celery","Celery","pick","Still the standard task queue: retries, schedules, huge ecosystem. Heavy, but battle-tested."],
+    ["taskiq","Taskiq","alt","Async-native task queue with FastAPI-style dependency injection."],
+    ["dramatiq","Dramatiq","alt","Simpler, saner Celery alternative for sync code."],
+    ["arq","arq / RQ","alt","Lightweight Redis-backed queues. arq is async; RQ is sync."],
+    ["temporal","Temporal","alt","Durable workflows that survive crashes and redeploys. For multi-step business processes."],
+    ["bgtasks","BackgroundTasks","alt","FastAPI's built-in fire-and-forget. Runs in-process, so it dies with the process; only for trivial work."]
+  ]},
+  {name:"Ship it", c:"var(--amber)", items:[
+    ["docker","Docker + uv","pick","Multi-stage build, uv sync from the lockfile, slim runtime image, non-root user."],
+    ["k8s","Kubernetes / ECS / Cloud Run","pick","Pick the least platform that fits. Cloud Run and similar give autoscaling without running a cluster."],
+    ["mangum","Mangum","alt","Runs ASGI apps on AWS Lambda behind API Gateway. Watch cold starts."],
+    ["health","Health & readiness endpoints","pick","/healthz for liveness, /readyz checking the DB. Orchestrators route traffic on these."]
+  ]}
+];
+
+const DOG = [
+  ["L9","contract","The contract","Swagger 2.0, RAML, API Blueprint"],
+  ["L7","server","Process server","meinheld, uvicorn.workers (bundled Gunicorn worker)"],
+  ["L6","framework","Framework","Hug, API Star, Molten, flask-restplus"],
+  ["L5","identity","Auth & security","passlib, Flask-JWT, djangorestframework-jwt"],
+  ["L4","shape","Validation & serialization","Pydantic v1, schematics"],
+  ["L2","data","Data access & migrations","GINO"],
+  ["L1","drivers","Drivers & clients","aioredis (merged into redis-py)"]
+];
+
+const count={};
+const all=[...DATA.map(l=>l.groups.flatMap(g=>g.items)), ...SIDECARS.map(s=>s.items)];
+all.forEach(items=>{const seen=new Set(items.map(i=>i[0]));seen.forEach(id=>count[id]=(count[id]||0)+1)});
+const chip=([id,nm,st,nt])=>`<button type="button" class="chip is-${st}" data-tool="${id}"><span class="nm">${nm} <i class="tag t-${st}">${st}</i>${count[id]>1?`<span class="multi">◆ ×${count[id]}</span>`:''}</span><span class="nt">${nt}</span></button>`;
+
+document.getElementById('stack').innerHTML = DATA.map(l=>`
+  <section class="layer" style="--c:${l.c}">
+    <div class="rail"><span class="code">${l.code}</span><small>${l.rail}</small></div>
+    <div class="body">
+      <div class="top"><h3>${l.name}</h3><span class="pick">▸ <b>${l.pick}</b></span></div>
+      <p class="what">${l.what}</p>
+      ${l.groups.map(g=>`<div class="group">${g.label?`<div class="glabel">${g.label}</div>`:''}<div class="chips">${g.items.map(chip).join('')}</div></div>`).join('')}
+    </div>
+  </section>`).join('');
+
+document.getElementById('sidecars').innerHTML = SIDECARS.map(s=>`
+  <section class="car" style="--c:${s.c}"><h3>${s.name}</h3><div class="chips">${s.items.map(chip).join('')}</div></section>`).join('');
+
+document.getElementById('dog').innerHTML = DOG.map(([c,sh,ln,t])=>`<dt><span class="dc">${c}</span><span class="dn">${sh} · <b>${ln}</b></span></dt><dd>${t}</dd>`).join('');
+
+const hint=document.getElementById('hint'), clear=document.getElementById('clear'), wrap=document.querySelector('.wrap');
+let active=null;
+function setActive(id,label){
+  active=id;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('lit', id!==null && c.dataset.tool===id));
+  wrap.classList.toggle('filtering', id!==null);
+  hint.firstChild.textContent = id===null ? 'Showing all tools.' : `Highlighting ${label} in ${count[id]} place${count[id]>1?'s':''}.`;
+  clear.hidden = id===null;
+}
+wrap.addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c) return;
+  const id=c.dataset.tool;
+  setActive(active===id?null:id, c.querySelector('.nm').firstChild.textContent.trim());
+});
+clear.addEventListener('click',()=>setActive(null));
+</script>
