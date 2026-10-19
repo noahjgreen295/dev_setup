@@ -1,0 +1,198 @@
+<title>The Sprawl Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tektur:wght@500;700;900&family=Chivo:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a city map of the field guides. Title block, a 2x2 grid of charted sectors (each with a tiny glyph of its page's shape), a row of uncharted sectors, a shared-hardware matrix of tools that cross sector lines, and the combined scrapyard. Same neon identity as every page in the set; deliberately single-theme. */
+:root{
+  color-scheme: dark;
+  --void:#0a0912;
+  --slab:#13111f;
+  --slab-2:#1a1729;
+  --line:#2c2742;
+  --ink:#e9e6f5;
+  --dim:#9c96b8;
+  --cyan:#3ef0ff;
+  --magenta:#ff3ea5;
+  --amber:#ffc23e;
+  --violet:#a98bff;
+  --f-display:"Tektur","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Chivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:linear-gradient(rgba(62,240,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(62,240,255,.035) 1px,transparent 1px);
+  background-size:28px 28px}
+.wrap{max-width:1120px;margin:0 auto;padding-block:40px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+header{display:grid;gap:14px;margin-bottom:30px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.eyebrow b{color:var(--magenta);font-weight:600}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(48px,11vw,120px);line-height:.85;margin:0;letter-spacing:.02em;
+  text-shadow:0 0 28px rgba(255,62,165,.4),3px 0 0 rgba(62,240,255,.6)}
+h1 span{color:var(--magenta)}
+.lede{max-width:68ch;color:var(--dim);margin:0}
+.stats{display:flex;flex-wrap:wrap;gap:8px 28px;font-family:var(--f-mono);font-size:12.5px;color:var(--dim)}
+.stats b{font-family:var(--f-display);font-size:26px;color:var(--ink);font-weight:700;display:block;line-height:1;font-variant-numeric:tabular-nums}
+.stats .dead b{color:var(--amber)}
+
+h2.sh{font-family:var(--f-display);font-weight:900;font-size:24px;margin:40px 0 4px;letter-spacing:.04em;text-transform:uppercase}
+p.sp{margin:0 0 14px;color:var(--dim);max-width:78ch}
+
+/* sectors */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:720px){.grid{grid-template-columns:1fr}}
+.sector{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:14px;text-decoration:none;color:inherit;
+  border:1px solid var(--line);background:var(--slab);padding:18px 18px 16px;transition:border-color .15s,box-shadow .15s,transform .15s}
+.sector::before{content:"";position:absolute;inset:-1px auto -1px -1px;width:3px;background:var(--c);box-shadow:0 0 12px var(--c)}
+.sector:hover,.sector:focus-visible{border-color:var(--c);box-shadow:0 0 22px color-mix(in srgb,var(--c) 30%,transparent);outline:none;transform:translateY(-2px)}
+.sector .main{display:grid;gap:8px;min-width:0;align-content:start}
+.code{font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.18em;color:var(--c)}
+.sector h3{font-family:var(--f-display);font-weight:700;font-size:23px;margin:0;line-height:1.1;text-wrap:balance}
+.sector .d{margin:0;color:var(--dim);font-size:14px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-family:var(--f-mono);font-size:11.5px;color:var(--dim)}
+.meta span b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.meta .dd b{color:var(--amber)}
+.picks{display:flex;flex-wrap:wrap;gap:6px}
+.picks span{font-family:var(--f-mono);font-size:12px;border:1px solid rgba(62,240,255,.45);color:var(--cyan);padding:2px 8px;background:rgba(62,240,255,.05)}
+.enter{font-family:var(--f-mono);font-size:12px;color:var(--c);margin-top:2px}
+
+/* glyphs */
+.glyph{position:relative;height:92px;border:1px solid var(--line);background:var(--slab-2);overflow:hidden;align-self:start}
+.g-stack i{position:absolute;left:12px;height:5px;background:var(--c);opacity:.75}
+.g-switch .root{position:absolute;left:50%;top:12px;width:12px;height:12px;margin-left:-6px;border:1px solid var(--c)}
+.g-switch .bus{position:absolute;left:14px;right:14px;top:42px;height:1px;background:var(--c)}
+.g-switch .stem{position:absolute;left:50%;top:24px;width:1px;height:18px;background:var(--c)}
+.g-switch .leaf{position:absolute;top:42px;width:1px;height:16px;background:var(--c)}
+.g-switch .leaf::after{content:"";position:absolute;top:16px;left:-5px;width:11px;height:11px;border:1px solid var(--c)}
+.dot{position:absolute;width:6px;height:6px;left:5px;background:var(--c);box-shadow:0 0 8px var(--c)}
+.g-api .dot{animation:bounce 4s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes bounce{0%,100%{top:8px}48%,52%{top:76px}}
+.g-flow .dot{opacity:0;animation:fall 3s linear infinite}
+.g-flow .dot.b{animation-delay:1s}.g-flow .dot.c{animation-delay:2s}
+@keyframes fall{0%{top:4px;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:82px;opacity:0}}
+@media (prefers-reduced-motion:reduce){.g-api .dot,.g-flow .dot{animation:none;opacity:1;top:40px}.g-flow .dot.b,.g-flow .dot.c{display:none}.sector{transition:none}}
+
+/* uncharted */
+.uncharted{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.ghost{border:1px dashed var(--line);padding:12px 14px;display:grid;gap:4px;background:repeating-linear-gradient(135deg,rgba(169,139,255,.03) 0 8px,transparent 8px 16px)}
+.ghost .code{color:var(--violet);opacity:.8}
+.ghost b{font-family:var(--f-display);font-size:17px;color:var(--dim)}
+.ghost span{font-size:13px;color:var(--dim)}
+
+/* matrix */
+.mx{overflow-x:auto;border:1px solid var(--line);background:var(--slab)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:center}
+thead th{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:600;background:var(--slab-2)}
+thead th span{display:block;font-family:var(--f-display);font-size:14px;letter-spacing:.1em}
+tbody th{text-align:left;font-family:var(--f-mono);font-weight:600;white-space:nowrap}
+tbody th small{display:block;font-family:var(--f-body);font-weight:400;color:var(--dim);font-size:12px;white-space:normal}
+td .on{display:inline-block;width:12px;height:12px;background:var(--c);box-shadow:0 0 10px var(--c)}
+td .off{display:inline-block;width:12px;height:12px;border:1px solid var(--line)}
+tr.dead th{color:var(--amber);text-decoration:line-through;text-decoration-color:rgba(255,62,165,.6)}
+tr.dead td .on{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+
+footer{margin-top:30px;font-family:var(--f-mono);font-size:11.5px;color:var(--dim)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">sprawl://python &nbsp;<b>//</b>&nbsp; field guides to the Python ecosystem &nbsp;<b>//</b>&nbsp; mapped Oct 2026</div>
+    <h1>THE <span>SPRAWL</span></h1>
+    <p class="lede">Every guide in the set, on one map. Each sector charts a different part of the Python world, names the modern default at every layer, and keeps a Dog Solitude for the tools that didn't make it. Pick a sector and jack in.</p>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <h2 class="sh">Charted sectors</h2>
+  <p class="sp">Four guides, four shapes. Stacks for things that layer, a switchboard for things that branch, and two flows for things that move.</p>
+  <div class="grid" id="grid"></div>
+
+  <h2 class="sh">Uncharted</h2>
+  <p class="sp">Sectors on the drawing board.</p>
+  <div class="uncharted" id="uncharted"></div>
+
+  <h2 class="sh">Shared hardware</h2>
+  <p class="sp">Tools that cross sector lines. The more columns a tool lights up, the more worth knowing deeply it is. The last rows are casualties that turn up in more than one scrapyard.</p>
+  <div class="mx"><table id="mx"></table></div>
+
+  <footer>All sectors checked against project pages and release notes, Oct 19 2026.</footer>
+</div>
+
+<script>
+const LINKS = {TCS:"python_toolchain_stack.html", DOC:"python_docs_switchboard.html", API:"python_api_stack.html", DAT:"python_data_stack.html"};
+const EXTERNAL = false;
+
+const SECTORS = [
+  {code:"TCS", name:"Python Toolchain Stack", c:"var(--cyan)", glyph:"stack",
+   d:"From the editor down to the language itself: language servers, linters, type checkers, testing, packaging, environments and runtimes.",
+   shape:"10 layers", tools:68, dead:41, picks:["uv","Ruff","Pyright"]},
+  {code:"DOC", name:"Python Docs Switchboard", c:"var(--magenta)", glyph:"switch",
+   d:"Documentation tools routed by what you ship: a library, a web service, notebooks, or a command-line tool.",
+   shape:"4 routes", tools:48, dead:9, picks:["Sphinx + MyST","OpenAPI 3.1","Jupyter Book 2"]},
+  {code:"API", name:"Python API Stack", c:"var(--violet)", glyph:"api",
+   d:"One request traced from the public contract through edge, server, framework, auth and validation, down to the database, and back.",
+   shape:"10 layers + 4 sidecars", tools:88, dead:16, picks:["FastAPI","Pydantic","PostgreSQL"]},
+  {code:"DAT", name:"Data Engineering Stack", c:"var(--amber)", glyph:"flow",
+   d:"Data flowing one way from sources through ingestion, storage, table formats, engines and modeling to the people who use it.",
+   shape:"10 layers + 4 sidecars", tools:76, dead:12, picks:["dlt","Iceberg","dbt"]}
+];
+
+const UNCHARTED = [
+  ["DFX","Dataframe Switchboard","pandas, Polars, DuckDB, Spark: routed by data size."],
+  ["QNT","Quant Stack","Numerics, performance, market data, pricing and backtesting."],
+  ["CON","Concurrency Switchboard","Threads, asyncio, processes and free-threading, routed by workload."],
+  ["MLO","ML / MLOps Stack","Experiments, registries, serving and monitoring."]
+];
+
+const MATRIX = [
+  ["uv","Installs, locks, builds, runs",[1,0,1,1]],
+  ["Pydantic","Validation everywhere data crosses a boundary",[1,1,1,1]],
+  ["pytest","Tests, including doctests",[1,1,1,0]],
+  ["Ruff","Lint, format, docstring checks",[1,1,0,0]],
+  ["FastAPI","Services and data APIs",[0,1,1,1]],
+  ["OpenAPI","The contract for HTTP services",[0,1,1,0]],
+  ["Kafka","Event streams and async contracts",[0,1,1,1]],
+  ["PostgreSQL","Source system and datastore",[0,0,1,1]],
+  ["DuckDB","Analytics in-process",[0,0,1,1]],
+  ["Docker","Shipping it",[0,0,1,1]],
+  ["Swagger 2.0","Superseded by OpenAPI 3",[0,1,1,0],true],
+  ["pydocstyle","Folded into Ruff",[1,1,0,0],true]
+];
+
+const totalTools = SECTORS.reduce((a,s)=>a+s.tools,0), totalDead = SECTORS.reduce((a,s)=>a+s.dead,0);
+document.getElementById('stats').innerHTML = `
+  <span><b>${SECTORS.length}</b>sectors charted</span>
+  <span><b>${totalTools}</b>tool entries</span>
+  <span class="dead"><b>${totalDead}</b>in Dog Solitude</span>
+  <span><b>${UNCHARTED.length}</b>uncharted</span>`;
+
+const glyph = g => {
+  if(g==="stack") return `<div class="glyph g-stack">${[0,1,2,3,4,5,6,7,8,9].map(i=>`<i style="top:${8+i*8}px;right:${12+(9-i)*3}px"></i>`).join('')}</div>`;
+  if(g==="switch") return `<div class="glyph g-switch"><span class="root"></span><span class="stem"></span><span class="bus"></span>${[14,38,62,86].map(p=>`<span class="leaf" style="left:calc(14px + (100% - 28px) * ${(p-14)/72})"></span>`).join('')}</div>`;
+  if(g==="api") return `<div class="glyph g-stack g-api">${[0,1,2,3,4,5,6,7,8,9].map(i=>`<i style="top:${8+i*8}px;right:12px;left:18px"></i>`).join('')}<span class="dot"></span></div>`;
+  return `<div class="glyph g-stack g-flow">${[0,1,2,3,4,5,6,7,8,9].map(i=>`<i style="top:${8+i*8}px;right:12px;left:18px"></i>`).join('')}<span class="dot"></span><span class="dot b"></span><span class="dot c"></span></div>`;
+};
+const tgt = EXTERNAL ? ' target="_blank" rel="noopener"' : '';
+document.getElementById('grid').innerHTML = SECTORS.map(s=>`
+  <a class="sector" href="${LINKS[s.code]}"${tgt} style="--c:${s.c}">
+    <div class="main">
+      <span class="code">${s.code}</span>
+      <h3>${s.name}</h3>
+      <p class="d">${s.d}</p>
+      <div class="meta"><span><b>${s.shape}</b></span><span><b>${s.tools}</b> tools</span><span class="dd"><b>${s.dead}</b> dead</span></div>
+      <div class="picks">${s.picks.map(p=>`<span>${p}</span>`).join('')}</div>
+      <span class="enter">jack in ▸</span>
+    </div>
+    ${glyph(s.glyph)}
+  </a>`).join('');
+
+document.getElementById('uncharted').innerHTML = UNCHARTED.map(([c,n,d])=>`<div class="ghost"><span class="code">${c}</span><b>${n}</b><span>${d}</span></div>`).join('');
+
+document.getElementById('mx').innerHTML = `
+  <thead><tr><th scope="col" style="text-align:left">Tool</th>${SECTORS.map(s=>`<th scope="col" style="color:${s.c}"><span>${s.code}</span></th>`).join('')}</tr></thead>
+  <tbody>${MATRIX.map(([n,d,on,dead])=>`<tr${dead?' class="dead"':''}><th scope="row">${n}<small>${d}</small></th>${on.map((v,i)=>`<td style="--c:${SECTORS[i].c}"><span class="${v?'on':'off'}" aria-label="${v?'yes':'no'}"></span></td>`).join('')}</tr>`).join('')}</tbody>`;
+</script>

@@ -1,0 +1,396 @@
+<title>Data Engineering Stack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tektur:wght@500;700;900&family=Chivo:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a one-way data flow. Ten slabs from sources down to consumers, with a stream of packets on the left rail; then sidecars (the control plane) and Dog Solitude. Same neon identity as the rest of the Sprawl; deliberately single-theme. */
+:root{
+  color-scheme: dark;
+  --void:#0a0912;
+  --slab:#13111f;
+  --slab-2:#1a1729;
+  --line:#2c2742;
+  --ink:#e9e6f5;
+  --dim:#9c96b8;
+  --cyan:#3ef0ff;
+  --magenta:#ff3ea5;
+  --amber:#ffc23e;
+  --violet:#a98bff;
+  --f-display:"Tektur","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Chivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:linear-gradient(rgba(62,240,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(62,240,255,.035) 1px,transparent 1px);
+  background-size:28px 28px}
+.wrap{max-width:1120px;margin:0 auto;padding-block:40px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+code{font-family:var(--f-mono);font-size:.92em;color:var(--cyan)}
+a{color:var(--cyan)}
+
+header{display:grid;gap:14px;margin-bottom:28px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.eyebrow b{color:var(--magenta);font-weight:600}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,6.4vw,64px);line-height:.95;margin:0;letter-spacing:.01em;text-wrap:balance;
+  text-shadow:0 0 18px rgba(255,62,165,.35),2px 0 0 rgba(62,240,255,.55)}
+h1 span{color:var(--magenta)}
+.lede{max-width:70ch;color:var(--dim);margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;font-family:var(--f-mono);font-size:12px;color:var(--dim);margin-top:4px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+
+/* builds */
+.builds{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-bottom:30px}
+.path{border:1px solid var(--line);background:linear-gradient(90deg,rgba(62,240,255,.08),rgba(255,62,165,.06));padding:14px 16px;min-width:0;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.path h2{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin:0 0 8px;font-weight:600}
+.path ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 4px;font-family:var(--f-mono);font-size:13px}
+.path li{display:flex;align-items:center;gap:4px}
+.path li+li::before{content:"→";color:var(--magenta);margin-right:4px}
+
+/* request rail + stack */
+.flow{position:relative;padding-left:40px}
+.rail-line{position:absolute;left:14px;top:30px;bottom:30px;width:2px;background:linear-gradient(var(--cyan),var(--magenta));opacity:.55}
+.rail-tag{position:absolute;left:0;font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg)}
+.rail-tag.top{top:0;color:var(--cyan)} .rail-tag.bot{bottom:0;color:var(--magenta)}
+.packet{position:absolute;left:10px;top:30px;width:10px;height:10px;background:var(--cyan);box-shadow:0 0 12px var(--cyan),0 0 24px var(--cyan);opacity:0;
+  animation:stream 6s linear infinite}
+.packet.p2{animation-delay:2s}.packet.p3{animation-delay:4s}
+@keyframes stream{0%{top:30px;opacity:0;background:var(--cyan)}5%{opacity:1}90%{opacity:1}100%{top:calc(100% - 40px);opacity:0;background:var(--magenta);box-shadow:0 0 12px var(--magenta)}}
+@media (prefers-reduced-motion:reduce){.packet{animation:none;opacity:1}.packet.p2,.packet.p3{display:none}}
+@media (max-width:560px){.flow{padding-left:0}.rail-line,.rail-tag,.packet{display:none}}
+
+.hint{font-family:var(--f-mono);font-size:12px;color:var(--dim);margin:0 0 10px}
+.hint button{appearance:none;background:none;border:1px solid var(--line);color:var(--magenta);font:inherit;padding:2px 8px;cursor:pointer;margin-left:6px}
+.stack{display:grid;gap:10px}
+.layer{position:relative;display:grid;grid-template-columns:110px minmax(0,1fr);background:var(--slab);border:1px solid var(--line)}
+.layer::before{content:"";position:absolute;inset:-1px auto -1px -1px;width:3px;background:var(--c);box-shadow:0 0 12px var(--c)}
+.layer::after{content:"";position:absolute;left:-27px;top:26px;width:26px;height:1px;background:var(--c);opacity:.6}
+@media (max-width:560px){.layer::after{display:none}}
+.rail{border-right:1px solid var(--line);padding:16px 10px 16px 16px;display:flex;flex-direction:column;gap:4px;background:var(--slab-2)}
+.code{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1;color:var(--c)}
+.rail small{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.body{padding:16px 18px 18px;display:grid;gap:12px;min-width:0}
+.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px}
+h3{font-family:var(--f-display);font-weight:700;font-size:21px;margin:0;letter-spacing:.02em}
+.pick{font-family:var(--f-mono);font-size:12.5px;color:var(--cyan)}
+.pick b{color:var(--ink);font-weight:600}
+.what{margin:0;color:var(--dim);max-width:80ch;font-size:14px}
+.group{display:grid;gap:7px}
+.glabel{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.chip{appearance:none;font:inherit;color:inherit;text-align:left;cursor:pointer;background:rgba(255,255,255,.02);border:1px solid var(--line);
+  padding:9px 11px;display:grid;gap:3px;transition:border-color .15s,background .15s,box-shadow .15s,opacity .15s;min-width:0}
+.chip:hover{border-color:var(--dim)}
+.chip:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.chip .nm{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-weight:600;font-size:14px;flex-wrap:wrap}
+.chip .nt{font-size:13px;color:var(--dim);line-height:1.4}
+.tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;padding:1px 6px;border:1px solid currentColor;text-transform:uppercase;font-weight:600;font-style:normal}
+.t-pick{color:var(--cyan)} .t-alt{color:var(--violet)} .t-edge{color:var(--amber)}
+.multi{font-family:var(--f-mono);font-size:10px;color:var(--magenta);letter-spacing:.06em}
+.chip.is-pick{border-color:rgba(62,240,255,.55);background:rgba(62,240,255,.05)}
+.chip.is-edge{border-style:dashed;border-color:rgba(255,194,62,.5)}
+.chip.lit{border-color:var(--magenta);background:rgba(255,62,165,.10);box-shadow:0 0 0 1px var(--magenta),0 0 18px rgba(255,62,165,.35)}
+.filtering .chip:not(.lit){opacity:.35}
+@media (max-width:560px){
+  .layer{grid-template-columns:1fr}
+  .rail{flex-direction:row;align-items:baseline;gap:10px;border-right:0;border-bottom:1px solid var(--line);padding:10px 16px}
+  .code{font-size:24px}
+  .chips{grid-template-columns:1fr}
+}
+
+/* sections */
+.sect{margin-top:40px}
+.sect > h2{font-family:var(--f-display);font-weight:900;font-size:26px;margin:0 0 4px;letter-spacing:.03em;text-transform:uppercase}
+.sect > p{margin:0 0 14px;color:var(--dim);max-width:80ch}
+.sidecars{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.car{position:relative;border:1px solid var(--line);background:var(--slab);padding:14px 16px 16px;display:grid;gap:10px;align-content:start;min-width:0}
+.car::before{content:"";position:absolute;inset:-1px -1px auto -1px;height:3px;background:var(--c);box-shadow:0 0 12px var(--c)}
+.car h3{font-size:19px}
+.car .chips{grid-template-columns:1fr}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:34px}
+.note{border:1px solid var(--line);background:var(--slab);padding:16px 18px;min-width:0}
+.note h4{font-family:var(--f-display);font-size:17px;margin:0 0 8px;letter-spacing:.02em;color:var(--cyan)}
+.note ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px;color:var(--dim)}
+.note li b{color:var(--ink);font-weight:600}
+.note p{margin:0;font-size:14px;color:var(--dim)}
+
+.dog{margin-top:40px;border:1px dashed rgba(255,194,62,.35);background:repeating-linear-gradient(135deg,rgba(255,194,62,.03) 0 10px,transparent 10px 20px),var(--slab);padding:16px 18px}
+.dog h2{font-family:var(--f-display);font-weight:900;font-size:24px;margin:0 0 2px;color:var(--amber);letter-spacing:.04em;text-transform:uppercase}
+.dog p{margin:0 0 12px;font-size:13px;color:var(--dim)}
+.dog dl{margin:0;display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:6px 14px;font-size:13px}
+.dog dt{display:contents}
+.dog .dc{font-family:var(--f-display);font-weight:700;color:var(--amber)}
+.dog .dn{font-family:var(--f-mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.dog .dn b{color:var(--ink);font-weight:600}
+.dog dd{margin:0;font-family:var(--f-mono);color:var(--dim);text-decoration:line-through;text-decoration-color:rgba(255,62,165,.55);min-width:0}
+@media (max-width:560px){.dog dl{grid-template-columns:auto minmax(0,1fr)}.dog .dn{white-space:normal}.dog dd{grid-column:1/-1;margin-bottom:6px}}
+footer{margin-top:28px;font-family:var(--f-mono);font-size:11.5px;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">stack://python/data &nbsp;<b>//</b>&nbsp; part of the Sprawl &nbsp;<b>//</b>&nbsp; state as of Oct 2026</div>
+    <h1>The Data <span>Engineering</span> Stack</h1>
+    <p class="lede">Data only flows one way. It starts as rows in someone else's system, gets captured and landed, settles into object storage as files, gets organized into tables, crunched by an engine, modeled into something trustworthy, and finally served to the people and machines that make decisions with it. Orchestration, quality checks and lineage run alongside the whole way. Tap any tool to light up every place it appears.</p>
+    <div class="legend">
+      <span><i class="tag t-pick">pick</i> modern default</span>
+      <span><i class="tag t-alt">alt</i> solid alternative</span>
+      <span><i class="tag t-edge">edge</i> maintained, but teetering, too new, or overtaken</span>
+      <span><i class="multi">◆ ×N</i> appears in N places</span>
+    </div>
+  </header>
+
+  <div class="builds">
+    <section class="path" aria-label="Small team build">
+      <h2>Small-team lakehouse</h2>
+      <ol><li>dlt</li><li>S3</li><li>Parquet</li><li>DuckLake or Iceberg</li><li>DuckDB / MotherDuck</li><li>Polars</li><li>dbt</li><li>Dagster</li><li>Superset</li></ol>
+    </section>
+    <section class="path" aria-label="Enterprise build">
+      <h2>Enterprise cloud warehouse</h2>
+      <ol><li>Fivetran</li><li>Snowflake or Databricks</li><li>dbt</li><li>Airflow 3</li><li>semantic layer</li><li>BI tool</li></ol>
+    </section>
+    <section class="path" aria-label="Streaming build">
+      <h2>Real-time pipeline</h2>
+      <ol><li>Debezium</li><li>Kafka</li><li>Flink</li><li>Iceberg</li><li>Trino / ClickHouse</li></ol>
+    </section>
+  </div>
+
+  <p class="hint" id="hint">Showing all tools.<button type="button" id="clear" hidden>clear highlight</button></p>
+  <div class="flow" id="flow">
+    <div class="rail-line" aria-hidden="true"></div>
+    <span class="rail-tag top" aria-hidden="true">sources ▼</span>
+    <span class="rail-tag bot" aria-hidden="true">consumers ▼</span>
+    <div class="packet p1" aria-hidden="true"></div>
+    <div class="packet p2" aria-hidden="true"></div>
+    <div class="packet p3" aria-hidden="true"></div>
+    <div class="stack" id="stack"></div>
+  </div>
+
+  <section class="sect" aria-label="Sidecars">
+    <h2>Sidecars</h2>
+    <p>The control plane. These don't move data themselves; they schedule it, check it, and record where it came from. A pipeline without them works until the first silent failure, then nobody trusts the numbers.</p>
+    <div class="sidecars" id="sidecars"></div>
+  </section>
+
+  <section class="notes">
+    <div class="note">
+      <h4>Rules of the road</h4>
+      <ul>
+        <li><b>ELT, not ETL.</b> Land raw data first, untouched, then transform inside the warehouse or lake. You can always rebuild from raw; you can't un-transform.</li>
+        <li><b>Idempotent, partitioned loads.</b> Running a job twice must give the same result as running it once. Overwrite a date partition rather than appending blindly.</li>
+        <li><b>Parquet, not CSV.</b> Typed, compressed and columnar. CSV belongs only at the landing edge, when a source gives you nothing better.</li>
+        <li><b>Contracts at the boundaries.</b> Validate schemas where data enters and where it leaves. Inside, trust your models.</li>
+        <li><b>Think in assets, not tasks.</b> Orchestrate the tables you produce and their dependencies, not just a list of scripts to run in order.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h4>The Fivetran factor</h4>
+      <p>Fivetran acquired Tobiko Data (SQLMesh and SQLGlot) in September 2025, then completed its merger with dbt Labs on June 1, 2026. The two leading transformation frameworks and the most widely used Python SQL parser now share one owner. dbt Core 2.0, built on the Rust Fusion engine, is in alpha under Apache 2.0, and everything stays open source for now. The practical hedge: keep your models in plain SQL with minimal framework-specific magic, so moving between dbt and SQLMesh stays cheap.</p>
+    </div>
+  </section>
+
+  <section class="dog" aria-label="Dog Solitude">
+    <h2>Dog Solitude</h2>
+    <p>The scrapyard. Dead, retired, renamed or abandoned tools, by layer. Mostly the Hadoop era.</p>
+    <dl id="dog"></dl>
+  </section>
+
+  <footer>Status checked against project pages and release notes, Oct 19 2026.</footer>
+</div>
+
+<script>
+const DATA = [
+  {code:"L9", rail:"sources", name:"Sources & capture", c:"var(--magenta)",
+   what:"Where data is born: application databases, SaaS tools, event streams, files dropped by partners. Capture means getting changes out without hurting the source system.",
+   pick:"Change data capture (CDC) with Debezium for databases; vendor APIs for SaaS",
+   groups:[{items:[
+     ["debezium","Debezium","pick","Reads a database's transaction log and emits every insert, update and delete as an event. The open-source CDC standard."],
+     ["postgres","PostgreSQL / MySQL","pick","The most common source systems. Read from a replica or the logical replication stream, never by hammering production with full-table scans."],
+     ["saas","SaaS APIs","pick","Salesforce, Stripe, HubSpot and friends. Rate limits and schema drift are the main enemies."],
+     ["events","Event tracking","alt","Snowplow, Segment, RudderStack. Behavioral events from apps and websites."],
+     ["files","Files & SFTP drops","alt","Partner CSVs and Excel files. Validate hard on arrival; this is where garbage enters."]
+   ]}]},
+  {code:"L8", rail:"ingest", name:"Ingestion (EL)", c:"var(--violet)",
+   what:"Extract and load: move data from sources into your storage, ideally untouched. Buy it for common SaaS sources, write it in Python for everything else.",
+   pick:"dlt for code-first Python; Fivetran when you'd rather pay than maintain",
+   groups:[{items:[
+     ["dlt","dlt","pick","Python library: write a generator, get schema inference, incremental loading and normalized tables in any destination. Runs anywhere Python runs."],
+     ["fivetran","Fivetran","pick","Managed connectors for hundreds of sources. Expensive at volume, but zero maintenance. Now also owns dbt."],
+     ["airbyte","Airbyte","alt","Open-source connector platform you can self-host. Big catalog; heavier to operate than dlt."],
+     ["kafkaconnect","Kafka Connect","alt","Connectors that stream data into and out of Kafka. Debezium runs on it."],
+     ["singer","Meltano / Singer","edge","The open tap-and-target standard. Still maintained, but connector quality varies and newer tools have taken its momentum."]
+   ]}]},
+  {code:"L7", rail:"stream", name:"Streaming", c:"var(--cyan)",
+   what:"For data that can't wait for the nightly batch: a durable log of events, and processors that compute on them as they arrive. Most teams need less of this than they think.",
+   pick:"Kafka as the log; Flink for heavy stream processing",
+   groups:[{items:[
+     ["kafka","Apache Kafka","pick","The durable, replayable event log everyone integrates with. Managed via Confluent, MSK and others."],
+     ["redpanda","Redpanda","alt","Kafka-compatible API, single binary, no JVM. Simpler to run yourself."],
+     ["flink","Apache Flink / PyFlink","pick","The heavyweight stream processor: event time, exactly-once, huge state. PyFlink exposes it to Python."],
+     ["spark","Spark Structured Streaming","alt","Streaming with the same DataFrame API as batch Spark. Natural if you're already on Databricks."],
+     ["quix","Quix Streams","alt","Pure-Python stream processing on Kafka. Lightweight, no cluster to run."],
+     ["bytewax","Bytewax","edge","Python dataflow streaming with a Rust core. No release since November 2024."]
+   ]}]},
+  {code:"L6", rail:"object", name:"Object storage", c:"var(--amber)",
+   what:"The cheap, practically infinite disk at the bottom of every modern data platform. Everything above stores its files here.",
+   pick:"Your cloud's object store: S3, GCS or Azure Blob/ADLS",
+   groups:[{items:[
+     ["s3","S3 / GCS / ADLS","pick","Durable, cheap, and the de facto API everyone speaks (S3's in particular)."],
+     ["r2","Cloudflare R2","alt","S3-compatible with no egress fees. Attractive when data is read from many places."],
+     ["minio","MinIO / SeaweedFS","alt","Self-hosted S3-compatible storage for on-prem or local development. Check MinIO's AGPL license and edition terms before adopting."],
+     ["hdfs","HDFS","edge","Hadoop's distributed filesystem. Still running in many enterprises; nobody starts new platforms on it."]
+   ]}]},
+  {code:"L5", rail:"files", name:"File formats", c:"var(--magenta)",
+   what:"How bytes are laid out on disk and in memory. Columnar formats let engines read only the columns a query needs, which is most of the speed.",
+   pick:"Parquet on disk, Arrow in memory",
+   groups:[{items:[
+     ["parquet","Parquet","pick","Columnar, compressed, typed. The universal analytical file format."],
+     ["arrow","Apache Arrow","pick","The shared in-memory columnar format. Lets Polars, DuckDB, pandas and Spark pass data with zero copying."],
+     ["avro","Avro","alt","Row-based with embedded schemas. The usual choice for Kafka messages and schema registries."],
+     ["csvjson","CSV / JSON","alt","For landing raw data only. Convert to Parquet as soon as it's in."],
+     ["orc","ORC","edge","Hive's columnar format. Still readable everywhere, but Parquet won."]
+   ]}]},
+  {code:"L4", rail:"tables", name:"Table formats & catalogs", c:"var(--violet)",
+   what:"Turns a pile of Parquet files into real tables: transactions, schema evolution, time travel, safe concurrent writes. The catalog tracks where each table lives.",
+   pick:"Apache Iceberg with a REST catalog",
+   groups:[
+    {label:"Table format", items:[
+     ["iceberg","Apache Iceberg","pick","The open standard most engines now read and write: Snowflake, BigQuery, Databricks, Trino, Spark, DuckDB. Spec v3 adds deletion vectors and new types."],
+     ["delta","Delta Lake","alt","Databricks' format. The natural pick inside Databricks; interop with Iceberg keeps improving."],
+     ["ducklake","DuckLake","alt","DuckDB's lakehouse format, 1.0 since April 2026. Keeps metadata in a SQL database (Postgres, SQLite or DuckDB) instead of files. Simple and fast for small teams."],
+     ["hudi","Apache Hudi","edge","Strong at upserts and streaming ingestion, but losing mindshare to Iceberg and Delta."]
+    ]},
+    {label:"Catalog", items:[
+     ["restcatalog","Iceberg REST catalog","pick","The standard catalog API: Apache Polaris, Lakekeeper, AWS Glue, Snowflake Open Catalog all speak it."],
+     ["unity","Unity Catalog","alt","Databricks' catalog, open-sourced. Governance plus Delta and Iceberg."],
+     ["hms","Hive Metastore","edge","The original Hadoop-era catalog. Many tools still support it; new platforms use REST catalogs."]
+    ]}
+   ]},
+  {code:"L3", rail:"engines", name:"Query engines & warehouses", c:"var(--cyan)",
+   what:"The SQL engines that run the big queries over stored data. Managed warehouses trade money for zero operations; open engines trade operations for control.",
+   pick:"A managed warehouse at scale; DuckDB / MotherDuck when data fits on one big machine",
+   groups:[
+    {label:"Managed", items:[
+     ["snowflake","Snowflake","pick","Separate storage and compute, near-zero tuning, strong SQL. Python via Snowpark."],
+     ["bigquery","BigQuery","pick","Serverless, pay per query. The default on Google Cloud."],
+     ["databricks","Databricks","pick","Spark-based lakehouse platform; strongest when ML and data engineering share one place."],
+     ["redshift","Redshift","alt","AWS's warehouse. Fine inside AWS; rarely chosen fresh over the three above."]
+    ]},
+    {label:"Open", items:[
+     ["duckdb","DuckDB / MotherDuck","pick","In-process analytics engine: queries Parquet and Iceberg directly, absurdly fast on one machine. MotherDuck is the hosted version."],
+     ["trino","Trino","alt","Distributed SQL across many sources at once. The open engine for big lakehouses."],
+     ["clickhouse","ClickHouse","alt","Blazing real-time analytics on event data. Powers many user-facing dashboards."],
+     ["spark","Apache Spark","alt","The distributed workhorse for batch at true big-data scale. Spark 4 is current."]
+    ]}
+   ]},
+  {code:"L2", rail:"compute", name:"Python compute", c:"var(--amber)",
+   what:"Dataframes and distributed compute from Python, for the transformations that SQL handles badly: complex logic, ML features, API calls in the loop.",
+   pick:"Polars on one machine; PySpark on a cluster",
+   groups:[{items:[
+     ["polars","Polars","pick","Rust dataframe library: lazy queries, multi-core by default, often 10x pandas. The modern single-node default."],
+     ["duckdb","DuckDB (Python)","pick","SQL over dataframes, Parquet and Arrow with zero setup. Pairs perfectly with Polars."],
+     ["pandas","pandas","alt","Still everywhere and every library accepts it. Fine for small data; slow and memory-hungry beyond that."],
+     ["spark","PySpark","pick","Python on Spark for cluster-scale batch. Includes the pandas API on Spark."],
+     ["ibis","Ibis","alt","One dataframe API that compiles to DuckDB, Polars, Snowflake, BigQuery and more. Write once, move engines later."],
+     ["ray","Ray / Dask","alt","Distributed Python beyond dataframes. Ray dominates ML-heavy work; Dask scales pandas-style code."],
+     ["daft","Daft","alt","Distributed dataframes built for multimodal data: images, documents, embeddings."]
+   ]}]},
+  {code:"L1", rail:"model", name:"Transformation & modeling", c:"var(--magenta)",
+   what:"Turning raw tables into clean, tested, documented models (staging, intermediate, marts) with dependencies tracked automatically. This is where analytics engineering lives.",
+   pick:"dbt Core",
+   groups:[{items:[
+     ["dbt","dbt Core","pick","SQL models with refs, tests and docs. The industry standard. Core 2.0 on the Rust Fusion engine is in alpha; 1.x remains the stable line."],
+     ["sqlmesh","SQLMesh","alt","dbt's sharpest rival: understands your SQL, plans changes before applying them, cheap virtual environments. Also owned by Fivetran now."],
+     ["sqlglot","SQLGlot","alt","Pure-Python SQL parser and transpiler across 20+ dialects. Powers SQLMesh and many other tools."],
+     ["dataform","Dataform","alt","Google's dbt-like tool, built into BigQuery."],
+     ["pymodels","Python models","alt","dbt Python models or plain Polars jobs for the steps SQL can't express. Keep them the exception."]
+   ]}]},
+  {code:"L0", rail:"serve", name:"Serving & consumption", c:"var(--cyan)",
+   what:"Where data finally earns its keep: dashboards, metrics everyone agrees on, data pushed back into operational tools, features for models, and APIs.",
+   pick:"A semantic layer feeding your BI tool",
+   groups:[{items:[
+     ["semantic","Semantic layer","pick","dbt Semantic Layer (MetricFlow) or Cube. Define \"revenue\" once so every dashboard computes it the same way."],
+     ["superset","Superset / Metabase","pick","Open-source BI. Metabase is easier for business users; Superset is more powerful."],
+     ["bi","Looker / Power BI / Tableau","alt","The commercial BI incumbents. Usually chosen by the org, not the engineer."],
+     ["reverseetl","Reverse ETL","alt","Census, Hightouch: push modeled data back into Salesforce, ad platforms and support tools."],
+     ["feast","Feast","alt","Feature store serving model features consistently for training and live inference."],
+     ["streamlit","Streamlit / marimo","alt","Quick internal data apps and reactive notebooks in pure Python."],
+     ["dataapi","Data APIs","alt","FastAPI over DuckDB or the warehouse, for programmatic consumers. See the Python API Stack."]
+   ]}]}
+];
+
+const SIDECARS = [
+  {name:"Orchestration", c:"var(--cyan)", items:[
+    ["airflow","Apache Airflow 3","pick","Still the most deployed orchestrator. Version 3 added data-aware assets, DAG versioning and a new UI; 3.3 is current. Every cloud offers a managed version."],
+    ["dagster","Dagster","pick","Asset-based orchestration: you declare tables, it works out the runs. Excellent local development, lineage and dbt integration. The modern favorite for new platforms."],
+    ["prefect","Prefect","alt","Turn any Python function into a tracked, retryable flow. Lightest path from script to pipeline."],
+    ["kestra","Kestra","alt","Declarative YAML pipelines, language-agnostic. Popular with mixed teams."],
+    ["luigi","Luigi","edge","Spotify's early orchestrator. Still maintained, rarely chosen for new work."]
+  ]},
+  {name:"Quality & contracts", c:"var(--magenta)", items:[
+    ["pandera","Pandera","pick","Schema validation for Polars, pandas and PySpark dataframes, written like Pydantic models."],
+    ["dbttests","dbt tests","pick","not_null, unique, relationships and custom SQL tests, right next to the models."],
+    ["gx","Great Expectations (GX Core)","alt","Expectation suites with rich data docs. Powerful; heavier setup than Pandera."],
+    ["soda","Soda","alt","Data quality checks in a YAML language, with monitoring and alerts."],
+    ["pydantic","Pydantic","alt","Validate records at ingestion boundaries, especially API and JSON sources."]
+  ]},
+  {name:"Lineage & metadata", c:"var(--violet)", items:[
+    ["openlineage","OpenLineage","pick","Open standard for lineage events, emitted by Airflow, Spark, dbt and others."],
+    ["datahub","DataHub / OpenMetadata","alt","Searchable data catalogs: who owns this table, where did it come from, who reads it."],
+    ["marquez","Marquez","alt","Reference OpenLineage server and UI. Good starting point."]
+  ]},
+  {name:"Ship & run", c:"var(--amber)", items:[
+    ["terraform","Terraform / OpenTofu","pick","Infrastructure as code for buckets, warehouses, permissions and networks."],
+    ["docker","Docker + uv","pick","Same build story as any Python service: locked dependencies, slim images."],
+    ["k8s","Kubernetes / managed runners","alt","Run orchestrator workers and jobs. Most teams are better served by a managed service."],
+    ["cicd","CI for data","pick","Run dbt builds and data tests on every pull request against a sample or a zero-copy clone."]
+  ]}
+];
+
+const DOG = [
+  ["L8","ingest","Ingestion (EL)","Apache Sqoop (retired to the Apache Attic)"],
+  ["L7","stream","Streaming","Faust (original Robinhood release), Spark Streaming DStreams"],
+  ["L3","engines","Query engines & warehouses","Hadoop MapReduce jobs, Apache Pig, Hive on MapReduce"],
+  ["L2","compute","Python compute","Koalas (merged into PySpark), pandas-profiling (renamed ydata-profiling)"],
+  ["—","sidecar","Orchestration","Apache Oozie, Azkaban, Airflow 1.x"],
+  ["—","sidecar","Quality & contracts","Great Expectations 0.x API"]
+];
+const count={};
+const all=[...DATA.map(l=>l.groups.flatMap(g=>g.items)), ...SIDECARS.map(s=>s.items)];
+all.forEach(items=>{const seen=new Set(items.map(i=>i[0]));seen.forEach(id=>count[id]=(count[id]||0)+1)});
+const chip=([id,nm,st,nt])=>`<button type="button" class="chip is-${st}" data-tool="${id}"><span class="nm">${nm} <i class="tag t-${st}">${st}</i>${count[id]>1?`<span class="multi">◆ ×${count[id]}</span>`:''}</span><span class="nt">${nt}</span></button>`;
+
+document.getElementById('stack').innerHTML = DATA.map(l=>`
+  <section class="layer" style="--c:${l.c}">
+    <div class="rail"><span class="code">${l.code}</span><small>${l.rail}</small></div>
+    <div class="body">
+      <div class="top"><h3>${l.name}</h3><span class="pick">▸ <b>${l.pick}</b></span></div>
+      <p class="what">${l.what}</p>
+      ${l.groups.map(g=>`<div class="group">${g.label?`<div class="glabel">${g.label}</div>`:''}<div class="chips">${g.items.map(chip).join('')}</div></div>`).join('')}
+    </div>
+  </section>`).join('');
+
+document.getElementById('sidecars').innerHTML = SIDECARS.map(s=>`
+  <section class="car" style="--c:${s.c}"><h3>${s.name}</h3><div class="chips">${s.items.map(chip).join('')}</div></section>`).join('');
+
+document.getElementById('dog').innerHTML = DOG.map(([c,sh,ln,t])=>`<dt><span class="dc">${c}</span><span class="dn">${sh} · <b>${ln}</b></span></dt><dd>${t}</dd>`).join('');
+
+const hint=document.getElementById('hint'), clear=document.getElementById('clear'), wrap=document.querySelector('.wrap');
+let active=null;
+function setActive(id,label){
+  active=id;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('lit', id!==null && c.dataset.tool===id));
+  wrap.classList.toggle('filtering', id!==null);
+  hint.firstChild.textContent = id===null ? 'Showing all tools.' : `Highlighting ${label} in ${count[id]} place${count[id]>1?'s':''}.`;
+  clear.hidden = id===null;
+}
+wrap.addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c) return;
+  const id=c.dataset.tool;
+  setActive(active===id?null:id, c.querySelector('.nm').firstChild.textContent.trim());
+});
+clear.addEventListener('click',()=>setActive(null));
+</script>
