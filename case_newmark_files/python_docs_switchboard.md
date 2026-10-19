@@ -12,7 +12,7 @@ For the styled version, open [python_docs_switchboard.html](python_docs_switchbo
 
 - **Decrypt:** Mostly right. The split is real: a library documents its Python API for people who import it, while a web service documents an HTTP contract for people who call it over the wire. Different readers, different tools.
 - **Patch 1:** The MkDocs half got complicated in 2026. Material for MkDocs, the theme nearly everyone used it with, went into maintenance mode, and its team is building a successor called Zensical that is still pre-1.0.
-- **Patch 2:** It skips command-line tools, where the first documentation anyone reads is --help.
+- **Patch 2:** It covers two of the four common routes. Notebook-driven research and command-line tools need something else.
 
 ---
 
@@ -98,6 +98,25 @@ Code other people call over HTTP. Readers need every endpoint, request and respo
 
 ---
 
+## NB · Notebooks & research (quote: silent)
+
+Analysis, papers, course material, or a data science project where the executed notebook is the deliverable. Readers need prose, code and output together, reproducibly.
+
+**Pipeline:** write: notebooks + MyST md → execute: Jupyter kernel → build: Jupyter Book 2 → host: GitHub Pages
+
+**Take:** Neither Sphinx-for-libraries nor OpenAPI fits. Use a publishing tool built for computational documents.
+
+| Tool | Status | Notes |
+|---|---|---|
+| Jupyter Book 2 | **PICK** | Rebuilt on the MyST-MD engine (2.1.x as of Sept 2026). Executable books, cross-refs, citations, PDF output. |
+| Quarto | **PICK** | Posit's publishing system. Notebooks, papers, slides and websites from one source; Python, R and Julia. |
+| sphinx-gallery | alt | Turns a folder of example scripts into an executed gallery. How scikit-learn and Matplotlib build their examples. |
+| nbsphinx / myst-nb | alt | Execute and embed notebooks inside an existing Sphinx library site. |
+| mkdocs-jupyter | alt | Same, for MkDocs sites. |
+| Jupyter Book 1 | ⚠️ edge | The Sphinx-based original. Superseded by v2; migrate rather than start new projects on it. |
+
+---
+
 ## CLI · Command-line tool (quote: silent)
 
 Code people run from a terminal. The first documentation they see is --help, so that's where the effort goes first.
@@ -165,3 +184,4 @@ The scrapyard. Dead, removed or abandoned tools, by route.
 - [Material for MkDocs reference (pydevtools)](https://pydevtools.com/handbook/reference/mkdocs-material/)
 - [Zensical release listing](https://simple-repository.app.cern.ch/project/zensical)
 - [OpenAPI 3.2 announcement (OpenAPI Initiative)](https://www.openapis.org/?p=4078)
+- [Jupyter Book releases](https://jupyterbook.org/releases/jupyter-book)
