@@ -57,7 +57,7 @@ Mechanical correctness and one consistent code style, enforced in the editor, pr
 | Black | ⚠️ edge | The formatter that ended style debates. Still maintained, but Ruff format matches it nearly line for line. |
 | Pylint | alt | Slower but deeper checks (design smells, some cross-module issues). Still maintained. |
 | flake8 | ⚠️ edge | Maintained, but Ruff reimplements its rules much faster. Mostly seen in older configs. |
-| The Rest | ⚠️ edge | pyflakes, pycodestyle, isort, pyupgrade, autoflake, Bandit, Prospector. All still maintained, but Ruff reimplements nearly all of their rules, so there's little reason to add them to a new project. |
+| “The Rest” | ⚠️ edge | pyflakes, pycodestyle, isort, pyupgrade, autoflake, Bandit, Prospector. All still maintained, but Ruff reimplements nearly all of their rules, so there's little reason to add them to a new project. |
 
 ---
 
