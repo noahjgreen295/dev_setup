@@ -56,7 +56,8 @@ Mechanical correctness and one consistent code style, enforced in the editor, pr
 | Ruff ◆×2 | **PICK** | Rust linter and formatter. Replaces flake8, isort, pyupgrade, most plugins, and Black in one tool. |
 | Black | ⚠️ edge | The formatter that ended style debates. Still maintained, but Ruff format matches it nearly line for line. |
 | Pylint | alt | Slower but deeper checks (design smells, some cross-module issues). Still maintained. |
-| flake8 / isort | ⚠️ edge | Maintained, but Ruff reimplements their rules much faster. Mostly seen in older configs. |
+| flake8 | ⚠️ edge | Maintained, but Ruff reimplements its rules much faster. Mostly seen in older configs. |
+| The Rest | ⚠️ edge | pyflakes, pycodestyle, isort, pyupgrade, autoflake, Bandit, Prospector. All still maintained, but Ruff reimplements nearly all of their rules, so there's little reason to add them to a new project. |
 
 ---
 
