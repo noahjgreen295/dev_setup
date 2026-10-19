@@ -1,0 +1,334 @@
+<title>Python Toolchain Stack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tektur:wght@500;700;900&family=Chivo:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a single OSI-style stack of slabs, narrow at the editor and widening toward the language; each slab = layer code rail + pick + option chips. Deliberately single-theme (neon terminal). */
+:root{
+  color-scheme: dark;
+  --void:#0a0912;
+  --slab:#13111f;
+  --slab-2:#1a1729;
+  --line:#2c2742;
+  --ink:#e9e6f5;
+  --dim:#9c96b8;
+  --cyan:#3ef0ff;
+  --magenta:#ff3ea5;
+  --amber:#ffc23e;
+  --violet:#a98bff;
+  --f-display:"Tektur","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Chivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--void);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:
+    linear-gradient(rgba(62,240,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(62,240,255,.035) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+.wrap{max-width:1120px;margin:0 auto;padding-block:40px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+header{display:grid;gap:14px;margin-bottom:28px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.eyebrow b{color:var(--magenta);font-weight:600}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,6.4vw,64px);line-height:.95;margin:0;letter-spacing:.01em;text-wrap:balance;
+  text-shadow:0 0 18px rgba(255,62,165,.35),2px 0 0 rgba(62,240,255,.55)}
+h1 span{color:var(--magenta)}
+.lede{max-width:68ch;color:var(--dim);margin:0}
+
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;font-family:var(--f-mono);font-size:12px;color:var(--dim);margin-top:4px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+
+/* recommended path */
+.path{border:1px solid var(--line);background:linear-gradient(90deg,rgba(62,240,255,.08),rgba(255,62,165,.06));padding:14px 16px;margin-bottom:30px;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.path h2{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin:0 0 8px;font-weight:600}
+.path ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 4px;font-family:var(--f-mono);font-size:13px}
+.path li{display:flex;align-items:center;gap:4px}
+.path li+li::before{content:"→";color:var(--magenta);margin-right:4px}
+
+/* stack */
+.stack{display:grid;gap:10px;--step:0}
+.layer{position:relative;display:grid;grid-template-columns:96px minmax(0,1fr);background:var(--slab);border:1px solid var(--line);
+  margin-inline:calc(var(--i) * 0px)}
+@media (min-width:900px){.layer{margin-inline:calc((9 - var(--i)) * 12px)}}
+.layer::before{content:"";position:absolute;inset:-1px auto -1px -1px;width:3px;background:var(--c,var(--cyan));box-shadow:0 0 12px var(--c,var(--cyan))}
+.rail{border-right:1px solid var(--line);padding:16px 10px 16px 16px;display:flex;flex-direction:column;gap:4px;background:var(--slab-2)}
+.code{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1;color:var(--c,var(--cyan))}
+.rail small{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.body{padding:16px 18px 18px;display:grid;gap:12px;min-width:0}
+.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px}
+h3{font-family:var(--f-display);font-weight:700;font-size:21px;margin:0;letter-spacing:.02em}
+.pick{font-family:var(--f-mono);font-size:12.5px;color:var(--cyan)}
+.pick b{color:var(--ink);font-weight:600}
+.what{margin:0;color:var(--dim);max-width:78ch;font-size:14px}
+.group{display:grid;gap:7px}
+.glabel{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.chip{appearance:none;font:inherit;color:inherit;text-align:left;cursor:pointer;background:rgba(255,255,255,.02);border:1px solid var(--line);
+  padding:9px 11px;display:grid;gap:3px;transition:border-color .15s,background .15s,box-shadow .15s;min-width:0}
+.chip:hover{border-color:var(--dim)}
+.chip:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.chip .nm{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-weight:600;font-size:14px;flex-wrap:wrap}
+.chip .nt{font-size:13px;color:var(--dim);line-height:1.4}
+.tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;padding:1px 6px;border:1px solid currentColor;text-transform:uppercase;font-weight:600}
+.t-pick{color:var(--cyan)}
+.t-alt{color:var(--violet)}
+.t-edge{color:var(--amber)}
+.multi{font-family:var(--f-mono);font-size:10px;color:var(--magenta);letter-spacing:.06em}
+.chip.is-pick{border-color:rgba(62,240,255,.55);background:rgba(62,240,255,.05)}
+.chip.is-edge{border-style:dashed;border-color:rgba(255,194,62,.5)}
+.chip.lit{border-color:var(--magenta);background:rgba(255,62,165,.10);box-shadow:0 0 0 1px var(--magenta),0 0 18px rgba(255,62,165,.35)}
+.stack.filtering .chip:not(.lit){opacity:.35}
+.hint{font-family:var(--f-mono);font-size:12px;color:var(--dim);margin:0 0 10px}
+.hint button{appearance:none;background:none;border:1px solid var(--line);color:var(--magenta);font:inherit;padding:2px 8px;cursor:pointer;margin-left:6px}
+.hint button[hidden]{display:none}
+
+/* notes */
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:34px}
+.note{border:1px solid var(--line);background:var(--slab);padding:16px 18px;min-width:0}
+.note h4{font-family:var(--f-display);font-size:17px;margin:0 0 8px;letter-spacing:.02em}
+.note.edge h4{color:var(--amber)}
+.note.out h4{color:var(--magenta)}
+.note.astral h4{color:var(--cyan)}
+.note ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px;color:var(--dim)}
+.note li b{color:var(--ink);font-family:var(--f-mono);font-weight:600}
+.note p{margin:0;font-size:14px;color:var(--dim)}
+footer{margin-top:28px;font-family:var(--f-mono);font-size:11.5px;color:var(--dim)}
+@media (max-width:560px){
+  .layer{grid-template-columns:1fr}
+  .rail{flex-direction:row;align-items:baseline;gap:10px;border-right:0;border-bottom:1px solid var(--line);padding:10px 16px}
+  .code{font-size:24px}
+  .chips{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">stack://python &nbsp;<b>//</b>&nbsp; state as of Oct 2026 &nbsp;<b>//</b>&nbsp; CPython 3.15.0 shipped Oct 9</div>
+    <h1>The Python <span>Toolchain</span> Stack</h1>
+    <p class="lede">Read it like the OSI model: the editor at the top talks to the layers below it, all the way down to the language itself. Each slab names the current best choice, then the other live options. Tap any tool to light up every layer it appears in.</p>
+    <div class="legend">
+      <span><i class="tag t-pick">pick</i> modern default</span>
+      <span><i class="tag t-alt">alt</i> solid alternative</span>
+      <span><i class="tag t-edge">edge</i> maintained, but teetering or superseded</span>
+      <span><i class="multi">◆ ×N</i> appears in N layers</span>
+    </div>
+  </header>
+
+  <section class="path" aria-label="Recommended stack">
+    <h2>Default path, top to bottom</h2>
+    <ol>
+      <li>VS Code</li><li>Pylance</li><li>Ruff</li><li>Pyright</li><li>pytest</li><li>uv init + pyproject.toml</li><li>uv</li><li>uv python</li><li>CPython 3.15</li>
+    </ol>
+  </section>
+
+  <p class="hint" id="hint">Showing all tools.<button type="button" id="clear" hidden>clear highlight</button></p>
+  <div class="stack" id="stack"></div>
+
+  <section class="notes">
+    <div class="note edge">
+      <h4>On the edge</h4>
+      <ul>
+        <li><b>setup.py</b> setuptools still reads it, but running <code>python setup.py install/upload</code> is deprecated. Metadata belongs in pyproject.toml now; keep setup.py only for custom build logic.</li>
+        <li><b>Black</b> still released and widely used, but Ruff's formatter is a near drop-in and runs in the same binary as the linter. New projects rarely start with Black.</li>
+        <li><b>pyenv</b> maintained, but <code>uv python install</code> does the same job faster with no shell shims.</li>
+        <li><b>virtualenv</b> maintained by PyPA and still used inside tox, Hatch and pipx. You rarely call it directly anymore; stdlib venv or <code>uv venv</code> covers it.</li>
+        <li><b>cookiecutter</b> maintained but slow-moving. Copier can re-apply template updates to existing projects, which cookiecutter can't.</li>
+        <li><b>PyPy</b> alive (8.0 released Sep 2026) but trails CPython by several versions and has friction with C extensions. Good for pure-Python hot loops, not a default.</li>
+        <li><b>ty</b> the opposite case: new, fast, and still 0.0.x beta. Worth watching, not yet worth gating CI on.</li>
+      </ul>
+    </div>
+    <div class="note astral">
+      <h4>The Astral factor</h4>
+      <p>uv, Ruff and ty all come from Astral, which OpenAI agreed to acquire in March 2026. All three remain permissively licensed (MIT / Apache 2.0) and open source, so forking stays possible. The practical hedge: keep your config in standard pyproject.toml fields and commit your lockfile, and switching tools later stays cheap.</p>
+    </div>
+    <div class="note out">
+      <h4>Left out on purpose</h4>
+      <ul>
+        <li><b>Jython</b>, <b>IronPython</b> stalled on Python 2.7-era compatibility.</li>
+        <li><b>Cython</b> excluded per request (it's a compiler for extensions, not a runtime layer anyway).</li>
+        <li><b>easy_install</b>, <b>distutils</b> removed from the ecosystem (distutils left the stdlib in 3.12).</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>Versions and status checked against release notes and project pages, Oct 19 2026. Status changes fast at the type-checker layer.</footer>
+</div>
+
+<script>
+const DATA = [
+  {code:"L9", rail:"interface", name:"Editor / IDE", c:"var(--magenta)",
+   what:"Where you type. Mostly a host for the layers below: the IDE's smarts come from the language server it runs.",
+   pick:"VS Code (Positron for notebook-heavy data science)",
+   groups:[{items:[
+     ["vscode","VS Code","pick","Free, huge extension ecosystem, first-class Pylance and Jupyter support."],
+     ["pycharm","PyCharm","alt","Best-in-class refactoring and debugger. Brings its own analysis engine instead of an LSP. One unified product with a free tier."],
+     ["positron","Positron","alt","Posit's data-science IDE built on the VS Code core. Variables pane, plots, R and Python side by side."],
+     ["cursor","Cursor","alt","VS Code fork with AI built in. Can't use Pylance (license is VS Code only), so pair it with basedpyright or ty."],
+     ["zed","Zed","alt","Native, very fast editor. Speaks LSP, so ty, basedpyright or Pyrefly plug in directly."],
+     ["jupyter","JupyterLab","alt","Notebook-first. Still the lingua franca for exploratory analysis and sharing results."]
+   ]}]},
+  {code:"L8", rail:"intelligence", name:"Language server", c:"var(--violet)",
+   what:"Completions, go-to-definition, hover types, rename. Most of these are type checkers wearing an LSP hat, which is why they reappear one layer down.",
+   pick:"Pylance in VS Code; basedpyright or ty elsewhere",
+   groups:[{items:[
+     ["pylance","Pylance","pick","Microsoft's closed-source LSP for VS Code, powered by the Pyright engine."],
+     ["basedpyright","basedpyright","alt","Open fork of Pyright that restores Pylance-only features. The go-to for Cursor, Neovim and other non-Microsoft editors."],
+     ["pyrefly","Pyrefly (LSP)","alt","Meta's Rust checker, 1.0 since May 2026. Ships its own VS Code extension and language server."],
+     ["ty","ty server","edge","Astral's Rust checker as an LSP. Incremental updates are extremely fast, but still beta."],
+     ["ruff","Ruff server","alt","Ruff has a built-in LSP for lint diagnostics and fixes. Runs alongside the type-aware server, not instead of it."]
+   ]}]},
+  {code:"L7", rail:"style", name:"Lint & format", c:"var(--cyan)",
+   what:"Mechanical correctness and one consistent code style, enforced in the editor, pre-commit and CI.",
+   pick:"Ruff (lint + format, one binary)",
+   groups:[{items:[
+     ["ruff","Ruff","pick","Rust linter and formatter. Replaces flake8, isort, pyupgrade, most plugins, and Black in one tool."],
+     ["black","Black","edge","The formatter that ended style debates. Still maintained, but Ruff format matches it nearly line for line."],
+     ["pylint","Pylint","alt","Slower but deeper checks (design smells, some cross-module issues). Still maintained."],
+     ["flake8","flake8 / isort","edge","Maintained, but Ruff reimplements their rules much faster. Mostly seen in older configs."]
+   ]}]},
+  {code:"L6", rail:"types", name:"Type checking", c:"var(--cyan)",
+   what:"Type hints checked two ways: statically before the code runs, and at runtime at the edges where outside data comes in. The static side is the fastest-moving part of the stack.",
+   pick:"Pyright statically (Pyrefly if speed on a big repo matters); Pydantic at runtime",
+   groups:[{label:"Static (before it runs)", items:[
+     ["pyright","Pyright","pick","Strict, fast enough, and identical to the diagnostics Pylance shows in the editor, so CI and IDE never disagree."],
+     ["pyrefly","Pyrefly","alt","Meta's Rust checker. Stable 1.0 (May 2026), much faster than mypy and Pyright, strong inference, migration tooling."],
+     ["mypy","mypy","alt","The reference implementation. Slowest, but still the most common in existing codebases and has plugins (Django, Pydantic)."],
+     ["ty","ty","edge","Astral's checker. Fastest of all and great diagnostics, but 0.0.x beta and narrower rule coverage."],
+     ["basedpyright","basedpyright","alt","Same engine as Pyright with stricter defaults and extra rules. Fine CLI choice too."]
+    ]},
+    {label:"Runtime (while it runs)", items:[
+     ["pydantic","Pydantic","pick","Validates and parses data against your type hints at runtime: API payloads, configs, LLM output. Rust core, powers FastAPI. Static checkers understand its models."],
+     ["msgspec","msgspec","alt","Much faster serialization and validation for JSON and MessagePack. Fewer features than Pydantic; great on hot paths."],
+     ["attrs","attrs / dataclasses","alt","Typed data classes without validation. dataclasses is stdlib; attrs adds validators and slots."],
+     ["beartype","beartype","alt","Decorator that checks function arguments and returns against their hints at call time, with near-zero overhead."]
+    ]}
+   ]},
+  {code:"L5", rail:"verify", name:"Testing", c:"var(--violet)",
+   what:"Runtime verification. One clear winner here, plus a few companions.",
+   pick:"pytest",
+   groups:[{items:[
+     ["pytest","pytest","pick","Plain asserts, fixtures, parametrize, and a plugin for everything. The de facto standard."],
+     ["coverage","coverage.py / pytest-cov","alt","Line and branch coverage. Pairs with pytest."],
+     ["hypothesis","Hypothesis","alt","Property-based testing. Especially good for numerical and quant code with edge cases you won't think of."],
+     ["nox","nox / tox","alt","Run the suite across Python versions and dependency sets. nox is configured in Python; tox in config files."]
+   ]}]},
+  {code:"L4", rail:"project", name:"Scaffold, build & publish", c:"var(--magenta)",
+   what:"How a project starts, how it declares metadata, and how it becomes a wheel. pyproject.toml is the hub of all of it.",
+   pick:"uv init + pyproject.toml, hatchling or uv_build backend",
+   groups:[
+    {label:"Scaffold", items:[
+     ["uv","uv init","pick","Creates a minimal pyproject.toml project in one command. Enough for most work."],
+     ["copier","Copier","alt","Template engine that can push template updates into projects already generated from it."],
+     ["cookiecutter","cookiecutter","edge","The original project-template tool. Maintained but slow-moving, and one-shot only."]
+    ]},
+    {label:"Declare & build", items:[
+     ["pyproject","pyproject.toml","pick","The standard (PEP 517/518/621). Metadata, dependencies and tool config all live here."],
+     ["hatchling","hatchling / uv_build","pick","Modern build backends. uv_build is Astral's pure-Python-package backend; hatchling is the PyPA-adjacent default."],
+     ["setuptools","setuptools","alt","Still the most-used backend and fine when configured via pyproject.toml. Needed for compiled extensions."],
+     ["setuppy","setup.py","edge","Legacy entry point. Direct invocation is deprecated; keep only if you need imperative build logic."],
+     ["poetry","poetry-core","alt","Poetry's backend. Comes along if you use Poetry."]
+    ]},
+    {label:"Publish", items:[
+     ["uv","uv publish","pick","Uploads to PyPI with trusted publishing support."],
+     ["twine","twine","alt","The classic uploader. Still fine."]
+    ]}
+   ]},
+  {code:"L3", rail:"deps", name:"Dependencies & environments", c:"var(--cyan)",
+   what:"Resolve, lock and install packages into an isolated environment. The layer most transformed in the last few years.",
+   pick:"uv",
+   groups:[
+    {label:"Project managers", items:[
+     ["uv","uv","pick","Resolver, lockfile, venv manager, tool runner. 10 to 100x faster than pip. Also appears in L4 and L2."],
+     ["poetry","Poetry","alt","Mature, 2.x now uses standard PEP 621 metadata. Slower than uv but stable and well understood."],
+     ["pixi","pixi","alt","Modern conda-ecosystem manager with lockfiles. The pick when you need non-Python binaries (CUDA, GDAL, compilers)."],
+     ["conda","conda","alt","Still the standard in many data-science and HPC shops. Handles native libraries pip can't."],
+     ["pdm","PDM / Hatch","alt","Standards-first project managers. Fine, but uv has absorbed most of their audience."]
+    ]},
+    {label:"Installers & isolation", items:[
+     ["pip","pip","alt","The baseline installer bundled with Python. Fine for one-offs and Docker layers; no lockfile or project management."],
+     ["venv","venv","alt","Stdlib virtual environments. What uv creates under the hood."],
+     ["virtualenv","virtualenv","edge","Faster, older sibling of venv. Maintained, mostly used indirectly by tox, Hatch and pipx."]
+    ]}
+   ]},
+  {code:"L2", rail:"versions", name:"Python version manager", c:"var(--violet)",
+   what:"Which interpreters are installed and which one a project uses.",
+   pick:"uv python",
+   groups:[{items:[
+     ["uv","uv python","pick","Downloads standalone CPython (and PyPy) builds on demand; pins per project via .python-version."],
+     ["pyenv","pyenv","edge","Compiles Python from source behind shell shims. Maintained, but slower and fussier than uv."],
+     ["conda","conda","alt","Python is just another package in a conda env, alongside its native dependencies."],
+     ["pixi","pixi","alt","Same idea as conda, with project lockfiles."],
+     ["mise","mise","alt","Polyglot version manager (Python, Node, Go...). Good if you juggle several languages."],
+     ["pyinstall","py install (Windows)","alt","The new Python install manager on Windows; python.org now documents installing 3.15 this way."]
+   ]}]},
+  {code:"L1", rail:"runtime", name:"Interpreter / runtime", c:"var(--magenta)",
+   what:"The program that actually executes your code.",
+   pick:"CPython 3.15",
+   groups:[{items:[
+     ["cpython","CPython 3.15","pick","The reference implementation. 3.15 (Oct 9 2026) adds explicit lazy imports, frozendict, sentinel, UTF-8 by default and a faster JIT."],
+     ["freethreaded","CPython free-threaded","alt","The no-GIL build (3.14t / 3.15t). Real parallel threads; check that your C extensions support it."],
+     ["pypy","PyPy","edge","JIT-compiled Python, often several times faster on pure-Python loops. Trails CPython by a few versions; C-extension friction."],
+     ["graalpy","GraalPy","alt","Oracle's JVM-based Python. Niche: Java interop and polyglot apps."],
+     ["micropython","MicroPython","alt","Python for microcontrollers. Different world, same syntax."]
+   ]}]},
+  {code:"L0", rail:"spec", name:"The language", c:"var(--amber)",
+   what:"Not a tool but the contract every layer above implements: the language reference, the typing spec, and the packaging PEPs.",
+   pick:"Python 3.15 language + typing spec",
+   groups:[{items:[
+     ["lang","Language reference","pick","Syntax and semantics, evolved through PEPs. 3.15 headliner: explicit lazy imports (PEP 810)."],
+     ["typing","Typing spec","pick","The shared rulebook that mypy, Pyright, Pyrefly and ty are all graded against for conformance."],
+     ["packaging","Packaging PEPs","pick","517/518 (build), 621 (metadata), 751 (pylock.toml). Why tools in L2–L4 are interchangeable."]
+   ]}]}
+];
+
+const count = {};
+DATA.forEach(l=>{const seen=new Set();l.groups.forEach(g=>g.items.forEach(([id])=>seen.add(id)));seen.forEach(id=>count[id]=(count[id]||0)+1);});
+
+const stack=document.getElementById('stack');
+DATA.forEach((l,idx)=>{
+  const el=document.createElement('section');
+  el.className='layer';
+  el.style.setProperty('--i', idx);
+  el.style.setProperty('--c', l.c);
+  const groups=l.groups.map(g=>`
+    <div class="group">${g.label?`<div class="glabel">${g.label}</div>`:''}
+      <div class="chips">${g.items.map(([id,nm,st,nt])=>`
+        <button type="button" class="chip is-${st}" data-tool="${id}">
+          <span class="nm">${nm} <i class="tag t-${st}">${st}</i>${count[id]>1?`<span class="multi">◆ ×${count[id]}</span>`:''}</span>
+          <span class="nt">${nt}</span>
+        </button>`).join('')}
+      </div>
+    </div>`).join('');
+  el.innerHTML=`
+    <div class="rail"><span class="code">${l.code}</span><small>${l.rail}</small></div>
+    <div class="body">
+      <div class="top"><h3>${l.name}</h3><span class="pick">▸ <b>${l.pick}</b></span></div>
+      <p class="what">${l.what}</p>
+      ${groups}
+    </div>`;
+  stack.appendChild(el);
+});
+
+
+const hint=document.getElementById('hint'), clear=document.getElementById('clear');
+let active=null;
+function setActive(id,label){
+  active=id;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('lit', id!==null && c.dataset.tool===id));
+  stack.classList.toggle('filtering', id!==null);
+  hint.firstChild.textContent = id===null ? 'Showing all tools.' : `Highlighting ${label} in ${count[id]} layer${count[id]>1?'s':''}.`;
+  clear.hidden = id===null;
+}
+stack.addEventListener('click',e=>{
+  const chip=e.target.closest('.chip'); if(!chip) return;
+  const id=chip.dataset.tool;
+  setActive(active===id?null:id, chip.querySelector('.nm').firstChild.textContent.trim());
+});
+clear.addEventListener('click',()=>setActive(null));
+</script>
