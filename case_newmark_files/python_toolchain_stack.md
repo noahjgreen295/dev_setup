@@ -226,7 +226,23 @@ uv, Ruff and ty all come from Astral, which OpenAI agreed to acquire in March 20
 
 - **Jython**, **IronPython**: stalled on Python 2.7-era compatibility.
 - **Cython**: a compiler for extensions, not a runtime layer.
-- **easy_install**, **distutils**: removed from the ecosystem (distutils left the stdlib in 3.12).
+
+## Dog Solitude
+
+The scrapyard. Dead, removed or abandoned tools, by layer.
+
+| Code | Short | Layer | Obsolete |
+|---|---|---|---|
+| L9 | interface | Editor / IDE | Atom, Komodo IDE, Light Table, Ninja-IDE |
+| L8 | intelligence | Language server | Microsoft Python Language Server, pyls (Palantir), Kite |
+| L7 | style | Lint & format | PyChecker, pep8, pep257, pydocstyle |
+| L6 | types | Type checking | pytype, Pydantic v1 |
+| L5 | verify | Testing | nose, pytest-runner, setup.py test |
+| L4 | project | Scaffold, build & publish | distutils, distutils2, distribute, eggs (.egg), bdist_wininst, setup.py upload, PasteScript |
+| L3 | deps | Dependencies & environments | easy_install, pyvenv, pip legacy resolver, PyPM |
+| L2 | versions | Python version manager | pythonbrew |
+| L1 | runtime | Interpreter / runtime | Python 2.7, CPython 3.9 and older, Stackless Python, Unladen Swallow, Psyco, Pyjion, Pyston |
+| L0 | spec | The language | Python 2 syntax, asyncore, asynchat, imp, lib2to3 / 2to3, PEP 594 dead batteries (cgi, telnetlib, crypt, nntplib...) |
 
 ## Sources
 

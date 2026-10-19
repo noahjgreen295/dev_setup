@@ -104,6 +104,17 @@ footer{margin-top:28px;font-family:var(--f-mono);font-size:11.5px;color:var(--di
   .code{font-size:24px}
   .chips{grid-template-columns:1fr}
 }
+/* dog solitude */
+.dog{margin-top:34px;border:1px dashed rgba(255,194,62,.35);background:repeating-linear-gradient(135deg,rgba(255,194,62,.03) 0 10px,transparent 10px 20px),var(--slab);padding:16px 18px}
+.dog h2{font-family:var(--f-display);font-weight:900;font-size:24px;margin:0 0 2px;color:var(--amber);letter-spacing:.04em;text-transform:uppercase}
+.dog p{margin:0 0 12px;font-size:13px;color:var(--dim)}
+.dog dl{margin:0;display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:6px 14px;font-size:13px}
+.dog dt{display:contents}
+.dog .dc{font-family:var(--f-display);font-weight:700;color:var(--amber)}
+.dog .dn{font-family:var(--f-mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.dog .dn b{color:var(--ink);font-weight:600}
+.dog dd{margin:0;font-family:var(--f-mono);color:var(--dim);text-decoration:line-through;text-decoration-color:rgba(255,62,165,.55);min-width:0}
+@media (max-width:560px){.dog dl{grid-template-columns:auto minmax(0,1fr)}.dog .dn{white-space:normal}.dog dd{grid-column:1/-1;margin-bottom:6px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -152,9 +163,25 @@ footer{margin-top:28px;font-family:var(--f-mono);font-size:11.5px;color:var(--di
       <ul>
         <li><b>Jython</b>, <b>IronPython</b> stalled on Python 2.7-era compatibility.</li>
         <li><b>Cython</b> excluded per request (it's a compiler for extensions, not a runtime layer anyway).</li>
-        <li><b>easy_install</b>, <b>distutils</b> removed from the ecosystem (distutils left the stdlib in 3.12).</li>
       </ul>
     </div>
+  </section>
+
+  <section class="dog" aria-label="Dog Solitude">
+    <h2>Dog Solitude</h2>
+    <p>The scrapyard. Dead, removed or abandoned tools, by layer.</p>
+    <dl>
+      <dt><span class="dc">L9</span><span class="dn">interface · <b>Editor / IDE</b></span></dt><dd>Atom, Komodo IDE, Light Table, Ninja-IDE</dd>
+      <dt><span class="dc">L8</span><span class="dn">intelligence · <b>Language server</b></span></dt><dd>Microsoft Python Language Server, pyls (Palantir), Kite</dd>
+      <dt><span class="dc">L7</span><span class="dn">style · <b>Lint & format</b></span></dt><dd>PyChecker, pep8, pep257, pydocstyle</dd>
+      <dt><span class="dc">L6</span><span class="dn">types · <b>Type checking</b></span></dt><dd>pytype, Pydantic v1</dd>
+      <dt><span class="dc">L5</span><span class="dn">verify · <b>Testing</b></span></dt><dd>nose, pytest-runner, setup.py test</dd>
+      <dt><span class="dc">L4</span><span class="dn">project · <b>Scaffold, build & publish</b></span></dt><dd>distutils, distutils2, distribute, eggs (.egg), bdist_wininst, setup.py upload, PasteScript</dd>
+      <dt><span class="dc">L3</span><span class="dn">deps · <b>Dependencies & environments</b></span></dt><dd>easy_install, pyvenv, pip legacy resolver, PyPM</dd>
+      <dt><span class="dc">L2</span><span class="dn">versions · <b>Python version manager</b></span></dt><dd>pythonbrew</dd>
+      <dt><span class="dc">L1</span><span class="dn">runtime · <b>Interpreter / runtime</b></span></dt><dd>Python 2.7, CPython 3.9 and older, Stackless Python, Unladen Swallow, Psyco, Pyjion, Pyston</dd>
+      <dt><span class="dc">L0</span><span class="dn">spec · <b>The language</b></span></dt><dd>Python 2 syntax, asyncore, asynchat, imp, lib2to3 / 2to3, PEP 594 dead batteries (cgi, telnetlib, crypt, nntplib...)</dd>
+    </dl>
   </section>
 
   <footer>Versions and status checked against release notes and project pages, Oct 19 2026. Status changes fast at the type-checker layer.</footer>
