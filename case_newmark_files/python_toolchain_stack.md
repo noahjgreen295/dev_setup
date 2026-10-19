@@ -42,6 +42,7 @@ Completions, go-to-definition, hover types, rename. Most of these are type check
 | Pyrefly (LSP) ◆×2 | alt | Meta's Rust checker, 1.0 since May 2026. Ships its own VS Code extension and language server. |
 | ty server ◆×2 | ⚠️ edge | Astral's Rust checker as an LSP. Incremental updates are extremely fast, but still beta. |
 | Ruff server ◆×2 | alt | Ruff has a built-in LSP for lint diagnostics and fixes. Runs alongside the type-aware server, not instead of it. |
+| “The Rest” | ⚠️ edge | Jedi, python-lsp-server (pylsp), jedi-language-server, Rope. All still maintained, but the Pyright-based and Rust servers are well ahead on type awareness. |
 
 ---
 
@@ -76,6 +77,7 @@ Type hints checked two ways: statically before the code runs, and at runtime at 
 | mypy | alt | The reference implementation. Slowest, but still the most common in existing codebases and has plugins (Django, Pydantic). |
 | ty ◆×2 | ⚠️ edge | Astral's checker. Fastest of all and great diagnostics, but 0.0.x beta and narrower rule coverage. |
 | basedpyright ◆×2 | alt | Same engine as Pyright with stricter defaults and extra rules. Fine CLI choice too. |
+| “The Rest” | ⚠️ edge | Pyre. Still maintained by Meta, but Pyrefly is its successor. |
 
 ### Runtime (while it runs)
 
@@ -85,6 +87,7 @@ Type hints checked two ways: statically before the code runs, and at runtime at 
 | msgspec | alt | Much faster serialization and validation for JSON and MessagePack. Fewer features than Pydantic; great on hot paths. |
 | attrs / dataclasses | alt | Typed data classes without validation. dataclasses is stdlib; attrs adds validators and slots. |
 | beartype | alt | Decorator that checks function arguments and returns against their hints at call time, with near-zero overhead. |
+| “The Rest” | ⚠️ edge | typeguard, marshmallow, Cerberus, voluptuous. All still maintained, but Pydantic has absorbed most of their audience; marshmallow lingers in older Flask codebases. |
 
 ---
 
@@ -100,6 +103,7 @@ Runtime verification. One clear winner here, plus a few companions.
 | coverage.py / pytest-cov | alt | Line and branch coverage. Pairs with pytest. |
 | Hypothesis | alt | Property-based testing. Especially good for numerical and quant code with edge cases you won't think of. |
 | nox / tox | alt | Run the suite across Python versions and dependency sets. nox is configured in Python; tox in config files. |
+| “The Rest” | ⚠️ edge | nose2, green. Both still maintained, but they're unittest-style runners that pytest outclasses. |
 
 ---
 
@@ -126,6 +130,7 @@ How a project starts, how it declares metadata, and how it becomes a wheel. pypr
 | setuptools | alt | Still the most-used backend and fine when configured via pyproject.toml. Needed for compiled extensions. |
 | setup.py | ⚠️ edge | Legacy entry point. Direct invocation is deprecated; keep only if you need imperative build logic. |
 | poetry-core ◆×2 | alt | Poetry's backend. Comes along if you use Poetry. |
+| “The Rest” | ⚠️ edge | pbr, scikit-build (classic). Still maintained, but rarely chosen now; scikit-build-core has replaced classic scikit-build for compiled C++ projects. |
 
 ### Publish
 
@@ -151,6 +156,7 @@ Resolve, lock and install packages into an isolated environment. The layer most 
 | pixi ◆×2 | alt | Modern conda-ecosystem manager with lockfiles. The pick when you need non-Python binaries (CUDA, GDAL, compilers). |
 | conda ◆×2 | alt | Still the standard in many data-science and HPC shops. Handles native libraries pip can't. |
 | PDM / Hatch | alt | Standards-first project managers. Fine, but uv has absorbed most of their audience. |
+| “The Rest” | ⚠️ edge | pipenv, pip-tools, pipx, virtualenvwrapper. All still maintained, but uv covers locking, requirements compiling, CLI tools (uv tool) and environments. |
 
 ### Installers & isolation
 
@@ -176,6 +182,7 @@ Which interpreters are installed and which one a project uses.
 | pixi ◆×2 | alt | Same idea as conda, with project lockfiles. |
 | mise | alt | Polyglot version manager (Python, Node, Go...). Good if you juggle several languages. |
 | py install (Windows) | alt | The new Python install manager on Windows; python.org now documents installing 3.15 this way. |
+| “The Rest” | ⚠️ edge | asdf, pyenv-virtualenv, pyenv-win. Still maintained, but mise has largely taken asdf's place and uv covers the other two. |
 
 ---
 
