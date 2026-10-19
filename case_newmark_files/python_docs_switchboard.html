@@ -1,0 +1,287 @@
+<title>Python Docs Switchboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tektur:wght@500;700;900&family=Chivo:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: intercepted quote → switchboard (one root, four routes on a bus) → one panel per route with a build pipeline + option chips → shared ground → Dog Solitude. Same neon terminal identity as the Toolchain Stack; deliberately single-theme. */
+:root{
+  color-scheme: dark;
+  --void:#0a0912;
+  --slab:#13111f;
+  --slab-2:#1a1729;
+  --line:#2c2742;
+  --ink:#e9e6f5;
+  --dim:#9c96b8;
+  --cyan:#3ef0ff;
+  --magenta:#ff3ea5;
+  --amber:#ffc23e;
+  --violet:#a98bff;
+  --f-display:"Tektur","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Chivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:linear-gradient(rgba(62,240,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(62,240,255,.035) 1px,transparent 1px);
+  background-size:28px 28px}
+.wrap{max-width:1120px;margin:0 auto;padding-block:40px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+code{font-family:var(--f-mono);font-size:.92em;color:var(--cyan)}
+
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.eyebrow b{color:var(--magenta);font-weight:600}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,6.4vw,64px);line-height:.95;margin:10px 0 22px;letter-spacing:.01em;text-wrap:balance;
+  text-shadow:0 0 18px rgba(255,62,165,.35),2px 0 0 rgba(62,240,255,.55)}
+h1 span{color:var(--magenta)}
+
+/* intercepted transmission */
+.intercept{border:1px solid var(--line);background:var(--slab);position:relative;padding:18px 20px 18px 22px;
+  clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px))}
+.intercept::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--magenta);box-shadow:0 0 12px var(--magenta)}
+.intercept .hdr{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--magenta);margin-bottom:8px}
+.intercept blockquote{margin:0;font-family:var(--f-display);font-weight:500;font-size:clamp(19px,2.6vw,26px);line-height:1.3;text-wrap:balance}
+.intercept blockquote mark{background:none;color:var(--cyan)}
+.verdict{margin-top:14px;display:grid;gap:6px;max-width:80ch}
+.verdict p{margin:0;color:var(--dim);font-size:14.5px}
+.verdict p strong{color:var(--amber);font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-right:6px}
+
+/* switchboard */
+.board{margin:34px 0 10px;display:grid;justify-items:center;gap:0}
+.root{font-family:var(--f-mono);font-size:13px;border:1px solid var(--cyan);color:var(--cyan);padding:8px 14px;background:var(--slab);
+  box-shadow:0 0 16px rgba(62,240,255,.25);position:relative}
+.root::after{content:"";position:absolute;left:50%;top:100%;height:22px;width:1px;background:var(--cyan)}
+.routes{margin-top:22px;width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;position:relative;padding-top:22px}
+.routes::before{content:"";position:absolute;top:0;left:16.667%;right:16.667%;height:1px;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.route{position:relative;display:grid;gap:4px;text-decoration:none;color:inherit;border:1px solid var(--line);background:var(--slab);padding:12px 14px;min-width:0;
+  transition:border-color .15s,box-shadow .15s}
+.route::before{content:"";position:absolute;bottom:100%;left:50%;width:1px;height:22px;background:var(--c)}
+.route:hover,.route:focus-visible{border-color:var(--c);box-shadow:0 0 14px color-mix(in srgb,var(--c) 35%,transparent);outline:none}
+.route .h{font-family:var(--f-display);font-weight:700;font-size:22px;color:var(--c);line-height:1}
+.route .n{font-family:var(--f-display);font-weight:700;font-size:15px}
+.route .q{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em}
+.q.yes{color:var(--cyan)} .q.part{color:var(--amber)} .q.no{color:var(--dim)}
+@media (max-width:760px){
+  .board{justify-items:start}
+  .root::after{left:18px}
+  .routes{grid-template-columns:1fr;padding-top:0;padding-left:28px;margin-top:22px}
+  .routes::before{top:-22px;bottom:24px;left:18px;right:auto;width:1px;height:auto}
+  .route::before{bottom:auto;top:50%;left:-10px;width:10px;height:1px}
+}
+
+/* route panels */
+.panels{display:grid;gap:18px;margin-top:30px}
+.panel{position:relative;border:1px solid var(--line);background:var(--slab);scroll-margin-top:16px}
+.panel::before{content:"";position:absolute;inset:-1px auto -1px -1px;width:3px;background:var(--c);box-shadow:0 0 12px var(--c)}
+.phead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;padding:16px 18px 12px;border-bottom:1px solid var(--line);background:var(--slab-2)}
+.phead .h{font-family:var(--f-display);font-weight:700;font-size:28px;color:var(--c);line-height:1}
+.phead h2{font-family:var(--f-display);font-weight:700;font-size:22px;margin:0}
+.phead .q{margin-left:auto}
+.pbody{padding:16px 18px 18px;display:grid;gap:14px;min-width:0}
+.what{margin:0;color:var(--dim);max-width:80ch;font-size:14px}
+.take{margin:0;font-size:14px;max-width:80ch;border-left:2px solid var(--amber);padding-left:12px}
+.take b{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-right:6px}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:0;overflow-x:auto}
+.stage{position:relative;padding:10px 14px 10px 12px;border:1px solid var(--line);margin-right:-1px;min-width:120px;background:rgba(255,255,255,.015)}
+.stage:not(:last-child)::after{content:"▸";position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:var(--c);z-index:1;font-size:14px;background:var(--slab);line-height:1}
+.stage .s{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+.stage .t{font-family:var(--f-mono);font-size:13.5px;font-weight:600;color:var(--ink)}
+@media (max-width:640px){.pipe{grid-template-columns:1fr}.stage{margin-right:0;margin-bottom:-1px}.stage:not(:last-child)::after{content:"▾";right:auto;left:14px;top:auto;bottom:-9px;transform:none}}
+
+.group{display:grid;gap:7px}
+.glabel{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.chip{border:1px solid var(--line);background:rgba(255,255,255,.02);padding:9px 11px;display:grid;gap:3px;min-width:0}
+.chip .nm{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-weight:600;font-size:14px;flex-wrap:wrap}
+.chip .nt{font-size:13px;color:var(--dim);line-height:1.4}
+.chip.is-pick{border-color:rgba(62,240,255,.55);background:rgba(62,240,255,.05)}
+.chip.is-edge{border-style:dashed;border-color:rgba(255,194,62,.5)}
+.tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;padding:1px 6px;border:1px solid currentColor;text-transform:uppercase;font-weight:600;font-style:normal}
+.t-pick{color:var(--cyan)} .t-alt{color:var(--violet)} .t-edge{color:var(--amber)}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;font-family:var(--f-mono);font-size:12px;color:var(--dim);margin-top:14px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+
+/* shared ground */
+.sect{margin-top:40px}
+.sect > h2{font-family:var(--f-display);font-weight:900;font-size:26px;margin:0 0 4px;letter-spacing:.03em;text-transform:uppercase}
+.sect > p{margin:0 0 14px;color:var(--dim);max-width:80ch}
+.shared{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.shared .panel .pbody{gap:10px}
+.shared h3{font-family:var(--f-display);font-size:18px;margin:0}
+
+/* dog solitude */
+.dog{margin-top:40px;border:1px dashed rgba(255,194,62,.35);background:repeating-linear-gradient(135deg,rgba(255,194,62,.03) 0 10px,transparent 10px 20px),var(--slab);padding:16px 18px}
+.dog h2{font-family:var(--f-display);font-weight:900;font-size:24px;margin:0 0 2px;color:var(--amber);letter-spacing:.04em;text-transform:uppercase}
+.dog p{margin:0 0 12px;font-size:13px;color:var(--dim)}
+.dog dl{margin:0;display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:6px 14px;font-size:13px}
+.dog dt{display:contents}
+.dog .dc{font-family:var(--f-display);font-weight:700;color:var(--amber)}
+.dog .dn{font-family:var(--f-mono);font-size:11.5px;color:var(--ink);white-space:nowrap}
+.dog dd{margin:0;font-family:var(--f-mono);color:var(--dim);text-decoration:line-through;text-decoration-color:rgba(255,62,165,.55);min-width:0}
+@media (max-width:560px){.dog dl{grid-template-columns:auto minmax(0,1fr)}.dog .dn{white-space:normal}.dog dd{grid-column:1/-1;margin-bottom:6px}}
+footer{margin-top:28px;font-family:var(--f-mono);font-size:11.5px;color:var(--dim)}
+footer a{color:var(--cyan)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">stack://python/docs &nbsp;<b>//</b>&nbsp; companion to the Toolchain Stack &nbsp;<b>//</b>&nbsp; state as of Oct 2026</div>
+  <h1>The Python Docs <span>Switchboard</span></h1>
+
+  <section class="intercept" aria-label="The quote">
+    <div class="hdr">▚ intercepted transmission</div>
+    <blockquote>“So if you’re building a library, <mark>Sphinx or MkDocs</mark> is the tool; if you’re building a web service, <mark>OpenAPI</mark> is.”</blockquote>
+    <div class="verdict">
+      <p><strong>Decrypt</strong>Mostly right. The split is real: a library documents its Python API for people who import it, while a web service documents an HTTP contract for people who call it over the wire. Different readers, different tools.</p>
+      <p><strong>Patch 1</strong>The MkDocs half got complicated in 2026. Material for MkDocs, the theme nearly everyone used it with, went into maintenance mode, and its team is building a successor called Zensical that is still pre-1.0.</p>
+      <p><strong>Patch 2</strong>It skips command-line tools, where the first documentation anyone reads is <code>--help</code>.</p>
+    </div>
+  </section>
+
+  <nav class="board" aria-label="Routes">
+    <div class="root">&gt; what are you shipping?_</div>
+    <div class="routes" id="routes"></div>
+  </nav>
+
+  <div class="legend">
+    <span><i class="tag t-pick">pick</i> modern default</span>
+    <span><i class="tag t-alt">alt</i> solid alternative</span>
+    <span><i class="tag t-edge">edge</i> maintained, but teetering, too new, or overtaken</span>
+  </div>
+
+  <div class="panels" id="panels"></div>
+
+  <section class="sect" aria-label="Shared ground">
+    <h2>Shared ground</h2>
+    <p>Applies on every route. The generator renders the docs; these decide whether there is anything good to render.</p>
+    <div class="shared" id="shared"></div>
+  </section>
+
+  <section class="dog" aria-label="Dog Solitude">
+    <h2>Dog Solitude</h2>
+    <p>The scrapyard. Dead, removed or abandoned tools, by route.</p>
+    <dl id="dog"></dl>
+  </section>
+
+  <footer>Status checked against project pages and release notes, Oct 19 2026. See also the <a href="python_toolchain_stack.html">Python Toolchain Stack</a>.</footer>
+</div>
+
+<script>
+const ROUTES = [
+  {h:"LIB", id:"lib", name:"Library / package", c:"var(--cyan)", q:["yes","quote: covered"],
+   what:"Code other people import. Readers need install steps, tutorials, and an API reference generated from your docstrings so it never drifts from the code.",
+   take:"Sphinx is the safe pick for a new library right now: stable, versioned, and MyST lets you write it all in Markdown. MkDocs + Material is still friendlier and perfectly fine for existing sites; just know it's in maintenance mode while Zensical matures.",
+   pipe:[["write","Markdown (MyST)"],["extract","autodoc + napoleon"],["build","Sphinx"],["theme","Furo"],["host","Read the Docs"]],
+   groups:[
+    {label:"Sphinx side", items:[
+      ["Sphinx","pick","The Python standard since 2008 (CPython's own docs). Cross-references, versioning, PDF/ePub output, a huge extension ecosystem. 9.x is current."],
+      ["MyST-Parser","pick","Write Sphinx docs in Markdown instead of reStructuredText, with full access to directives and roles."],
+      ["autodoc + napoleon","pick","Pull API docs from docstrings; napoleon reads Google and NumPy style. Pair with sphinx-autodoc-typehints."],
+      ["sphinx-autoapi","alt","Builds the API reference by parsing source instead of importing it. Safer for packages with heavy or side-effecting imports."],
+      ["Furo","pick","Clean, fast, accessible theme with dark mode. The common default for new projects."],
+      ["pydata-sphinx-theme","alt","The theme of NumPy, pandas and much of the scientific stack. Pick it if your library lives in that world."]
+    ]},
+    {label:"MkDocs side", items:[
+      ["MkDocs + Material","edge","The friendliest docs setup in Python for years. Material entered maintenance mode in early 2026: critical and security fixes only, for at least 12 months."],
+      ["mkdocstrings","alt","API reference for MkDocs, powered by griffe (static analysis, no import needed). Still actively developed."],
+      ["Zensical","edge","Material's successor from the same team; reads existing mkdocs.yml. Promising, but still 0.0.x."],
+      ["MkDocs 2.0","edge","A ground-up rewrite of core MkDocs, in development with no release date. Expect breaking changes for plugins."]
+    ]},
+    {label:"Minimalist", items:[
+      ["pdoc","alt","Zero-config API docs straight from docstrings and type hints. Ideal for small libraries and internal packages; no narrative pages."],
+      ["pydoctor","alt","API-reference generator from the Twisted project. Solid, but rarely chosen outside that ecosystem."]
+    ]}
+   ]},
+  {h:"API", id:"api", name:"Web service", c:"var(--magenta)", q:["yes","quote: covered"],
+   what:"Code other people call over HTTP. Readers need every endpoint, request and response schema, auth flow and error, in a form machines can also read to generate clients.",
+   take:"Never write the OpenAPI file by hand if your framework can emit it. Generate it from your type hints and Pydantic models, so the docs and the code are the same source.",
+   pipe:[["write","type hints + Pydantic"],["extract","FastAPI"],["spec","OpenAPI 3.1"],["render","Swagger UI / Scalar"],["lint","Redocly CLI"]],
+   groups:[
+    {label:"Spec", items:[
+      ["OpenAPI 3.1","pick","The current workhorse. Aligned with JSON Schema, supported by essentially every generator, renderer and client tool."],
+      ["OpenAPI 3.2","edge","Released Sept 2025: streaming (SSE, JSON Lines), nested tags, a QUERY method, OAuth device flow. Tooling support is still catching up."]
+    ]},
+    {label:"Emit it from your framework", items:[
+      ["FastAPI","pick","Generates the spec automatically from type hints and Pydantic models, and serves Swagger UI and ReDoc out of the box."],
+      ["Litestar","alt","Same idea as FastAPI, with built-in OpenAPI and several bundled renderers."],
+      ["Django Ninja","alt","FastAPI-style typed API layer for Django, with built-in OpenAPI."],
+      ["drf-spectacular","pick","The standard OpenAPI 3 generator for Django REST Framework."],
+      ["APIFlask / flask-smorest","alt","OpenAPI for Flask apps, both built on the apispec library."]
+    ]},
+    {label:"Render & check", items:[
+      ["Swagger UI","pick","The interactive try-it-out console. Bundled with most frameworks."],
+      ["ReDoc","alt","Three-panel reference layout. Better for reading than for poking at endpoints."],
+      ["Scalar","alt","Modern renderer with a built-in API client and good dark mode. Increasingly the nicer-looking default."],
+      ["Redocly CLI / Spectral","alt","Lint the spec in CI for missing descriptions, inconsistent naming and breaking changes."],
+      ["openapi-python-client","alt","Generates a typed Python client from the spec. A good test of whether your spec is complete."]
+    ]},
+    {label:"Not REST?", items:[
+      ["AsyncAPI","alt","OpenAPI's sibling for event-driven services: Kafka, MQTT, WebSockets."],
+      ["GraphQL schema","alt","Self-documenting through introspection; Strawberry generates it from type hints. Explore with GraphiQL."],
+      ["gRPC .proto","alt","The .proto files are the contract; protoc-gen-doc renders them to HTML or Markdown."]
+    ]}
+   ]},
+  {h:"CLI", id:"cli", name:"Command-line tool", c:"var(--amber)", q:["no","quote: silent"],
+   what:"Code people run from a terminal. The first documentation they see is --help, so that's where the effort goes first.",
+   take:"Write good help text in Typer or Click, then render it into your docs site with a plugin rather than copying it by hand.",
+   pipe:[["write","Typer help text"],["render","sphinx-click / mkdocs-click"],["publish","README + docs site"]],
+   groups:[{items:[
+      ["Typer","pick","Builds the CLI and its --help output from type hints and docstrings. Rich formatting built in."],
+      ["Click","alt","The library under Typer. More explicit, same documentation story."],
+      ["sphinx-click / mkdocs-click","pick","Render the real --help output of every command into your docs, so the two never drift."],
+      ["argparse","alt","Stdlib. Fine for small scripts; help output is plain."],
+      ["README","pick","For most CLI tools a strong README with install, a quickstart and examples is most of the docs anyone reads."]
+   ]}]}
+];
+
+const SHARED = [
+  {name:"Docstring style", c:"var(--cyan)", items:[
+    ["Google style","pick","Readable as plain text, supported by napoleon and mkdocstrings. The usual default."],
+    ["NumPy style","pick","The scientific stack's convention. Longer, very structured; use it if your users live there."],
+    ["reST field lists","edge","Sphinx's native :param: style. Still works, but hard to read in source."]
+  ]},
+  {name:"Docstring checks", c:"var(--magenta)", items:[
+    ["Ruff D + DOC rules","pick","pydocstyle and pydoclint checks, reimplemented in Ruff. Catches missing and malformed docstrings in the same pass as linting."],
+    ["interrogate","alt","Reports docstring coverage as a percentage. Useful as a CI gate."],
+    ["doctest","alt","Run the examples in your docstrings as tests (pytest --doctest-modules), so examples stay correct."]
+  ]},
+  {name:"Structure", c:"var(--violet)", items:[
+    ["Diátaxis","pick","Split docs into tutorials, how-to guides, reference and explanation. The most useful idea in technical writing in years."]
+  ]},
+  {name:"Hosting", c:"var(--amber)", items:[
+    ["Read the Docs","pick","Versioned docs per release, PR previews, search. Free for open source."],
+    ["GitHub Pages","alt","Build in GitHub Actions and publish. Simple; versioning is up to you."],
+    ["llms.txt","edge","An emerging convention for an AI-readable index of your docs; plugins exist for Sphinx and MkDocs. Cheap to add, not yet a standard."]
+  ]}
+];
+
+const DOG = [
+  ["LIB","Library / package","Epydoc, HappyDoc, recommonmark, m2r"],
+  ["API","Web service","Swagger 2.0 spec, django-rest-swagger, flask-restplus"],
+  ["ALL","Shared ground","pydocstyle, darglint"]
+];
+
+const chip = ([nm,st,nt]) => `<div class="chip is-${st}"><span class="nm">${nm} <i class="tag t-${st}">${st}</i></span><span class="nt">${nt}</span></div>`;
+
+document.getElementById('routes').innerHTML = ROUTES.map(r=>`
+  <a class="route" href="#${r.id}" style="--c:${r.c}">
+    <span class="h">${r.h}</span><span class="n">${r.name}</span><span class="q ${r.q[0]}">${r.q[0]==='yes'?'✔':'✖'} ${r.q[1]}</span>
+  </a>`).join('');
+
+document.getElementById('panels').innerHTML = ROUTES.map(r=>`
+  <section class="panel" id="${r.id}" style="--c:${r.c}">
+    <div class="phead"><span class="h">${r.h}</span><h2>${r.name}</h2><span class="q ${r.q[0]}" style="font-family:var(--f-mono);font-size:11px;letter-spacing:.06em">${r.q[0]==='yes'?'✔':'✖'} ${r.q[1]}</span></div>
+    <div class="pbody">
+      <p class="what">${r.what}</p>
+      <div class="pipe" style="--n:${r.pipe.length}">${r.pipe.map(([s,t])=>`<div class="stage"><div class="s">${s}</div><div class="t">${t}</div></div>`).join('')}</div>
+      <p class="take"><b>Take</b>${r.take}</p>
+      ${r.groups.map(g=>`<div class="group">${g.label?`<div class="glabel">${g.label}</div>`:''}<div class="chips">${g.items.map(chip).join('')}</div></div>`).join('')}
+    </div>
+  </section>`).join('');
+
+document.getElementById('shared').innerHTML = SHARED.map(s=>`
+  <section class="panel" style="--c:${s.c}"><div class="pbody"><h3>${s.name}</h3><div class="chips" style="grid-template-columns:1fr">${s.items.map(chip).join('')}</div></div></section>`).join('');
+
+document.getElementById('dog').innerHTML = DOG.map(([c,n,t])=>`<dt><span class="dc">${c}</span><span class="dn">${n}</span></dt><dd>${t}</dd>`).join('');
+</script>
