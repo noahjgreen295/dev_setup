@@ -201,10 +201,10 @@ const DATA = [
      ["jupyter","JupyterLab","alt","Notebook-first. Still the lingua franca for exploratory analysis and sharing results."]
    ]}]},
   {code:"L8", rail:"intelligence", name:"Language server", c:"var(--violet)",
-   what:"Completions, go-to-definition, hover types, rename. Most of these are type checkers wearing an LSP hat, which is why they reappear one layer down.",
+   what:"Completions, go-to-definition, hover types, rename. Most of these are type checkers wearing an LSP hat, which is why they reappear one layer down. Pylance and Pyright are the clearest case: Pyright is the engine, Pylance is the closed-source VS Code product built around it.",
    pick:"Pylance in VS Code; basedpyright or ty elsewhere",
    groups:[{items:[
-     ["pylance","Pylance","pick","Microsoft's closed-source LSP for VS Code, powered by the Pyright engine."],
+     ["pylance","Pylance","pick","Microsoft's closed-source VS Code extension. Pyright ships inside it as its type-checking engine; Pylance adds the editor features on top (auto-imports, refactorings, semantic highlighting). Type checking is off by default, so it shows fewer errors than the Pyright CLI until you turn it on."],
      ["basedpyright","basedpyright","alt","Open fork of Pyright that restores Pylance-only features. The go-to for Cursor, Neovim and other non-Microsoft editors."],
      ["pyrefly","Pyrefly (LSP)","alt","Meta's Rust checker, 1.0 since May 2026. Ships its own VS Code extension and language server."],
      ["ty","ty server","edge","Astral's Rust checker as an LSP. Incremental updates are extremely fast, but still beta."],
@@ -225,7 +225,7 @@ const DATA = [
    what:"Type hints checked two ways: statically before the code runs, and at runtime at the edges where outside data comes in. The static side is the fastest-moving part of the stack.",
    pick:"Pyright statically (Pyrefly if speed on a big repo matters); Pydantic at runtime",
    groups:[{label:"Static (before it runs)", items:[
-     ["pyright","Pyright","pick","Strict, fast enough, and identical to the diagnostics Pylance shows in the editor, so CI and IDE never disagree."],
+     ["pyright","Pyright","pick","The open-source engine inside Pylance, run as a CLI. Put your settings in [tool.pyright] in pyproject.toml: Pylance reads the same section, so CI and the editor report the same errors. Without it, Pylance defaults to no type checking while the CLI defaults to standard."],
      ["pyrefly","Pyrefly","alt","Meta's Rust checker. Stable 1.0 (May 2026), much faster than mypy and Pyright, strong inference, migration tooling."],
      ["mypy","mypy","alt","The reference implementation. Slowest, but still the most common in existing codebases and has plugins (Django, Pydantic)."],
      ["ty","ty","edge","Astral's checker. Fastest of all and great diagnostics, but 0.0.x beta and narrower rule coverage."],
