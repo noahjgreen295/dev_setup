@@ -134,6 +134,22 @@ For the file icons, run **Ctrl+Shift+P** > **Material Icons: Activate Icon Theme
 
 With a `.venv` in the project (`pvv` from [HOWTO_shell_config.md](HOWTO_shell_config.md)), run **Ctrl+Shift+P** > **Python: Select Interpreter** and pick the one in `./.venv/bin/python`. VS Code usually spots it on its own. New integrated terminals then start with the venv already active.
 
+### Hide cache folders from the Explorer
+
+Python, pytest and Ruff all leave cache folders behind (`__pycache__`, `.pytest_cache`, `.ruff_cache`). They clutter the Explorer and you never need to open them. Open **Ctrl+Shift+P** > **Preferences: Open User Settings (JSON)** and add:
+
+```json
+"files.exclude": {
+  "**/__pycache__": true,
+  "**/.pytest_cache": true,
+  "**/.ruff_cache": true
+}
+```
+
+The `**/` prefix matches at any depth. This only hides the folders in VS Code (Explorer and search); they're still on disk.
+
+Alternatively, turn on `explorer.excludeGitIgnore` to hide everything your `.gitignore` lists. That hides `.venv` too, which you may not want.
+
 ## Installing extensions in Windows and in WSL
 
 Extensions come in two kinds, and VS Code decides where each goes:
@@ -178,6 +194,7 @@ Every WSL distro gets its own set, so if you add a second distro, do this again 
 - [Developing in WSL (VS Code docs)](https://code.visualstudio.com/docs/remote/wsl)
 - [Getting started with Python in VS Code (VS Code docs)](https://code.visualstudio.com/docs/python/python-tutorial)
 - [Formatting Python in VS Code (VS Code docs)](https://code.visualstudio.com/docs/python/formatting)
+- [User interface: hiding files and folders (VS Code docs)](https://code.visualstudio.com/docs/getstarted/userinterface)
 - [Python extension (VS Code Marketplace)](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 - [Ruff extension (VS Code Marketplace)](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
 - [Even Better TOML (VS Code Marketplace)](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
