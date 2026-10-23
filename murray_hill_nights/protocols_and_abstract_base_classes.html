@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protocols and Abstract Base Classes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --blue: #1d4f91;
+    --blue-light: #e8eef7;
+    --rule: #1d4f91;
+    --muted: #555;
+    --serif: "Tinos", "Times New Roman", Times, serif;
+    --mono: "Courier Prime", "Courier New", Courier, monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  .page {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 0 16px 6rem;
+  }
+
+  /* ---- cover ---- */
+  .cover {
+    border-bottom: 3px solid var(--blue);
+    padding: 3.5rem 0 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .series {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin: 0 0 2.5rem;
+  }
+  .cover h1 {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(2.4rem, 8vw, 4.2rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.2rem;
+  }
+  .cover h1 .with {
+    display: block;
+    font-weight: 400;
+    font-size: 0.45em;
+    letter-spacing: 0;
+    margin-top: 0.6rem;
+    color: var(--ink);
+  }
+  .cover h1 code {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--blue);
+  }
+  .bigmark {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(5rem, 22vw, 9rem);
+    line-height: 0.8;
+    float: right;
+    margin: -0.2rem 0 0 1rem;
+    user-select: none;
+  }
+  .cover .byline {
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ---- running head ---- */
+  .runhead {
+    display: flex;
+    justify-content: space-between;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-bottom: 1px solid #bbb;
+    padding-bottom: 0.25rem;
+    margin: 0 0 2rem;
+  }
+
+  /* ---- text ---- */
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 2.8rem 0 0.8rem;
+  }
+  h2 .num, h3 .num {
+    color: var(--blue);
+    margin-right: 0.6em;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    font-weight: 700;
+    margin: 2rem 0 0.6rem;
+  }
+  p { margin: 0 0 1rem; hyphens: auto; }
+  .lede::first-letter {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    float: left;
+    font-size: 3.4rem;
+    line-height: 0.85;
+    margin: 0.3rem 0.4rem 0 0;
+  }
+  ul { padding-left: 1.4rem; margin: 0 0 1rem; }
+  li { margin-bottom: 0.35rem; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.92em;
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    line-height: 1.4;
+    margin: 0.4rem 0 1.4rem;
+    padding: 0 0 0 1.5rem;
+    overflow-x: auto;
+    background: none;
+    border: none;
+  }
+  pre code { font-size: inherit; }
+  .cmt { color: var(--muted); font-style: italic; }
+  .key { font-weight: 700; }
+
+  /* ---- tables: ruled top and bottom, nothing else ---- */
+  .tablewrap { overflow-x: auto; margin: 0.6rem 0 1.6rem; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+    border-top: 1.5px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+  }
+  thead th {
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 1px solid var(--ink);
+    padding: 0.4rem 0.6rem 0.3rem 0;
+    vertical-align: bottom;
+  }
+  td {
+    padding: 0.32rem 0.6rem 0.32rem 0;
+    vertical-align: top;
+  }
+
+  /* ---- figures ---- */
+  figure {
+    margin: 1.6rem 0 2rem;
+    padding: 0;
+  }
+  figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 36rem;
+    margin: 0 auto;
+  }
+  figcaption {
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 0.7rem;
+  }
+  figcaption b {
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+    color: var(--blue);
+    margin-right: 0.4em;
+  }
+  svg text {
+    font-family: var(--mono);
+    fill: var(--ink);
+  }
+  svg .lbl { font-size: 15px; }
+  svg .lblb { font-size: 15px; font-weight: 700; }
+  svg .sm { font-size: 12.5px; fill: #555; }
+  svg .box { fill: #fff; stroke: var(--blue); stroke-width: 2; }
+  svg .band { fill: var(--blue-light); stroke: var(--blue); stroke-width: 1.5; }
+  svg .outer { fill: none; stroke: var(--blue); stroke-width: 2.5; }
+  svg .ln { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+  svg .ok { stroke: var(--blue); stroke-width: 2; fill: none; }
+  svg .bad { stroke: #a33; stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+  svg .x { fill: #a33; font-family: var(--sans); font-weight: 700; font-size: 18px; }
+  svg .chk { fill: var(--blue); font-family: var(--sans); font-weight: 700; font-size: 18px; }
+
+  .note {
+    border-left: 3px solid var(--blue);
+    padding: 0.1rem 0 0.1rem 1rem;
+    margin: 1.2rem 0 1.4rem;
+    font-size: 0.95rem;
+  }
+  a { color: var(--blue); }
+  .sources li { font-size: 0.92rem; }
+  .colophon {
+    margin-top: 4rem;
+    border-top: 3px solid var(--blue);
+    padding-top: 0.8rem;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  @media (max-width: 520px) {
+    body { font-size: 17px; }
+    pre { padding-left: 0.6rem; font-size: 0.78rem; }
+    .bigmark { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="cover">
+  <p class="series">Murray Hill Nights &middot; Python Toolchain</p>
+  <div class="bigmark" aria-hidden="true">P</div>
+  <h1>Protocols and Abstract Base Classes<span class="with">nominal and structural typing in Python</span></h1>
+  <p class="byline">Which to use, and when</p>
+</header>
+
+<div class="runhead"><span>Protocols and Abstract Base Classes</span><span>Murray Hill Nights</span></div>
+
+<p class="lede">Python has two ways to say &ldquo;this kind of object.&rdquo; An <strong>abstract base class</strong> (ABC) defines a family by inheritance. A class belongs because it says so, by subclassing the ABC. In return it can inherit shared code, and Python refuses to instantiate it until the abstract methods are filled in. A <strong>protocol</strong> defines a family by shape. A class belongs if it has the right methods and attributes, whether or not it has ever heard of the protocol, and a type checker verifies the fit before the code runs.</p>
+<p>The first is <strong>nominal</strong> typing: membership by name. The second is <strong>structural</strong> typing: membership by structure. Java&rsquo;s <code>abstract class</code> is nominal. A Java <code>interface</code> is nominal too, because you must write <code>implements</code>. A protocol is closer to an interface you satisfy without declaring it, which is how Go interfaces and C++20 concepts work.</p>
+
+<figure>
+<svg viewBox="0 0 560 270" role="img" aria-label="Nominal typing: subclasses inherit from BaseTest. Structural typing: any class with the right shape matches SupportsTest.">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d4f91"/></marker>
+    <marker id="ahk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/></marker>
+  </defs>
+  <text class="lblb" x="135" y="18" text-anchor="middle">nominal (ABC)</text>
+  <text class="lblb" x="420" y="18" text-anchor="middle">structural (Protocol)</text>
+  <line x1="275" y1="10" x2="275" y2="262" stroke="#bbb" stroke-width="1"/>
+  <rect class="band" x="75" y="40" width="120" height="44"/>
+  <text class="lblb" x="135" y="67" text-anchor="middle">BaseTest</text>
+  <rect class="box" x="10" y="190" width="120" height="44"/>
+  <text class="lbl" x="70" y="217" text-anchor="middle">WelchTTest</text>
+  <rect class="box" x="140" y="190" width="125" height="44"/>
+  <text class="lbl" x="202" y="217" text-anchor="middle">MannWhitneyU</text>
+  <path class="ok" d="M70,188 L120,88" marker-end="url(#ah)"/>
+  <path class="ok" d="M202,188 L150,88" marker-end="url(#ah)"/>
+  <text class="sm" x="135" y="150" text-anchor="middle">inherits</text>
+  <rect class="band" x="350" y="34" width="140" height="62"/>
+  <text class="lblb" x="420" y="55" text-anchor="middle">SupportsTest</text>
+  <text class="sm" x="420" y="72" text-anchor="middle">name: str</text>
+  <text class="sm" x="420" y="88" text-anchor="middle">run(a, b)</text>
+  <rect class="box" x="285" y="190" width="88" height="44"/>
+  <text class="lbl" x="329" y="217" text-anchor="middle">Welch</text>
+  <rect class="box" x="380" y="190" width="80" height="44"/>
+  <text class="lbl" x="420" y="217" text-anchor="middle">MyTest</text>
+  <rect class="box" x="467" y="190" width="88" height="44"/>
+  <text class="lbl" x="511" y="217" text-anchor="middle">Legacy</text>
+  <path class="ok" stroke-dasharray="5 4" d="M329,188 L395,100" marker-end="url(#ah)"/>
+  <path class="ok" stroke-dasharray="5 4" d="M420,188 L420,100" marker-end="url(#ah)"/>
+  <path class="ok" stroke-dasharray="5 4" d="M511,188 L445,100" marker-end="url(#ah)"/>
+  <text class="sm" x="427" y="168" text-anchor="start">matches</text>
+  <text class="sm" x="135" y="258" text-anchor="middle">membership declared</text>
+  <text class="sm" x="420" y="258" text-anchor="middle">membership implied by shape</text>
+</svg>
+<figcaption><b>Figure 1</b>Two ways to define a family of types.</figcaption>
+</figure>
+
+<p>A quick word on naming: Python has no <code>@abstractclass</code> decorator. A class is abstract when it inherits from <code>abc.ABC</code> and marks at least one method with <code>@abstractmethod</code>.</p>
+<h2><span class="num">1</span>Abstract base classes</h2>
+<h3><span class="num">1.1</span>What they are</h3>
+<p><code>abc</code> has been in the standard library since 2007–2008 (PEP 3119, Python 2.6 and 3.0). You inherit from <code>ABC</code>, mark the methods subclasses must supply, and write any shared logic as ordinary methods.</p>
+<p>The classic use is the <strong>template method</strong>: the base class owns the algorithm, and subclasses fill in one step.</p>
+<pre><code class="language-python">from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
+import numpy as np
+from numpy.typing import ArrayLike, NDArray
+from scipy import stats
+
+
+@dataclass(frozen=True, slots=True)
+class TestResult:
+    method: str
+    statistic: float
+    p_value: float
+
+
+class BaseTest(ABC):
+    name: str
+
+    def run(self, a: ArrayLike, b: ArrayLike) -&gt; TestResult:
+        x = _as_1d_float(a, &quot;a&quot;)
+        y = _as_1d_float(b, &quot;b&quot;)
+        statistic, p_value = self._compute(x, y)
+        return TestResult(method=self.name, statistic=statistic, p_value=p_value)
+
+    @abstractmethod
+    def _compute(
+        self, x: NDArray[np.float64], y: NDArray[np.float64]
+    ) -&gt; tuple[float, float]: ...
+
+
+class WelchTTest(BaseTest):
+    name = &quot;Welch t-test&quot;
+
+    def _compute(
+        self, x: NDArray[np.float64], y: NDArray[np.float64]
+    ) -&gt; tuple[float, float]:
+        res = stats.ttest_ind(x, y, equal_var=False)
+        return float(res.statistic), float(res.pvalue)
+
+
+class MannWhitneyU(BaseTest):
+    name = &quot;Mann-Whitney U&quot;
+
+    def _compute(
+        self, x: NDArray[np.float64], y: NDArray[np.float64]
+    ) -&gt; tuple[float, float]:
+        res = stats.mannwhitneyu(x, y)
+        return float(res.statistic), float(res.pvalue)
+</code></pre>
+<p>(<code>_as_1d_float</code> is the coercion helper from <code>python_type_checking.md</code>.)</p>
+<p>Validation, packaging and naming live in one place. Each subclass writes only the statistics.</p>
+<h3><span class="num">1.2</span>What they enforce</h3>
+<p>The enforcement happens at runtime and needs no tooling:</p>
+<pre><code class="language-python">class Forgetful(BaseTest):
+    name = &quot;oops&quot;
+
+Forgetful()   # TypeError: Can't instantiate abstract class Forgetful
+              # without an implementation for abstract method '_compute'
+</code></pre>
+<p>The error comes at instantiation, not at definition and not when the missing method is finally called. That&rsquo;s early enough to catch in any test that builds the object.</p>
+<p>Abstract properties work too: stack <code>@property</code> on top of <code>@abstractmethod</code>.</p>
+<h3><span class="num">1.3</span>Two lesser-known features</h3>
+<p><strong><code>register()</code> creates virtual subclasses.</strong> <code>BaseTest.register(LegacyTest)</code> makes <code>isinstance(LegacyTest(), BaseTest)</code> return <code>True</code> without inheritance. Python checks nothing when you do this, so it&rsquo;s a promise, not a verification. It&rsquo;s the ABC world&rsquo;s escape hatch for types you can&rsquo;t make inherit.</p>
+<p><strong>Some standard ABCs are already structural.</strong> <code>collections.abc.Iterable</code>, <code>Sized</code>, <code>Hashable</code> and a few others define a <code>__subclasshook__</code> that looks for the right dunder method. A class with an <code>__iter__</code> method counts as <code>Iterable</code> for <code>isinstance</code> even if it never inherited from it. The ABC world had shape-based checks all along, for a handful of one-method interfaces.</p>
+<h3><span class="num">1.4</span>Limits</h3>
+<ul>
+<li><strong>Implementers must inherit from you.</strong> Their code now imports your package and sits in your hierarchy.</li>
+<li><strong>Types you don&rsquo;t own can&rsquo;t join</strong> except through <code>register()</code>, which verifies nothing.</li>
+<li><strong>Inheritance couples.</strong> Changing the base class changes every subclass, which is the point when you own them all and a hazard when you don&rsquo;t.</li>
+</ul>
+<h2><span class="num">2</span>Protocols</h2>
+<h3><span class="num">2.1</span>What they are</h3>
+<p><code>typing.Protocol</code> arrived in Python 3.8 (PEP 544, 2019). You write a class listing the methods and attributes you require, with <code>...</code> as the bodies:</p>
+<pre><code class="language-python">from collections.abc import Sequence
+from typing import Protocol
+
+
+class SupportsTest(Protocol):
+    name: str
+
+    def run(self, a: ArrayLike, b: ArrayLike) -&gt; TestResult: ...
+
+
+def run_batch(
+    tests: Sequence[SupportsTest], a: ArrayLike, b: ArrayLike
+) -&gt; list[TestResult]:
+    return [t.run(a, b) for t in tests]
+</code></pre>
+<p><code>WelchTTest</code> and <code>MannWhitneyU</code> satisfy <code>SupportsTest</code> automatically. So does a user&rsquo;s class that has never imported <code>BaseTest</code>:</p>
+<pre><code class="language-python">class PermutationTest:              # no base class at all
+    name = &quot;permutation test&quot;
+
+    def run(self, a: ArrayLike, b: ArrayLike) -&gt; TestResult:
+        ...
+</code></pre>
+<p>Pass it to <code>run_batch</code> and pyright is satisfied. Change <code>run</code>&rsquo;s signature so it no longer matches, and pyright reports the mismatch at the call site, before anything runs.</p>
+<h3><span class="num">2.2</span>What they enforce</h3>
+<p>At runtime, nothing. A protocol class is close to inert, and passing a non-matching object raises no error until a missing method is actually called. The value of a protocol is entirely in what pyright or mypy does with it. That&rsquo;s why it&rsquo;s easy to go years without meeting one: without a type checker in the build, it has nothing to offer.</p>
+<p><strong><code>@runtime_checkable</code></strong> adds limited <code>isinstance</code> support:</p>
+<pre><code class="language-python">from typing import Protocol, runtime_checkable
+
+
+@runtime_checkable
+class SupportsMean(Protocol):
+    def mean(self) -&gt; float: ...
+
+
+isinstance(np.array([1.0, 2.0]), SupportsMean)   # True
+isinstance([1.0, 2.0], SupportsMean)             # False: list has no .mean()
+</code></pre>
+<p>It checks only that the members exist, not their signatures or return types, and it&rsquo;s slower than an ordinary <code>isinstance</code>. Use it for dispatch, not as validation.</p>
+<h3><span class="num">2.3</span>Lesser-known features</h3>
+<p><strong>Protocols can carry default code, for explicit subclasses only.</strong> A class may subclass a protocol on purpose (<code>class WelchTTest(SupportsTest): ...</code>). It then inherits any method bodies the protocol defines, and the checker verifies the fit at the class definition. Implicit implementers get the contract without the code.</p>
+<p><strong>Data attributes count.</strong> <code>name: str</code> in the protocol means implementers must have a <code>name</code> attribute of type <code>str</code>.</p>
+<p><strong>The standard library is full of protocols.</strong> <code>typing.SupportsFloat</code>, <code>SupportsInt</code>, <code>SupportsIndex</code> and <code>SupportsAbs</code> are protocols. In typeshed, the type stubs that pyright and mypy use, <code>Iterable</code>, <code>Sized</code>, <code>Container</code> and friends are declared as protocols too. You&rsquo;ve been using structural types every time you annotated a parameter as <code>Iterable[float]</code>.</p>
+<h3><span class="num">2.4</span>Limits</h3>
+<ul>
+<li><strong>No runtime enforcement</strong> for users who don&rsquo;t run a type checker.</li>
+<li><strong>No shared implementation</strong> for implicit implementers.</li>
+<li><strong>Accidental matches are possible.</strong> Anything with the right shape qualifies, even if its <code>run</code> means something unrelated. In practice this rarely causes trouble, because the names and signatures are specific.</li>
+</ul>
+<h2><span class="num">3</span>More examples</h2>
+<h3><span class="num">3.1</span>Side by side</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Abstract base class</th>
+<th>Protocol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Membership</td>
+<td>Declared by inheriting (nominal)</td>
+<td>Implied by shape (structural)</td>
+</tr>
+<tr>
+<td>Checked by</td>
+<td>Python, at instantiation</td>
+<td>pyright / mypy, before running</td>
+</tr>
+<tr>
+<td>Useful without a type checker</td>
+<td>Yes</td>
+<td>Barely (<code>@runtime_checkable</code> only)</td>
+</tr>
+<tr>
+<td>Shares code with implementers</td>
+<td>Yes</td>
+<td>Only with explicit subclasses</td>
+</tr>
+<tr>
+<td>Fits types you don&rsquo;t own</td>
+<td>Only via <code>register()</code>, unchecked</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Introduced</td>
+<td>Python 2.6 / 3.0 (PEP 3119)</td>
+<td>Python 3.8 (PEP 544)</td>
+</tr>
+<tr>
+<td>Closest outside analogy</td>
+<td>Java <code>abstract class</code></td>
+<td>Go interface, C++20 concept</td>
+</tr>
+</tbody>
+</table></div>
+<h3><span class="num">3.2</span>Both in one design</h3>
+<p>The ngstats example above already uses both, and that&rsquo;s the usual pattern:</p>
+<ul>
+<li><strong><code>BaseTest</code> (ABC)</strong> is for the people <em>writing</em> tests inside ngstats. It shares the validate-compute-package code and refuses to instantiate an incomplete test.</li>
+<li><strong><code>SupportsTest</code> (Protocol)</strong> is for the code <em>consuming</em> tests: <code>run_batch</code>, a multiple-comparison helper, the API layer. It accepts ngstats&rsquo; own tests and anyone else&rsquo;s.</li>
+</ul>
+<p>Writers inherit from the ABC. Consumers annotate with the protocol. Neither side constrains the other.</p>
+<h3><span class="num">3.3</span>A callback protocol</h3>
+<p>A protocol with <code>__call__</code> describes a function&rsquo;s shape, so plain functions satisfy it:</p>
+<pre><code class="language-python">class PValueAdjuster(Protocol):
+    def __call__(self, pvalues: Sequence[float], /) -&gt; list[float]: ...
+
+
+def bonferroni(pvalues: Sequence[float], /) -&gt; list[float]:
+    m = len(pvalues)
+    return [min(1.0, p * m) for p in pvalues]
+
+
+def adjusted_pvalues(
+    results: Sequence[TestResult], adjust: PValueAdjuster = bonferroni
+) -&gt; list[float]:
+    return adjust([r.p_value for r in results])
+</code></pre>
+<p>The <code>/</code> makes the parameter positional-only. Without it, the checker also requires the parameter <em>name</em> to match, so a user&rsquo;s <code>def holm(ps: Sequence[float])</code> would be rejected for calling it <code>ps</code>. For a simple signature, <code>Callable[[Sequence[float]], list[float]]</code> does the same job. A callback protocol is better when you need keyword arguments, overloads, or a named type that reads well in docs.</p>
+<h3><span class="num">3.4</span>Accepting arrays without naming numpy</h3>
+<pre><code class="language-python">class SupportsMeanAndStd(Protocol):
+    def mean(self) -&gt; float: ...
+    def std(self) -&gt; float: ...
+
+
+def zscore_of_mean(x: SupportsMeanAndStd, mu: float) -&gt; float:
+    return (x.mean() - mu) / x.std()
+</code></pre>
+<p>The signature says exactly what the function uses. It doesn&rsquo;t import numpy or pandas, and it doesn&rsquo;t claim to need more than two methods. How well numpy arrays and pandas Series match depends on how their own type stubs declare the return types, so check what pyright says in practice. In ngstats you&rsquo;ll usually take <code>ArrayLike</code> and coerce with <code>np.asarray</code> instead, but the pattern is useful wherever coercion doesn&rsquo;t make sense.</p>
+<h3><span class="num">3.5</span>When an ABC is the only right answer</h3>
+<p>Suppose ngstats grows a plug-in system where third parties register new tests by name, and the registry instantiates them. Most plug-in authors won&rsquo;t run a type checker. Here the ABC&rsquo;s runtime enforcement matters: a plug-in missing <code>_compute</code> fails loudly at registration, not halfway through someone&rsquo;s analysis.</p>
+<h2><span class="num">4</span>Conclusion</h2>
+<p>Neither replaces the other. They answer different questions:</p>
+<ul>
+<li><strong>&ldquo;What does this function need from its argument?&rdquo;</strong> That&rsquo;s a protocol. It describes the minimum, accepts types you don&rsquo;t own, and costs nothing at runtime.</li>
+<li><strong>&ldquo;How do I build a family of classes that share code and can&rsquo;t be left incomplete?&rdquo;</strong> That&rsquo;s an ABC. It gives inheritance, a template for subclasses, and runtime enforcement that works without any tooling.</li>
+</ul>
+<p>A practical default: annotate parameters with protocols (or the standard ones, like <code>Iterable</code>) and reach for an ABC only when you own the implementations and want them to share code. With a strict type checker in the build, as ngstats will have, protocols cover most of what interfaces gave you in Java. ABCs stay for the cases where inheritance is the point.</p>
+<h2>Sources</h2>
+<ul>
+<li><a href="https://docs.python.org/3/library/typing.html#typing.Protocol">typing.Protocol, Python documentation</a></li>
+<li><a href="https://docs.python.org/3/library/abc.html">abc &mdash; Abstract Base Classes, Python documentation</a></li>
+<li><a href="https://peps.python.org/pep-0544/">PEP 544: Protocols: Structural subtyping (static duck typing)</a></li>
+<li><a href="https://peps.python.org/pep-3119/">PEP 3119: Introducing Abstract Base Classes</a></li>
+</ul>
+
+<div class="colophon">Murray Hill Nights</div>
+</div>
+</body>
+</html>
