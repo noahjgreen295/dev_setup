@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layered Python Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --blue: #1d4f91;
+    --blue-light: #e8eef7;
+    --rule: #1d4f91;
+    --muted: #555;
+    --serif: "Tinos", "Times New Roman", Times, serif;
+    --mono: "Courier Prime", "Courier New", Courier, monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  .page {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 0 16px 6rem;
+  }
+
+  /* ---- cover ---- */
+  .cover {
+    border-bottom: 3px solid var(--blue);
+    padding: 3.5rem 0 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .series {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin: 0 0 2.5rem;
+  }
+  .cover h1 {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(2.4rem, 8vw, 4.2rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.2rem;
+  }
+  .cover h1 .with {
+    display: block;
+    font-weight: 400;
+    font-size: 0.45em;
+    letter-spacing: 0;
+    margin-top: 0.6rem;
+    color: var(--ink);
+  }
+  .cover h1 code {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--blue);
+  }
+  .bigmark {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(5rem, 22vw, 9rem);
+    line-height: 0.8;
+    float: right;
+    margin: -0.2rem 0 0 1rem;
+    user-select: none;
+  }
+  .cover .byline {
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ---- running head ---- */
+  .runhead {
+    display: flex;
+    justify-content: space-between;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-bottom: 1px solid #bbb;
+    padding-bottom: 0.25rem;
+    margin: 0 0 2rem;
+  }
+
+  /* ---- text ---- */
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 2.8rem 0 0.8rem;
+  }
+  h2 .num, h3 .num {
+    color: var(--blue);
+    margin-right: 0.6em;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    font-weight: 700;
+    margin: 2rem 0 0.6rem;
+  }
+  p { margin: 0 0 1rem; hyphens: auto; }
+  .lede::first-letter {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    float: left;
+    font-size: 3.4rem;
+    line-height: 0.85;
+    margin: 0.3rem 0.4rem 0 0;
+  }
+  ul { padding-left: 1.4rem; margin: 0 0 1rem; }
+  li { margin-bottom: 0.35rem; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.92em;
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    line-height: 1.4;
+    margin: 0.4rem 0 1.4rem;
+    padding: 0 0 0 1.5rem;
+    overflow-x: auto;
+    background: none;
+    border: none;
+  }
+  pre code { font-size: inherit; }
+  .cmt { color: var(--muted); font-style: italic; }
+  .key { font-weight: 700; }
+
+  /* ---- tables: ruled top and bottom, nothing else ---- */
+  .tablewrap { overflow-x: auto; margin: 0.6rem 0 1.6rem; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+    border-top: 1.5px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+  }
+  thead th {
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 1px solid var(--ink);
+    padding: 0.4rem 0.6rem 0.3rem 0;
+    vertical-align: bottom;
+  }
+  td {
+    padding: 0.32rem 0.6rem 0.32rem 0;
+    vertical-align: top;
+  }
+
+  /* ---- figures ---- */
+  figure {
+    margin: 1.6rem 0 2rem;
+    padding: 0;
+  }
+  figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 36rem;
+    margin: 0 auto;
+  }
+  figcaption {
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 0.7rem;
+  }
+  figcaption b {
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+    color: var(--blue);
+    margin-right: 0.4em;
+  }
+  svg text {
+    font-family: var(--mono);
+    fill: var(--ink);
+  }
+  svg .lbl { font-size: 15px; }
+  svg .lblb { font-size: 15px; font-weight: 700; }
+  svg .sm { font-size: 12.5px; fill: #555; }
+  svg .box { fill: #fff; stroke: var(--blue); stroke-width: 2; }
+  svg .band { fill: var(--blue-light); stroke: var(--blue); stroke-width: 1.5; }
+  svg .outer { fill: none; stroke: var(--blue); stroke-width: 2.5; }
+  svg .ln { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+  svg .ok { stroke: var(--blue); stroke-width: 2; fill: none; }
+  svg .bad { stroke: #a33; stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+  svg .x { fill: #a33; font-family: var(--sans); font-weight: 700; font-size: 18px; }
+  svg .chk { fill: var(--blue); font-family: var(--sans); font-weight: 700; font-size: 18px; }
+
+  .note {
+    border-left: 3px solid var(--blue);
+    padding: 0.1rem 0 0.1rem 1rem;
+    margin: 1.2rem 0 1.4rem;
+    font-size: 0.95rem;
+  }
+  a { color: var(--blue); }
+  .sources li { font-size: 0.92rem; }
+  .colophon {
+    margin-top: 4rem;
+    border-top: 3px solid var(--blue);
+    padding-top: 0.8rem;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  @media (max-width: 520px) {
+    body { font-size: 17px; }
+    pre { padding-left: 0.6rem; font-size: 0.78rem; }
+    .bigmark { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="cover">
+  <p class="series">Chapter Codex &middot; Python Toolchain</p>
+  <div class="bigmark" aria-hidden="true">L</div>
+  <h1>Layered Python Architecture<span class="with">with <code>import-linter</code></span></h1>
+  <p class="byline">Enforcing structure in a language that won&rsquo;t</p>
+</header>
+
+<div class="runhead"><span>Layered Python Architecture</span><span>Chapter Codex</span></div>
+
+<p class="lede">C, C++, and Java give a program structure through the language itself. Header files declare the interface, <code>private</code> marks what is not part of it, and package rules say who may depend on whom. Python has none of that built in. Any module can import any other, and nothing fails when a convention is broken. The structure still matters, but it lives in code review and memory unless a tool enforces it.</p>
+
+<p>This essay covers the layered architecture an ngstats-style project should have, and how import-linter turns that architecture from a convention into a contract that CI checks on every commit.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">1</span>What a layer is</h2>
+
+<p>A layered architecture arranges modules in tiers. The rule is simple: a module may import from layers below it, never from layers above.</p>
+
+<figure>
+<svg viewBox="0 0 560 230" role="img" aria-label="Three stacked layers; each may import only the layers below it">
+  <rect class="band" x="40" y="20" width="330" height="56"/>
+  <rect class="band" x="40" y="86" width="330" height="56"/>
+  <rect class="band" x="40" y="152" width="330" height="56"/>
+  <text class="lblb" x="205" y="53" text-anchor="middle">higher layer</text>
+  <text class="lblb" x="205" y="119" text-anchor="middle">middle layer</text>
+  <text class="lblb" x="205" y="185" text-anchor="middle">lower layer</text>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d4f91"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a33"/></marker>
+    <marker id="ahk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/></marker>
+  </defs>
+  <path class="ok" d="M395,48 L395,176" marker-end="url(#ah)"/>
+  <text class="sm" x="410" y="104">imports</text>
+  <text class="sm" x="410" y="120">flow down</text>
+  <path class="bad" d="M510,176 L510,52" marker-end="url(#ahr)"/>
+  <text class="x" x="520" y="120">&#x2717;</text>
+  <text class="sm" x="478" y="205">never up</text>
+</svg>
+<figcaption><b>Figure 1.1</b>The layering rule.</figcaption>
+</figure>
+
+<p>The payoff:</p>
+<ul>
+  <li><b>Lower layers are reusable and testable on their own.</b> They don&rsquo;t drag the upper layers along.</li>
+  <li><b>Changes flow in one direction.</b> Editing a high layer can&rsquo;t break a low one.</li>
+  <li><b>The code has a reading order.</b> Start at the bottom and each layer is built only from what you&rsquo;ve already read.</li>
+  <li><b>No import cycles.</b> In Python a cycle is a real bug, not just a style problem. It shows up as <code>ImportError: cannot import name ... (most likely due to a circular import)</code>, often only when modules are imported in a particular order.</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2><span class="num">2</span>Two scales of layering in ngstats</h2>
+
+<p>The project has layers at two scales.</p>
+
+<p><b>System scale.</b> Each tier talks only to the one beneath it.</p>
+
+<figure>
+<svg viewBox="0 0 560 360" role="img" aria-label="System layers: frontend, ngstats_api, ngstats, numpy scipy statsmodels">
+  <rect class="box" x="60" y="10" width="440" height="52"/>
+  <text class="lblb" x="80" y="42">frontend</text><text class="sm" x="230" y="42">separate container</text>
+  <rect class="box" x="60" y="104" width="440" height="52"/>
+  <text class="lblb" x="80" y="136">ngstats_api</text><text class="sm" x="230" y="136">FastAPI app, pydantic models</text>
+  <rect class="box" x="60" y="198" width="440" height="52"/>
+  <text class="lblb" x="80" y="230">ngstats</text><text class="sm" x="230" y="230">the library</text>
+  <rect class="band" x="60" y="292" width="440" height="52"/>
+  <text class="lblb" x="80" y="324">numpy &#xb7; scipy &#xb7; statsmodels</text>
+  <path class="ln" d="M280,62 L280,102" marker-end="url(#ahk)"/>
+  <text class="sm" x="292" y="88">HTTP / JSON</text>
+  <path class="ln" d="M280,156 L280,196" marker-end="url(#ahk)"/>
+  <text class="sm" x="292" y="182">Python calls</text>
+  <path class="ln" d="M280,250 L280,290" marker-end="url(#ahk)"/>
+  <text class="sm" x="292" y="276">Python calls</text>
+</svg>
+<figcaption><b>Figure 2.1</b>System-scale layers.</figcaption>
+</figure>
+
+<p>The frontend never imports Python at all, since it only speaks HTTP. The rule that matters in code is the middle one: <code>ngstats_api</code> imports <code>ngstats</code>, and <code>ngstats</code> must never import <code>ngstats_api</code>, <code>fastapi</code>, or <code>pydantic</code>. The library has to stay usable by someone who has never heard of the API.</p>
+
+<p><b>Library scale.</b> Inside <code>ngstats</code>, the subpackages form their own stack.</p>
+
+<figure>
+<svg viewBox="0 0 560 320" role="img" aria-label="ngstats internal layers: inference, effectsize, results, _validation">
+  <rect class="outer" x="20" y="30" width="520" height="276"/>
+  <text class="lblb" x="20" y="20">ngstats</text>
+  <rect class="band" x="36" y="46" width="488" height="56"/>
+  <text class="lblb" x="52" y="72">inference</text>
+  <text class="sm" x="52" y="91">_means | _proportions | _nonparametric</text>
+  <text class="sm" x="508" y="80" text-anchor="end">hypothesis tests</text>
+  <rect class="band" x="36" y="110" width="488" height="56"/>
+  <text class="lblb" x="52" y="143">effectsize</text>
+  <text class="sm" x="508" y="143" text-anchor="end">Cohen&#x2019;s d, etc.</text>
+  <rect class="band" x="36" y="174" width="488" height="56"/>
+  <text class="lblb" x="52" y="200">results</text>
+  <text class="sm" x="52" y="219">HypothesisTestResult, ...</text>
+  <text class="sm" x="508" y="207" text-anchor="end">frozen dataclasses</text>
+  <rect class="band" x="36" y="238" width="488" height="56"/>
+  <text class="lblb" x="52" y="271">_validation</text>
+  <text class="sm" x="508" y="271" text-anchor="end">np.asarray, NaN checks</text>
+</svg>
+<figcaption><b>Figure 2.2</b>Library-scale layers inside <code>ngstats</code>, highest first.</figcaption>
+</figure>
+
+<p>A t-test in <code>inference</code> may compute an effect size from <code>effectsize</code>, package it as a <code>results</code> object, and validate its inputs with <code>_validation</code>. None of the reverse directions make sense. A result object that imports a hypothesis test is a design mistake, and ideally the build should reject it.</p>
+
+<p>These layers line up with the trust layers in <code>python_type_checking.md</code>. Pydantic parses untrusted input at the top of <code>ngstats_api</code>. The library&rsquo;s public functions coerce and value-check through <code>_validation</code>. Everything below that is checked statically.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">3</span>Why Python needs a tool for this</h2>
+
+<p>Python offers conventions for structure:</p>
+<ul>
+  <li><b>Underscore modules and names.</b> <code>_means.py</code> is private by convention.</li>
+  <li><b><code>__all__</code> in each <code>__init__.py</code>.</b> This is the explicit export list, the closest thing Python has to a header file.</li>
+</ul>
+<p>Neither convention is enforced. A developer in a hurry can write <code>from ngstats.inference._means import _pooled_variance</code> inside <code>ngstats.results</code>, and everything runs. The architecture erodes one convenient import at a time, and nobody notices until a cycle appears or the library can&rsquo;t be installed without FastAPI.</p>
+<p>The fix is to state the architecture in configuration and have the build check it.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">4</span>What import-linter is</h2>
+
+<p>import-linter is a separate tool from ruff, maintained by David Seddon (<code>seddonym/import-linter</code> on GitHub) and not by Astral, the company behind ruff. Ruff mostly checks one file at a time. import-linter builds the import graph for your whole package and checks it against architecture rules you declare, which it calls <i>contracts</i>. If any import breaks a contract, CI fails.</p>
+
+<p>Setup: add it with <code>uv add --dev import-linter</code> and run it with <code>lint-imports</code>, next to ruff in pre-commit or CI. You declare contracts in a <code>.importlinter</code> file, or under <code>[tool.importlinter]</code> in <code>pyproject.toml</code> so all your config stays in one file.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">5</span>The contract types</h2>
+
+<div class="tablewrap"><table>
+<thead><tr><th>Contract</th><th>Rule</th><th>ngstats example</th></tr></thead>
+<tbody>
+<tr><td><b>Forbidden</b></td><td>One set of modules may never import another</td><td><code>ngstats</code> may not import <code>fastapi</code>, <code>pydantic</code>, or <code>ngstats_api</code></td></tr>
+<tr><td><b>Protected</b></td><td>A module can only be imported by modules on an allow-list</td><td>Only <code>ngstats.inference</code> may import <code>ngstats.inference._means</code></td></tr>
+<tr><td><b>Layers</b></td><td>Higher layers may import lower ones, never the reverse</td><td><code>inference</code> above <code>effectsize</code> above <code>results</code></td></tr>
+<tr><td><b>Independence</b></td><td>Sibling modules may not depend on each other</td><td><code>_means</code>, <code>_proportions</code>, <code>_nonparametric</code> stay separate</td></tr>
+<tr><td><b>Acyclic siblings</b></td><td>No import cycles between sibling modules</td><td>Siblings may depend on each other, but only in one direction</td></tr>
+<tr><td><b>Custom</b></td><td>You write your own contract type</td><td>Rarely needed</td></tr>
+</tbody>
+</table></div>
+
+<h3><span class="num">5.1</span>Forbidden: keep the library free of the API</h3>
+
+<figure>
+<svg viewBox="0 0 560 250" role="img" aria-label="ngstats may import numpy, scipy, statsmodels but not fastapi, pydantic, ngstats_api">
+  <rect class="box" x="20" y="98" width="130" height="52"/>
+  <text class="lblb" x="85" y="130" text-anchor="middle">ngstats</text>
+  <rect class="box" x="360" y="14" width="180" height="40"/><text class="lbl" x="450" y="39" text-anchor="middle">fastapi</text>
+  <rect class="box" x="360" y="64" width="180" height="40"/><text class="lbl" x="450" y="89" text-anchor="middle">pydantic</text>
+  <rect class="box" x="360" y="114" width="180" height="40"/><text class="lbl" x="450" y="139" text-anchor="middle">ngstats_api</text>
+  <rect class="band" x="360" y="186" width="180" height="50"/><text class="lbl" x="450" y="207" text-anchor="middle">numpy, scipy,</text><text class="lbl" x="450" y="226" text-anchor="middle">statsmodels</text>
+  <path class="bad" d="M150,112 L356,34" marker-end="url(#ahr)"/>
+  <path class="bad" d="M150,120 L356,84" marker-end="url(#ahr)"/>
+  <path class="bad" d="M150,128 L356,134" marker-end="url(#ahr)"/>
+  <path class="ok" d="M150,140 L356,210" marker-end="url(#ah)"/>
+  <text class="x" x="250" y="68">&#x2717;</text>
+  <text class="x" x="250" y="99">&#x2717;</text>
+  <text class="x" x="250" y="128">&#x2717;</text>
+  <text class="chk" x="250" y="184">&#x2713;</text>
+</svg>
+<figcaption><b>Figure 5.1</b>A forbidden contract on the library.</figcaption>
+</figure>
+
+<pre><code>[[tool.importlinter.contracts]]
+name = "Library stays free of web dependencies"
+type = "forbidden"
+source_modules = ["ngstats"]
+forbidden_modules = ["fastapi", "pydantic", "ngstats_api"]</code></pre>
+
+<p>Two details from the docs. First, forbidding an external package requires <code>include_external_packages = true</code> in the top-level <code>[tool.importlinter]</code> table. Without it, external packages aren&rsquo;t in the graph. Second, only root-level external names can be forbidden: <code>pydantic</code> works, <code>pydantic.fields</code> does not.</p>
+
+<h3><span class="num">5.2</span>Layers: the library&rsquo;s internal stack</h3>
+
+<pre><code>[[tool.importlinter.contracts]]
+name = "ngstats internal layering"
+type = "layers"
+containers = ["ngstats"]
+layers = [
+    "inference",
+    "effectsize",
+    "results",
+    "_validation",
+]
+exhaustive = true</code></pre>
+
+<p>Layers are listed <b>highest first</b>, exactly as drawn in Figure 2.2. With <code>containers</code> set, names are relative to the container, so <code>"inference"</code> means <code>ngstats.inference</code>. <code>exhaustive = true</code> makes the contract fail if someone adds a new subpackage to <code>ngstats</code> without placing it in a layer. That forces a decision about where new code belongs.</p>
+
+<p>A layer entry can also hold siblings. <code>"_means | _proportions"</code> puts two modules in the same layer and forbids them from importing each other. <code>"_means : _proportions"</code> puts them in the same layer but lets them import each other. Don&rsquo;t mix <code>|</code> and <code>:</code> on one line.</p>
+
+<h3><span class="num">5.3</span>Protected: <code>private</code> at the module level</h3>
+
+<figure>
+<svg viewBox="0 0 560 250" role="img" aria-label="Only ngstats.inference may import ngstats.inference._means; effectsize must go through the public package">
+  <rect class="box" x="10" y="20" width="200" height="46"/><text class="lbl" x="110" y="40" text-anchor="middle">ngstats.inference</text><text class="sm" x="110" y="57" text-anchor="middle">__init__.py</text>
+  <rect class="box" x="10" y="150" width="200" height="46"/><text class="lbl" x="110" y="178" text-anchor="middle">ngstats.effectsize</text>
+  <rect class="band" x="340" y="20" width="210" height="46"/><text class="lbl" x="445" y="49" text-anchor="middle">inference._means</text>
+  <rect class="box" x="340" y="150" width="210" height="46"/><text class="lbl" x="445" y="170" text-anchor="middle">ngstats.inference</text><text class="sm" x="445" y="187" text-anchor="middle">public surface</text>
+  <path class="ok" d="M210,43 L336,43" marker-end="url(#ah)"/>
+  <text class="chk" x="266" y="36">&#x2713;</text>
+  <path class="bad" d="M210,160 L340,70" marker-end="url(#ahr)"/>
+  <text class="x" x="262" y="108">&#x2717;</text>
+  <path class="ok" d="M210,173 L336,173" marker-end="url(#ah)"/>
+  <text class="chk" x="266" y="194">&#x2713;</text>
+  <text class="sm" x="280" y="236" text-anchor="middle">protected: inference._means &#xb7; allowed: ngstats.inference</text>
+</svg>
+<figcaption><b>Figure 5.2</b>A protected module has one door.</figcaption>
+</figure>
+
+<pre><code>[[tool.importlinter.contracts]]
+name = "Inference internals are private"
+type = "protected"
+protected_modules = [
+    "ngstats.inference._means",
+    "ngstats.inference._proportions",
+]
+allowed_importers = ["ngstats.inference"]</code></pre>
+
+<p>This is the closest Python gets to Java&rsquo;s <code>private</code>. The only door into <code>_means</code> is <code>ngstats.inference/__init__.py</code>, which re-exports the public names and lists them in <code>__all__</code>. Modules under an allowed importer count as allowed too, so code inside <code>ngstats.inference</code> can still use its own internals.</p>
+
+<h3><span class="num">5.4</span>Independence: siblings that stay apart</h3>
+
+<figure>
+<svg viewBox="0 0 560 230" role="img" aria-label="_means, _proportions and _nonparametric may not import each other; all may import the shared lower layer">
+  <rect class="box" x="10" y="20" width="150" height="46"/><text class="lbl" x="85" y="48" text-anchor="middle">_means</text>
+  <rect class="box" x="205" y="20" width="150" height="46"/><text class="lbl" x="280" y="48" text-anchor="middle">_proportions</text>
+  <rect class="box" x="400" y="20" width="150" height="46"/><text class="lbl" x="475" y="48" text-anchor="middle">_nonparametric</text>
+  <path class="bad" d="M162,43 L203,43" marker-start="url(#ahr)" marker-end="url(#ahr)"/>
+  <path class="bad" d="M357,43 L398,43" marker-start="url(#ahr)" marker-end="url(#ahr)"/>
+  <text class="x" x="176" y="90">&#x2717;</text>
+  <text class="x" x="371" y="90">&#x2717;</text>
+  <rect class="band" x="60" y="150" width="440" height="50"/>
+  <text class="lblb" x="280" y="174" text-anchor="middle">results &#xb7; _validation</text>
+  <text class="sm" x="280" y="192" text-anchor="middle">shared lower layer</text>
+  <path class="ok" d="M85,66 L150,146" marker-end="url(#ah)"/>
+  <path class="ok" d="M280,66 L280,146" marker-end="url(#ah)"/>
+  <path class="ok" d="M475,66 L410,146" marker-end="url(#ah)"/>
+</svg>
+<figcaption><b>Figure 5.3</b>Independent siblings share only what lies below them.</figcaption>
+</figure>
+
+<pre><code>[[tool.importlinter.contracts]]
+name = "Test families are independent"
+type = "independence"
+modules = [
+    "ngstats.inference._means",
+    "ngstats.inference._proportions",
+    "ngstats.inference._nonparametric",
+]</code></pre>
+
+<p>When two test families need the same helper, the helper moves down into a shared layer rather than one family importing the other. Independent siblings can be understood, tested, and deleted one at a time.</p>
+
+<h3><span class="num">5.5</span>Acyclic siblings and custom contracts</h3>
+
+<p><b>Acyclic siblings</b> is the relaxed form of independence. Siblings may depend on each other, but never in a cycle. Use it when strict independence is too strong.</p>
+<p><b>Custom</b> contracts are Python classes you write for rules the built-in types can&rsquo;t express. A project this size shouldn&rsquo;t need one.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">6</span>A complete configuration</h2>
+
+<p>The library&rsquo;s <code>pyproject.toml</code>:</p>
+
+<pre><code><span class="key">[tool.importlinter]</span>
+root_package = "ngstats"
+include_external_packages = true
+exclude_type_checking_imports = true
+
+<span class="key">[[tool.importlinter.contracts]]</span>
+name = "Library stays free of web dependencies"
+type = "forbidden"
+source_modules = ["ngstats"]
+forbidden_modules = ["fastapi", "pydantic", "ngstats_api"]
+
+<span class="key">[[tool.importlinter.contracts]]</span>
+name = "ngstats internal layering"
+type = "layers"
+containers = ["ngstats"]
+layers = [
+    "inference",
+    "effectsize",
+    "results",
+    "_validation",
+]
+exhaustive = true
+
+<span class="key">[[tool.importlinter.contracts]]</span>
+name = "Inference internals are private"
+type = "protected"
+protected_modules = [
+    "ngstats.inference._means",
+    "ngstats.inference._proportions",
+]
+allowed_importers = ["ngstats.inference"]
+
+<span class="key">[[tool.importlinter.contracts]]</span>
+name = "Test families are independent"
+type = "independence"
+modules = [
+    "ngstats.inference._means",
+    "ngstats.inference._proportions",
+    "ngstats.inference._nonparametric",
+]</code></pre>
+
+<p><code>exclude_type_checking_imports = true</code> ignores imports under <code>if TYPE_CHECKING:</code>. Those exist only for annotations and never run, so they shouldn&rsquo;t count against the architecture.</p>
+
+<p><b>The system scale, in a uv workspace.</b> If the library and API live in one repo, the workspace root can declare both packages and state the system layering of Figure 2.1 directly:</p>
+
+<pre><code>[tool.importlinter]
+root_packages = ["ngstats", "ngstats_api"]
+
+[[tool.importlinter.contracts]]
+name = "API sits above the library"
+type = "layers"
+layers = ["ngstats_api", "ngstats"]</code></pre>
+
+<!-- ============================================================ -->
+<h2><span class="num">7</span>Running it</h2>
+
+<pre><code>$ uv add --dev import-linter
+$ uv run lint-imports</code></pre>
+
+<p><code>lint-imports</code> reads the config, builds the graph, and reports each contract as kept or broken. For a broken contract it shows the import chain responsible, and it exits nonzero so CI fails.</p>
+
+<p>As a pre-commit hook, run it through uv so it uses the project&rsquo;s environment:</p>
+
+<pre><code>- repo: local
+  hooks:
+    - id: import-linter
+      name: import-linter
+      entry: uv run lint-imports
+      language: system
+      pass_filenames: false
+      types: [python]</code></pre>
+
+<p><code>pass_filenames: false</code> matters. import-linter checks the whole graph, not individual files.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">8</span>Escape hatches</h2>
+
+<p>Real code sometimes needs an exception. import-linter offers a few, and they deserve the same discipline as <code># type: ignore</code>: few, narrow, and each with a comment saying why.</p>
+<ul>
+  <li><b><code>ignore_imports</code></b> on any contract exempts specific imports, written as <code>"importer -&gt; imported"</code>.</li>
+  <li><b><code>allow_indirect_imports = true</code></b> on a forbidden contract only flags direct imports, not chains through other modules.</li>
+  <li><b><code>exclude_type_checking_imports</code></b> at the top level, covered above.</li>
+</ul>
+<p class="note">If the exceptions list keeps growing, the declared architecture is wrong. Fix the layers rather than piling up exemptions.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">9</span>Where import-linter fits among the other tools</h2>
+
+<div class="tablewrap"><table>
+<thead><tr><th>Mechanism</th><th>Scope</th><th>What it declares or enforces</th></tr></thead>
+<tbody>
+<tr><td>Underscore modules and names</td><td>Convention</td><td>&ldquo;Not part of the contract&rdquo;</td></tr>
+<tr><td><code>__all__</code></td><td>Each package</td><td>The public export list</td></tr>
+<tr><td>ruff <code>PLC2701</code> (preview)</td><td>Each file</td><td>Importing another module&rsquo;s private names</td></tr>
+<tr><td>ruff <code>TID251</code> (banned-api)</td><td>Each file</td><td>Banning modules or APIs by name</td></tr>
+<tr><td>pyright / mypy</td><td>Whole program</td><td>Types, private attribute access, what a module re-exports</td></tr>
+<tr><td>import-linter</td><td>Whole import graph</td><td>Layers, allow-lists, independence, forbidden dependencies</td></tr>
+</tbody>
+</table></div>
+
+<p><b>How it relates to ruff:</b> ruff&rsquo;s flake8-tidy-imports rules can ban modules by name, which covers simple cases like &ldquo;never import pydantic here.&rdquo; Ruff can&rsquo;t express layers or allow-lists, though. Those need import-linter.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">10</span>The Java developer&rsquo;s translation table</h2>
+
+<div class="tablewrap"><table>
+<thead><tr><th>Java / C++</th><th>Python equivalent</th></tr></thead>
+<tbody>
+<tr><td>Header file / public interface</td><td><code>__init__.py</code> re-exports + <code>__all__</code></td></tr>
+<tr><td><code>private</code> class or package-private module</td><td>Underscore module + protected contract</td></tr>
+<tr><td>Package dependency rules (or C++ include discipline)</td><td>Layers and forbidden contracts</td></tr>
+<tr><td>Compiler rejects the violation</td><td><code>lint-imports</code> fails CI</td></tr>
+</tbody>
+</table></div>
+
+<p>None of these stops a determined developer, but neither did <code>private</code> in Java, since reflection gets around it. What they provide is the same thing the keywords did: a declared structure, visible in one place, checked on every build.</p>
+
+<h2>Sources</h2>
+<ul class="sources">
+  <li><a href="https://import-linter.readthedocs.io/en/stable/">Import Linter documentation</a></li>
+  <li><a href="https://import-linter.readthedocs.io/en/latest/get_started/configure/">Import Linter: Configure</a></li>
+  <li><a href="https://import-linter.readthedocs.io/en/latest/contract_types/forbidden/">Import Linter: Forbidden contracts</a></li>
+  <li><a href="https://import-linter.readthedocs.io/en/latest/contract_types/layers/">Import Linter: Layers contracts</a></li>
+  <li><a href="https://import-linter.readthedocs.io/en/latest/contract_types/protected/">Import Linter: Protected contracts</a></li>
+  <li><a href="https://docs.astral.sh/ruff/rules/import-private-name/">Ruff rule PLC2701: import-private-name</a></li>
+</ul>
+
+<div class="colophon">Chapter Codex</div>
+</div>
+</body>
+</html>
