@@ -134,21 +134,22 @@ For the file icons, run **Ctrl+Shift+P** > **Material Icons: Activate Icon Theme
 
 With a `.venv` in the project (`pvv` from [HOWTO_shell_config.md](HOWTO_shell_config.md)), run **Ctrl+Shift+P** > **Python: Select Interpreter** and pick the one in `./.venv/bin/python`. VS Code usually spots it on its own. New integrated terminals then start with the venv already active.
 
-### Hide cache folders from the Explorer
+### Hide cache and venv folders from the Explorer
 
-Python, pytest and Ruff all leave cache folders behind (`__pycache__`, `.pytest_cache`, `.ruff_cache`). They clutter the Explorer and you never need to open them. Open **Ctrl+Shift+P** > **Preferences: Open User Settings (JSON)** and add:
+Python, pytest and Ruff all leave cache folders behind (`__pycache__`, `.pytest_cache`, `.ruff_cache`), and every project has a `.venv`. They clutter the Explorer and you rarely need to open them. Open **Ctrl+Shift+P** > **Preferences: Open User Settings (JSON)** and add:
 
 ```json
 "files.exclude": {
   "**/__pycache__": true,
   "**/.pytest_cache": true,
-  "**/.ruff_cache": true
+  "**/.ruff_cache": true,
+  "**/.venv": true
 }
 ```
 
-The `**/` prefix matches at any depth. This only hides the folders in VS Code (Explorer and search); they're still on disk.
+The `**/` prefix matches at any depth. This only hides the folders in VS Code (Explorer and search); they're still on disk, and VS Code still finds and uses the `.venv` interpreter.
 
-Alternatively, turn on `explorer.excludeGitIgnore` to hide everything your `.gitignore` lists. That hides `.venv` too, which you may not want.
+Alternatively, turn on `explorer.excludeGitIgnore` to hide everything your `.gitignore` lists, which in a uv project covers all of the above.
 
 ## Installing extensions in Windows and in WSL
 
