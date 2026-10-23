@@ -245,8 +245,82 @@
 
 <div class="runhead"><span>Living With Python&rsquo;s Typing</span><span>Murray Hill Nights</span></div>
 
-<p class="lede">Modern Python can give a C, C++, or Java developer most of what they miss about strong typing, as long as type checking is treated as part of the build rather than a suggestion.</p>
-<h2><span class="num">1</span>Technical</h2>
+<p class="lede">If you learned to program in C, C++ or Java, Python&rsquo;s attitude toward types can feel like a betrayal. You spent years building habits that kept whole categories of bugs out of your programs: declare everything, let the compiler check it, trust nothing that hasn&rsquo;t been checked. Then you arrive in a language where a function will cheerfully accept a string where it asked for an integer, and the community calls that a feature. The discomfort is reasonable. It comes from instincts that served you well for a long time, and you don&rsquo;t have to throw them away. You have to learn which of them still apply, which have a Python equivalent, and which were answers to problems Python solves another way.</p>
+<h2><span class="num">1</span>Shedding the Java frame of mind</h2>
+<h3><span class="num">1.1</span>What you&rsquo;re losing, and what you&rsquo;re not</h3>
+<p>It helps to separate three things a statically typed language gave you, because they don&rsquo;t all go away:</p>
+<ul>
+<li><strong>Documentation.</strong> A signature like <code>double mean(List&lt;Double&gt; xs)</code> tells the reader what goes in and what comes out. Python keeps this completely. Type hints say the same thing, and IDEs show them on hover.</li>
+<li><strong>Early error detection.</strong> The compiler caught type mismatches before the program ran. Python keeps most of this too, but you have to opt in by running a type checker as part of the build.</li>
+<li><strong>A guarantee.</strong> If it compiled, the types matched everywhere, including in code written by other people. This is the part that really goes. Python&rsquo;s checking is local to code that&rsquo;s annotated and checked, and the language itself guarantees nothing.</li>
+</ul>
+<p>Most of the unease comes from that third item, and it&rsquo;s worth naming plainly so it doesn&rsquo;t color everything else. You still get documentation, and you still get early errors. What you give up is the assurance that the whole world is typed. In its place you get boundaries you control, and the rest of this essay is about drawing them.</p>
+<h3><span class="num">1.2</span>Two philosophies</h3>
+<p>The difference isn&rsquo;t that one language cares about correctness and the other doesn&rsquo;t. They locate correctness in different places.</p>
+<p><strong>The Java and C++ philosophy: the compiler is the gatekeeper.</strong> Types are a contract enforced before anything runs. A class <em>is</em> something because it declares what it is: it extends this, implements that. Design happens up front, in the type hierarchy, and the goal is to make incorrect programs impossible to write. Flexibility is something you ask for explicitly, through generics, interfaces and templates, and pay for in ceremony. This is <strong>nominal</strong> typing: identity comes from declared names.</p>
+<p><strong>The Python philosophy: behavior over identity, and consenting adults.</strong> An object is acceptable if it can do what&rsquo;s asked of it. Whether it inherits from the right class doesn&rsquo;t matter. That&rsquo;s duck typing: if it walks like a duck and quacks like a duck, treat it as a duck. The language trusts the programmer (&ldquo;we&rsquo;re all consenting adults here,&rdquo; in the community&rsquo;s own phrase): it marks private things with an underscore rather than locking them, and it lets you replace almost anything at runtime. Design happens incrementally, and correctness comes from tests, readable code and, increasingly, optional static checking layered on top. This is <strong>structural</strong> typing in spirit: identity comes from shape.</p>
+<p>Two well-known Python sayings capture the difference in practice:</p>
+<ul>
+<li><strong>EAFP: &ldquo;Easier to ask forgiveness than permission.&rdquo;</strong> Try the operation and handle the exception if it fails, rather than checking everything first. Java code tends toward the opposite style, LBYL (&ldquo;look before you leap&rdquo;): check <code>instanceof</code>, check <code>null</code>, then act.</li>
+<li><strong>&ldquo;Explicit is better than implicit&rdquo;</strong> and <strong>&ldquo;Readability counts&rdquo;</strong>, from <em>The Zen of Python</em> (<code>import this</code>). Python values code a person can read at a glance, and treats boilerplate as a cost, not a safety feature.</li>
+</ul>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Java / C++</th>
+<th>Python</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Where correctness lives</td>
+<td>The compiler</td>
+<td>Tests, readable code, an optional checker</td>
+</tr>
+<tr>
+<td>What makes an object acceptable</td>
+<td>Its declared type</td>
+<td>What it can do</td>
+</tr>
+<tr>
+<td>Privacy</td>
+<td>Enforced (<code>private</code>)</td>
+<td>Conventional (<code>_name</code>)</td>
+</tr>
+<tr>
+<td>Error style</td>
+<td>Look before you leap</td>
+<td>Ask forgiveness</td>
+</tr>
+<tr>
+<td>Flexibility</td>
+<td>Requested explicitly, with ceremony</td>
+<td>The default</td>
+</tr>
+<tr>
+<td>Design</td>
+<td>Up front, in the hierarchy</td>
+<td>Incremental, in small functions</td>
+</tr>
+</tbody>
+</table></div>
+<p>Modern typed Python is a synthesis of the two. Type hints, protocols and strict checkers bring back most of the compiler&rsquo;s early warnings while keeping the behavioral view of objects. You&rsquo;re not being asked to give up on rigor. You&rsquo;re being asked to apply it in different places.</p>
+<h3><span class="num">1.3</span>Mind exercises</h3>
+<p>Instincts change through repetition, not argument. These are small, concrete exercises for retraining them. Each takes minutes.</p>
+<ol>
+<li><strong>Ask &ldquo;what does it need to do?&rdquo; instead of &ldquo;what is it?&rdquo;</strong> Before writing a parameter&rsquo;s type, list the operations the function performs on it. If it only iterates, the type is <code>Iterable[float]</code>, not <code>list[float]</code>. If it only calls <code>.mean()</code>, it&rsquo;s a protocol with one method. Do this for every function you write for a week.</li>
+<li><strong>Delete an <code>isinstance</code> check.</strong> Find one in your code (or write the one your Java instinct wants) and replace it with coercion (<code>np.asarray</code>) or with simply attempting the operation. Notice what fails, and how clearly. Usually the failure is clear enough without the guard.</li>
+<li><strong>Translate one Java interface into a <code>Protocol</code>.</strong> Take an interface you&rsquo;ve written many times, say a <code>Comparable</code> or a <code>DataSource</code>, and write it as a Python protocol. Then write a class that satisfies it without mentioning it. The moment the checker accepts that class is the moment structural typing stops feeling loose.</li>
+<li><strong>Rewrite one LBYL block as EAFP.</strong> Turn <code>if key in d: x = d[key] else: ...</code> into <code>try: x = d[key] except KeyError: ...</code>, or better, <code>d.get(key, default)</code>. Compare which version reads more clearly.</li>
+<li><strong>Write first, annotate second.</strong> Write a small function with no hints, get it working, then add annotations and run the checker. This reverses the Java order, and it shows that types in Python are a description of working code, not a precondition for writing it.</li>
+<li><strong>Ask the checker what it believes.</strong> Spend an afternoon sprinkling <code>reveal_type()</code> through real code. Seeing what&rsquo;s inferred, and where it gives up and says <code>Unknown</code>, builds an accurate sense of what the tool knows, which is the basis for trusting it the right amount.</li>
+<li><strong>Read some well-typed Python.</strong> Browse the source of a modern typed library, or the stubs in typeshed for a standard-library module you use. Seeing idiomatic annotations written by people who think in Python is faster than deriving the style yourself.</li>
+<li><strong>Name the instinct when it fires.</strong> When you feel the urge to guard, declare or lock something down, pause and ask which of the three things above you&rsquo;re protecting: documentation, early errors, or a guarantee. If it&rsquo;s one of the first two, Python has a tool for it. If it&rsquo;s the third, decide where the boundary is and check there.</li>
+</ol>
+<p>None of these asks you to stop caring about types. They ask you to locate the care differently. The remaining sections are the practical toolkit for doing that.</p>
+<h2><span class="num">2</span>Technical</h2>
+<p>Modern Python can give a C, C++, or Java developer most of what they miss about strong typing, as long as type checking is treated as part of the build rather than a suggestion.</p>
 <p><strong>Run the checker as if it were the compiler.</strong> Use pyright or mypy in strict mode, wired into pre-commit and CI, and treat a type error as a failed build. Python then behaves like a compiled language with <code>-Wall -Werror</code>, except the compile step is separate from running. Ruff&rsquo;s <code>ANN</code> rules flag missing annotations so nothing slips through untyped.</p>
 <p><strong>Use <code>Protocol</code> for duck typing with a contract.</strong> A <code>Protocol</code> is an interface that a class satisfies by having the right methods, with no inheritance declared. It is structural typing: duck typing written down and checked statically. You get a self-documenting interface without forcing callers into your class hierarchy.</p>
 <p><strong>Accept broadly, return precisely.</strong> In ngstats, annotate inputs as <code>numpy.typing.ArrayLike</code>, which documents &ldquo;anything array-ish.&rdquo; Annotate internals and outputs as <code>NDArray[np.float64]</code> or concrete types. The signature still tells the reader exactly what is acceptable.</p>
@@ -260,7 +334,7 @@
 </ul>
 <p><strong>Optional runtime enforcement in tests.</strong> <code>beartype</code> is a decorator that checks hints at runtime cheaply. Some people enable it only in the test suite, so violations surface in tests without costing anything in production.</p>
 <p><strong>Wall off untyped code.</strong> scipy and statsmodels are only partly typed, so <code>Any</code> will leak in from them. Wrap them at the edge and expose fully typed signatures. That is literally what ngstats is: a typed facade over loosely typed libraries.</p>
-<h2><span class="num">2</span>Psychological</h2>
+<h2><span class="num">3</span>Psychological</h2>
 <p><strong>You have done duck typing before.</strong> C++ templates are compile-time duck typing: a template works with any type that has the operations it uses, and nothing declares that up front. C++20 concepts were added to write those requirements down, which is exactly what <code>Protocol</code> does for Python. Python&rsquo;s version is structural typing checked by a separate tool instead of the compiler. That is a different arrangement from what you know, not an absence of typing.</p>
 
 <figure>
