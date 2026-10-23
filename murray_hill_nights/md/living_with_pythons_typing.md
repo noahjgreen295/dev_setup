@@ -14,6 +14,22 @@ It helps to separate three things a statically typed language gave you, because 
 
 Most of the unease comes from that third item, and it's worth naming plainly so it doesn't color everything else. You still get documentation, and you still get early errors. What you give up is the assurance that the whole world is typed. In its place you get boundaries you control, and the rest of this essay is about drawing them.
 
+### "A sloppy mindset for sloppy times"
+
+You may be carrying a stronger conviction than discomfort: that Python's approach to types is sloppiness dressed up as philosophy, the habit of an era that stopped caring about rigor. That conviction didn't come from nowhere. You've probably seen the evidence: notebooks no one can rerun, functions that accept anything and return whatever, a `KeyError` at 2 a.m. in code that "worked yesterday." Plenty of Python is written carelessly, and you're right to dislike it. But the case against the language is weaker than it feels, and a few facts are worth weighing before you settle on it.
+
+**Python is dynamically typed, not weakly typed.** These are different axes. Python checks types at runtime and refuses to guess: `"1" + 1` raises `TypeError`, where JavaScript quietly produces `"11"`. C is the opposite: statically typed but weakly enforced. It will let you cast a `float*` to an `int*`, or anything to a `void*`, and reinterpret the bits without a word. By that measure, Python is stricter about what an object can be used for than the C many of us learned on.
+
+**The languages you trust have the same gaps, just in other places.** Java's generics are erased at runtime: a `List<String>` is a plain `List` once the program runs, checked only by the compiler, which is exactly how Python's hints work. Java arrays are covariant, so you can assign a `String[]` to an `Object[]`, store an `Integer` in it, and get an `ArrayStoreException` at runtime from code that compiled cleanly. Reflection and unchecked casts walk through `private` and generic bounds. And Java let any reference be `null`, the flaw Tony Hoare later called his "billion-dollar mistake." Strictly checked Python treats `None` more carefully than Java does: `str | None` must be narrowed before use, and the checker enforces it. No mainstream type system is airtight. What matters is whether you know where the holes are.
+
+**The direction of travel is toward rigor, not away from it.** Type hints entered Python in 2014 (PEP 484), led in part by Guido van Rossum, who went on to work on mypy at Dropbox. Dropbox type-checked millions of lines of its Python code. Meta built its own Python checkers for Instagram's codebase. Python, JavaScript (through TypeScript) and Ruby (through Sorbet and RBS) all gained static typing within roughly a decade of each other, because large teams found that dynamic code needed contracts at scale. If these are sloppy times, the people shaping these languages are pushing against them.
+
+**The dynamism was a deliberate trade, not an oversight.** Python was designed for readability and fast iteration: exploratory work, gluing systems together, analysis whose shape isn't known in advance. You've been doing exactly that kind of work for a decade, and dynamic typing is part of why it was quick. What changed is that Python now also hosts large, long-lived systems, and it grew optional typing to serve them, without taking speed away from the exploratory work.
+
+**Rigor was never only the compiler's job.** Even in Java, types never replaced tests, code review or clear design. Python moved more of that weight onto tests, and its testing culture is strong because of it. Typed Python adds the static layer back. Used together, they can be at least as disciplined as what you're used to.
+
+None of this means you have to love it. Some of your distaste may never fully leave, and that's fine. Your insistence on contracts is an asset in the Python world, which needs more people who annotate their public APIs, run a strict checker, and refuse to let `Any` spread. What's sloppy is code written without discipline, and that's true in every language. You can bring the discipline with you.
+
 ### Two philosophies
 
 The difference isn't that one language cares about correctness and the other doesn't. They locate correctness in different places.
