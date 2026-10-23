@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Typing from First Principles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --blue: #1d4f91;
+    --blue-light: #e8eef7;
+    --rule: #1d4f91;
+    --muted: #555;
+    --serif: "Tinos", "Times New Roman", Times, serif;
+    --mono: "Courier Prime", "Courier New", Courier, monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  .page {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 0 16px 6rem;
+  }
+
+  /* ---- cover ---- */
+  .cover {
+    border-bottom: 3px solid var(--blue);
+    padding: 3.5rem 0 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .series {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin: 0 0 2.5rem;
+  }
+  .cover h1 {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(2.4rem, 8vw, 4.2rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.2rem;
+  }
+  .cover h1 .with {
+    display: block;
+    font-weight: 400;
+    font-size: 0.45em;
+    letter-spacing: 0;
+    margin-top: 0.6rem;
+    color: var(--ink);
+  }
+  .cover h1 code {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--blue);
+  }
+  .bigmark {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(5rem, 22vw, 9rem);
+    line-height: 0.8;
+    float: right;
+    margin: -0.2rem 0 0 1rem;
+    user-select: none;
+  }
+  .cover .byline {
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ---- running head ---- */
+  .runhead {
+    display: flex;
+    justify-content: space-between;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-bottom: 1px solid #bbb;
+    padding-bottom: 0.25rem;
+    margin: 0 0 2rem;
+  }
+
+  /* ---- text ---- */
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 2.8rem 0 0.8rem;
+  }
+  h2 .num, h3 .num {
+    color: var(--blue);
+    margin-right: 0.6em;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    font-weight: 700;
+    margin: 2rem 0 0.6rem;
+  }
+  p { margin: 0 0 1rem; hyphens: auto; }
+  .lede::first-letter {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    float: left;
+    font-size: 3.4rem;
+    line-height: 0.85;
+    margin: 0.3rem 0.4rem 0 0;
+  }
+  ul { padding-left: 1.4rem; margin: 0 0 1rem; }
+  li { margin-bottom: 0.35rem; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.92em;
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    line-height: 1.4;
+    margin: 0.4rem 0 1.4rem;
+    padding: 0 0 0 1.5rem;
+    overflow-x: auto;
+    background: none;
+    border: none;
+  }
+  pre code { font-size: inherit; }
+  .cmt { color: var(--muted); font-style: italic; }
+  .key { font-weight: 700; }
+
+  /* ---- tables: ruled top and bottom, nothing else ---- */
+  .tablewrap { overflow-x: auto; margin: 0.6rem 0 1.6rem; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+    border-top: 1.5px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+  }
+  thead th {
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 1px solid var(--ink);
+    padding: 0.4rem 0.6rem 0.3rem 0;
+    vertical-align: bottom;
+  }
+  td {
+    padding: 0.32rem 0.6rem 0.32rem 0;
+    vertical-align: top;
+  }
+
+  /* ---- figures ---- */
+  figure {
+    margin: 1.6rem 0 2rem;
+    padding: 0;
+  }
+  figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 36rem;
+    margin: 0 auto;
+  }
+  figcaption {
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 0.7rem;
+  }
+  figcaption b {
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+    color: var(--blue);
+    margin-right: 0.4em;
+  }
+  svg text {
+    font-family: var(--mono);
+    fill: var(--ink);
+  }
+  svg .lbl { font-size: 15px; }
+  svg .lblb { font-size: 15px; font-weight: 700; }
+  svg .sm { font-size: 12.5px; fill: #555; }
+  svg .box { fill: #fff; stroke: var(--blue); stroke-width: 2; }
+  svg .band { fill: var(--blue-light); stroke: var(--blue); stroke-width: 1.5; }
+  svg .outer { fill: none; stroke: var(--blue); stroke-width: 2.5; }
+  svg .ln { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+  svg .ok { stroke: var(--blue); stroke-width: 2; fill: none; }
+  svg .bad { stroke: #a33; stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+  svg .x { fill: #a33; font-family: var(--sans); font-weight: 700; font-size: 18px; }
+  svg .chk { fill: var(--blue); font-family: var(--sans); font-weight: 700; font-size: 18px; }
+
+  .note {
+    border-left: 3px solid var(--blue);
+    padding: 0.1rem 0 0.1rem 1rem;
+    margin: 1.2rem 0 1.4rem;
+    font-size: 0.95rem;
+  }
+  a { color: var(--blue); }
+  .sources li { font-size: 0.92rem; }
+  .colophon {
+    margin-top: 4rem;
+    border-top: 3px solid var(--blue);
+    padding-top: 0.8rem;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  @media (max-width: 520px) {
+    body { font-size: 17px; }
+    pre { padding-left: 0.6rem; font-size: 0.78rem; }
+    .bigmark { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="cover">
+  <p class="series">Murray Hill Nights &middot; Python Toolchain</p>
+  <div class="bigmark" aria-hidden="true">A</div>
+  <h1>Python Typing from First Principles<span class="with">what hints are, who checks them, and the everyday vocabulary</span></h1>
+  <p class="byline">For programmers raised on compilers</p>
+</header>
+
+<div class="runhead"><span>Python Typing from First Principles</span><span>Murray Hill Nights</span></div>
+
+<p class="lede">In C, C++ and Java the type system belongs to the compiler. A type error stops the build, and a program that compiled is guaranteed to agree with its own declarations. Python&rsquo;s type system works differently in one fundamental way, and nearly every surprise follows from it: <strong>Python itself ignores type hints.</strong> They are read and enforced by a separate tool that you run alongside your code, much as you&rsquo;d run a linter.</p>
+<p>This essay covers that model and the everyday vocabulary, written for someone arriving from statically typed languages. It&rsquo;s the foundation for the rest of this folder. The examples were checked with Python 3.13, pyright 1.1.414 and mypy in October 2026.</p>
+<h2><span class="num">1</span>1. A type hint is an annotation, not a declaration</h2>
+<pre><code class="language-python">def double(x: int) -&gt; int:
+    return x * 2
+
+rate: float = 0.05
+</code></pre>
+<p>That syntax attaches annotations to the parameter, the return value and the variable. Python evaluates them, stores them (<code>double.__annotations__</code> is <code>{'x': &lt;class 'int'&gt;, 'return': &lt;class 'int'&gt;}</code>), and otherwise does nothing with them. So this runs without complaint:</p>
+<pre><code class="language-python">print(double(&quot;ab&quot;))   # prints &quot;abab&quot;
+</code></pre>
+<p>The hint says <code>int</code>, the call passes a <code>str</code>, and Python happily repeats the string. Nothing checks the annotation at runtime unless you add a library that does.</p>
+<p>The checking happens on a separate path:</p>
+
+<figure>
+<svg viewBox="0 0 560 220" role="img" aria-label="Source with hints goes two ways: to a type checker that reports errors before running, and to the interpreter, which ignores the hints">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d4f91"/></marker>
+    <marker id="ahk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/></marker>
+  </defs>
+  <rect class="band" x="6" y="80" width="120" height="58"/>
+  <text class="lblb" x="66" y="105" text-anchor="middle">your .py</text>
+  <text class="sm" x="66" y="124" text-anchor="middle">with hints</text>
+  <rect class="box" x="196" y="20" width="190" height="58"/>
+  <text class="lblb" x="291" y="45" text-anchor="middle">type checker</text>
+  <text class="sm" x="291" y="64" text-anchor="middle">pyright / mypy</text>
+  <rect class="box" x="196" y="142" width="190" height="58"/>
+  <text class="lblb" x="291" y="167" text-anchor="middle">Python interpreter</text>
+  <text class="sm" x="291" y="186" text-anchor="middle">ignores the hints</text>
+  <path class="ok" d="M126,98 L192,56" marker-end="url(#ah)"/>
+  <path class="ln" d="M126,120 L192,164" marker-end="url(#ahk)"/>
+  <path class="ok" d="M386,49 L414,49" marker-end="url(#ah)"/>
+  <text class="sm" x="420" y="44">errors, before</text>
+  <text class="sm" x="420" y="60">running (IDE, CI)</text>
+  <path class="ln" d="M386,171 L414,171" marker-end="url(#ahk)"/>
+  <text class="sm" x="420" y="166">runs the program,</text>
+  <text class="sm" x="420" y="182">hints and all</text>
+</svg>
+<figcaption><b>Figure 1</b>Two consumers of the same source.</figcaption>
+</figure>
+
+<p>Run pyright over the same file and it reports:</p>
+<pre><code>error: Argument of type &quot;Literal['ab']&quot; cannot be assigned to parameter &quot;x&quot;
+       of type &quot;int&quot; in function &quot;double&quot;
+</code></pre>
+<p>Your program and your type checker are two different consumers of the same source. The checker gives you most of what a compiler&rsquo;s type pass gave you. The interpreter never sees any of it.</p>
+<p>Since Python 3.14, annotations aren&rsquo;t even evaluated when a function or class is defined. They&rsquo;re computed lazily, only if something asks for them. That&rsquo;s an implementation detail for most code, but it underlines the point: annotations are metadata.</p>
+<h2><span class="num">2</span>2. Who does the checking</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Checker</th>
+<th>From</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>pyright</strong></td>
+<td>Microsoft</td>
+<td>Fast, strict, thorough. Powers Pylance, the Python language server in VS Code, so its errors appear as you type.</td>
+</tr>
+<tr>
+<td><strong>mypy</strong></td>
+<td>The original, now a Python community project</td>
+<td>The reference implementation that much of the typing ecosystem grew up around.</td>
+</tr>
+<tr>
+<td><strong>Pyrefly</strong></td>
+<td>Meta</td>
+<td>Newer, written in Rust. Reached 1.0 in May 2026.</td>
+</tr>
+<tr>
+<td><strong>ty</strong></td>
+<td>Astral (makers of ruff and uv)</td>
+<td>Newer, written in Rust. Still 0.0.x as of late 2026.</td>
+</tr>
+</tbody>
+</table></div>
+<p>They mostly agree, but not always: the same code can pass one checker and fail another. Pick one per project and make it part of the build. For ngstats that&rsquo;s pyright, which you already get in VS Code through Pylance.</p>
+<h2><span class="num">3</span>3. Gradual typing: unannotated code is unchecked code</h2>
+<p>Python lets you type a codebase partially. That&rsquo;s called <strong>gradual typing</strong>, and the mechanism is the special type <strong><code>Any</code></strong>. <code>Any</code> is compatible with everything in both directions: you can pass anything where <code>Any</code> is expected and use an <code>Any</code> value anywhere. Checking simply stops at it.</p>
+<p>Unannotated code is effectively <code>Any</code>:</p>
+<pre><code class="language-python">def untyped(x):
+    return x.nonexistent_method()
+
+y = untyped(3)     # pyright: y is &quot;Unknown&quot;   mypy: y is &quot;Any&quot;
+</code></pre>
+<p>Neither checker complains about calling a method that doesn&rsquo;t exist on an <code>int</code>, because <code>x</code> has no declared type to check against. pyright&rsquo;s name for an inferred-but-unknowable type is <code>Unknown</code>, which is its way of distinguishing &ldquo;you didn&rsquo;t say&rdquo; from an explicit <code>Any</code>.</p>
+<p>The two checkers also differ on what they look at:</p>
+<pre><code class="language-python">def untyped(x):
+    return 1 + &quot;a&quot;
+</code></pre>
+<p>pyright reports the <code>int + str</code> error anyway. <strong>mypy, by default, doesn&rsquo;t check the bodies of unannotated functions at all.</strong> It reports nothing until you annotate the function or run <code>mypy --strict</code>, which also flags <code>Function is missing a type annotation</code>.</p>
+<p>This is why every strict setup turns on &ldquo;strict mode&rdquo;: it treats missing annotations and unknown types as errors, so <code>Any</code> can&rsquo;t spread silently. A project without strict mode can look fully checked while large parts of it aren&rsquo;t.</p>
+<h2><span class="num">4</span>4. The everyday vocabulary</h2>
+<h3><span class="num">4.1</span>Built-in and container types</h3>
+<pre><code class="language-python">count: int
+ratio: float           # also accepts an int
+name: str
+ok: bool
+raw: bytes
+
+values: list[float]
+lookup: dict[str, int]
+pair: tuple[str, float]        # exactly two items, in that order
+samples: tuple[float, ...]     # any length, all floats
+seen: set[str]
+</code></pre>
+<p><code>list</code> means a list, <code>tuple[str, float]</code> means a fixed-shape record, and <code>tuple[float, ...]</code> means an immutable sequence of any length. That last spelling surprises most people the first time.</p>
+<h3><span class="num">4.2</span>Accept broadly, return precisely</h3>
+<p>For parameters, prefer the abstract types from <code>collections.abc</code>:</p>
+<pre><code class="language-python">from collections.abc import Iterable, Mapping, Sequence
+
+def mean(xs: Sequence[float]) -&gt; float: ...       # list, tuple, ... all fine
+def total(xs: Iterable[float]) -&gt; float: ...      # even a generator
+def describe(cfg: Mapping[str, str]) -&gt; str: ...  # dict or any read-only mapping
+</code></pre>
+<p>For return values, be concrete (<code>list[float]</code>, <code>dict[str, int]</code>) so callers know exactly what they get. It&rsquo;s the same advice as programming to interfaces in Java.</p>
+<h3><span class="num">4.3</span>Unions and <code>None</code></h3>
+<pre><code class="language-python">def parse(s: str) -&gt; int | float: ...
+def find(name: str) -&gt; int | None: ...
+</code></pre>
+<p><code>X | None</code> means &ldquo;an X or nothing,&rdquo; and the checker makes you handle the <code>None</code>:</p>
+<pre><code class="language-python">def length(s: str | None) -&gt; int:
+    return len(s)          # error: &quot;None&quot; is incompatible with &quot;Sized&quot;
+
+def length(s: str | None) -&gt; int:
+    if s is None:
+        return 0
+    return len(s)          # fine: s is narrowed to str here
+</code></pre>
+<p>That second version shows <strong>narrowing</strong>: after <code>if s is None: return</code>, the checker knows <code>s</code> is a <code>str</code>. <code>isinstance</code> checks, truthiness tests and early returns all narrow. This is the closest Python gets to eliminating null-pointer bugs, and it&rsquo;s one of the biggest payoffs of typing.</p>
+<h3><span class="num">4.4</span><code>Literal</code></h3>
+<pre><code class="language-python">from typing import Literal
+
+Alternative = Literal[&quot;two-sided&quot;, &quot;less&quot;, &quot;greater&quot;]
+
+def ttest(a: Sequence[float], b: Sequence[float], alternative: Alternative = &quot;two-sided&quot;) -&gt; float: ...
+
+ttest(a, b, alternative=&quot;both&quot;)   # error: &quot;both&quot; is not one of the allowed values
+</code></pre>
+<p>A <code>Literal</code> restricts a string (or int, or bool) to specific values. It&rsquo;s a lightweight enum, and it reads well in signatures.</p>
+<h3><span class="num">4.5</span><code>Callable</code></h3>
+<pre><code class="language-python">from collections.abc import Callable
+
+def apply(f: Callable[[float], float], xs: list[float]) -&gt; list[float]:
+    return [f(x) for x in xs]
+</code></pre>
+<p><code>Callable[[arg types], return type]</code> describes a function. For anything fancier, such as keyword arguments, see callback protocols in <code>protocols_and_abstract_base_classes.md</code>.</p>
+<h3><span class="num">4.6</span>Type aliases</h3>
+<pre><code class="language-python">type Vector = list[float]       # Python 3.12+
+
+def norm(v: Vector) -&gt; float: ...
+</code></pre>
+<p>An alias is a name for a type. It doesn&rsquo;t create a new type: a <code>Vector</code> is a <code>list[float]</code>. Use <code>typing.NewType</code> when you want the checker to keep two otherwise identical types apart.</p>
+<h3><span class="num">4.7</span>A first look at generics</h3>
+<pre><code class="language-python">def first[T](xs: Sequence[T]) -&gt; T:      # Python 3.12+
+    return xs[0]
+
+first([1, 2, 3])    # int
+first(&quot;abc&quot;)        # str
+</code></pre>
+<p><code>T</code> is a type variable: whatever element type goes in comes out. This is Java&rsquo;s <code>&lt;T&gt; T first(List&lt;T&gt; xs)</code> with lighter syntax. Generics deserve an essay of their own. For now it&rsquo;s enough to read them.</p>
+<h3><span class="num">4.8</span><code>Final</code></h3>
+<pre><code class="language-python">from typing import Final
+
+DEFAULT_ALPHA: Final = 0.05      # the checker rejects reassignment
+</code></pre>
+<h2><span class="num">5</span>5. Old spelling versus new</h2>
+<p>Python&rsquo;s typing syntax got simpler over several releases, and older code and tutorials still use the old forms. Both are valid. Write the new ones.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Old</th>
+<th>New</th>
+<th>Since</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>from typing import List, Dict</code> … <code>List[int]</code></td>
+<td><code>list[int]</code></td>
+<td>3.9 (PEP 585)</td>
+</tr>
+<tr>
+<td><code>Optional[str]</code>, <code>Union[int, str]</code></td>
+<td><code>str | None</code>, <code>int | str</code></td>
+<td>3.10 (PEP 604)</td>
+</tr>
+<tr>
+<td><code>Vector: TypeAlias = list[float]</code></td>
+<td><code>type Vector = list[float]</code></td>
+<td>3.12 (PEP 695)</td>
+</tr>
+<tr>
+<td><code>T = TypeVar("T")</code> then <code>def f(x: T) -&gt; T</code></td>
+<td><code>def f[T](x: T) -&gt; T</code></td>
+<td>3.12 (PEP 695)</td>
+</tr>
+<tr>
+<td><code>from typing import Callable, Sequence</code></td>
+<td><code>from collections.abc import Callable, Sequence</code></td>
+<td>3.9</td>
+</tr>
+</tbody>
+</table></div>
+<p>You&rsquo;ll also see <code>from __future__ import annotations</code> at the top of older modules. It made annotations lazy before Python 3.14 made that the default.</p>
+<h2><span class="num">6</span>6. Inference: you annotate less than you think</h2>
+<p>The checker infers the types of local variables, so you rarely annotate them:</p>
+<pre><code class="language-python">counts = {&quot;a&quot;: 1}     # dict[str, int], inferred
+nums = []             # pyright: list[Unknown]   mypy: error, &quot;Need type annotation&quot;
+nums: list[float] = []
+</code></pre>
+<p>Annotate function signatures, class attributes and module-level constants. Annotate a local only when inference can&rsquo;t work it out, typically an empty container.</p>
+<p><strong><code>reveal_type(expr)</code></strong> is how you ask the checker what it thinks. Put it in your code and pyright or mypy prints the inferred type. Since Python 3.11 you can import it from <code>typing</code>, so the line also runs, printing the runtime type. It&rsquo;s the single most useful debugging tool in typed Python.</p>
+<h2><span class="num">7</span>7. Where types come from</h2>
+<p>The checker needs type information for everything your code touches:</p>
+<ul>
+<li><strong>Your own annotations.</strong></li>
+<li><strong>Libraries that ship types.</strong> A package containing an empty <code>py.typed</code> file is telling checkers &ldquo;my inline annotations are meant to be used.&rdquo; numpy does this, and ngstats will too.</li>
+<li><strong>Stub files (<code>.pyi</code>).</strong> These are signatures only, no implementation. They&rsquo;re used when a library isn&rsquo;t annotated itself. They come from two places:<ul>
+<li><strong>typeshed</strong>, a community repository of stubs for the entire standard library and some third-party packages. It&rsquo;s bundled inside every checker, which is why <code>len</code>, <code>open</code> and <code>json.dumps</code> are already typed.</li>
+<li><strong>Separate stub packages</strong>, such as <code>pandas-stubs</code> or <code>types-requests</code>, installed as dev dependencies.</li>
+</ul>
+</li>
+<li><strong>Nothing.</strong> For an untyped library with no stubs, everything it returns is <code>Any</code> or <code>Unknown</code>. <code>typing_numerical_python.md</code> covers how to fence that off.</li>
+</ul>
+<h2><span class="num">8</span>8. What the checker can and can&rsquo;t promise</h2>
+<p>Python&rsquo;s type checking is <strong>unsound by design</strong>: code can pass the checker and still hit a type error at runtime. The gaps are known, and each has a standard answer:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Gap</th>
+<th>Answer</th>
+<th>Where it&rsquo;s covered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Any</code> from unannotated code or untyped libraries</td>
+<td>Strict mode, typed edges around untyped libraries</td>
+<td><code>typing_numerical_python.md</code></td>
+</tr>
+<tr>
+<td>Escape hatches: <code>cast()</code>, <code># type: ignore</code></td>
+<td>Use few, keep them at boundaries, comment each one</td>
+<td><code>living_with_pythons_typing.md</code></td>
+</tr>
+<tr>
+<td>Data from outside: JSON, env vars, files</td>
+<td>Parse it at the boundary with pydantic</td>
+<td><code>python_type_checking.md</code></td>
+</tr>
+<tr>
+<td>Callers who don&rsquo;t run a checker</td>
+<td>Runtime value checks on your public functions</td>
+<td><code>python_type_checking.md</code></td>
+</tr>
+<tr>
+<td>Architecture: who may import whom</td>
+<td>import-linter</td>
+<td><code>layered_python_architecture_with_import_linter.md</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Within those limits, a strictly checked codebase catches the large majority of type errors before the code runs, and the annotations document every signature as they go.</p>
+<h2><span class="num">9</span>9. Translation table for the C, C++ and Java programmer</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>C / C++ / Java</th>
+<th>Python</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The compiler checks types</td>
+<td>A separate checker (pyright, mypy) checks types; the interpreter ignores hints</td>
+</tr>
+<tr>
+<td>A type error fails the build</td>
+<td>Only if you make the checker part of the build (pre-commit, CI)</td>
+</tr>
+<tr>
+<td>Every variable must be declared</td>
+<td>Annotate signatures; locals are inferred</td>
+</tr>
+<tr>
+<td><code>null</code> / <code>nullptr</code></td>
+<td><code>None</code>, opted into with <code>X | None</code> and enforced by narrowing</td>
+</tr>
+<tr>
+<td><code>enum</code></td>
+<td><code>enum.Enum</code>, or <code>Literal[...]</code> for simple string choices</td>
+</tr>
+<tr>
+<td>Generics <code>&lt;T&gt;</code> / templates</td>
+<td><code>def f[T](...)</code>, <code>class Box[T]: ...</code></td>
+</tr>
+<tr>
+<td>Interfaces</td>
+<td><code>typing.Protocol</code> (implicit) or <code>abc.ABC</code> (explicit)</td>
+</tr>
+<tr>
+<td>Header files</td>
+<td>Stub files (<code>.pyi</code>), plus <code>__all__</code> for the export list</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>None</code> as a return type</td>
+</tr>
+<tr>
+<td>Casting</td>
+<td><code>typing.cast(T, x)</code>, which only changes what the checker believes and does nothing at runtime</td>
+</tr>
+<tr>
+<td><code>Object</code></td>
+<td><code>object</code> (safe, requires narrowing) versus <code>Any</code> (unchecked)</td>
+</tr>
+</tbody>
+</table></div>
+<p>That last row is worth remembering. <code>object</code> is the honest &ldquo;could be anything&rdquo;: the checker makes you narrow it before use. <code>Any</code> switches checking off. Reach for <code>object</code> when you mean &ldquo;anything,&rdquo; and treat every <code>Any</code> as a gap.</p>
+<h2><span class="num">10</span>Suggested reading order for this folder</h2>
+<ol>
+<li><strong>Python Typing from First Principles</strong>: this essay</li>
+<li><strong>Living With Python&rsquo;s Typing</strong>: technique and temperament</li>
+<li><strong>Python Type Checking, From the API Down</strong>: who checks what, and where</li>
+<li><strong>Protocols and Abstract Base Classes</strong>: interfaces, two ways</li>
+<li><strong>Typing Numerical Python</strong>: numpy, pandas, and where the checker gives up</li>
+<li><strong>Layered Python Architecture with import-linter</strong>: enforcing structure</li>
+</ol>
+<h2>Sources</h2>
+<ul>
+<li><a href="https://docs.python.org/3/library/typing.html">typing &mdash; Support for type hints, Python documentation</a></li>
+<li><a href="https://docs.python.org/3/whatsnew/3.14.html">What&rsquo;s New in Python 3.14: deferred evaluation of annotations</a></li>
+<li><a href="https://peps.python.org/pep-0484/">PEP 484: Type Hints</a></li>
+<li><a href="https://peps.python.org/pep-0585/">PEP 585</a>, <a href="https://peps.python.org/pep-0604/">PEP 604</a>, <a href="https://peps.python.org/pep-0695/">PEP 695</a></li>
+<li><a href="https://mypy.readthedocs.io/en/stable/command_line.html">mypy documentation: untyped definitions and strict mode</a></li>
+<li><a href="https://microsoft.github.io/pyright/">Pyright documentation</a></li>
+<li><a href="https://github.com/python/typeshed">typeshed on GitHub</a></li>
+<li><a href="https://pydevtools.com/handbook/explanation/ty-vs-pyrefly/">ty vs Pyrefly, pydevtools.com (September 2026)</a></li>
+</ul>
+
+<div class="colophon">Murray Hill Nights</div>
+</div>
+</body>
+</html>
