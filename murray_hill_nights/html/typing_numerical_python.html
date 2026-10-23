@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typing Numerical Python</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --blue: #1d4f91;
+    --blue-light: #e8eef7;
+    --rule: #1d4f91;
+    --muted: #555;
+    --serif: "Tinos", "Times New Roman", Times, serif;
+    --mono: "Courier Prime", "Courier New", Courier, monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  .page {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 0 16px 6rem;
+  }
+
+  /* ---- cover ---- */
+  .cover {
+    border-bottom: 3px solid var(--blue);
+    padding: 3.5rem 0 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .series {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin: 0 0 2.5rem;
+  }
+  .cover h1 {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(2.4rem, 8vw, 4.2rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.2rem;
+  }
+  .cover h1 .with {
+    display: block;
+    font-weight: 400;
+    font-size: 0.45em;
+    letter-spacing: 0;
+    margin-top: 0.6rem;
+    color: var(--ink);
+  }
+  .cover h1 code {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--blue);
+  }
+  .bigmark {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(5rem, 22vw, 9rem);
+    line-height: 0.8;
+    float: right;
+    margin: -0.2rem 0 0 1rem;
+    user-select: none;
+  }
+  .cover .byline {
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ---- running head ---- */
+  .runhead {
+    display: flex;
+    justify-content: space-between;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-bottom: 1px solid #bbb;
+    padding-bottom: 0.25rem;
+    margin: 0 0 2rem;
+  }
+
+  /* ---- text ---- */
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 2.8rem 0 0.8rem;
+  }
+  h2 .num, h3 .num {
+    color: var(--blue);
+    margin-right: 0.6em;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    font-weight: 700;
+    margin: 2rem 0 0.6rem;
+  }
+  p { margin: 0 0 1rem; hyphens: auto; }
+  .lede::first-letter {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    float: left;
+    font-size: 3.4rem;
+    line-height: 0.85;
+    margin: 0.3rem 0.4rem 0 0;
+  }
+  ul { padding-left: 1.4rem; margin: 0 0 1rem; }
+  li { margin-bottom: 0.35rem; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.92em;
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    line-height: 1.4;
+    margin: 0.4rem 0 1.4rem;
+    padding: 0 0 0 1.5rem;
+    overflow-x: auto;
+    background: none;
+    border: none;
+  }
+  pre code { font-size: inherit; }
+  .cmt { color: var(--muted); font-style: italic; }
+  .key { font-weight: 700; }
+
+  /* ---- tables: ruled top and bottom, nothing else ---- */
+  .tablewrap { overflow-x: auto; margin: 0.6rem 0 1.6rem; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+    border-top: 1.5px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+  }
+  thead th {
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 1px solid var(--ink);
+    padding: 0.4rem 0.6rem 0.3rem 0;
+    vertical-align: bottom;
+  }
+  td {
+    padding: 0.32rem 0.6rem 0.32rem 0;
+    vertical-align: top;
+  }
+
+  /* ---- figures ---- */
+  figure {
+    margin: 1.6rem 0 2rem;
+    padding: 0;
+  }
+  figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 36rem;
+    margin: 0 auto;
+  }
+  figcaption {
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 0.7rem;
+  }
+  figcaption b {
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+    color: var(--blue);
+    margin-right: 0.4em;
+  }
+  svg text {
+    font-family: var(--mono);
+    fill: var(--ink);
+  }
+  svg .lbl { font-size: 15px; }
+  svg .lblb { font-size: 15px; font-weight: 700; }
+  svg .sm { font-size: 12.5px; fill: #555; }
+  svg .box { fill: #fff; stroke: var(--blue); stroke-width: 2; }
+  svg .band { fill: var(--blue-light); stroke: var(--blue); stroke-width: 1.5; }
+  svg .outer { fill: none; stroke: var(--blue); stroke-width: 2.5; }
+  svg .ln { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+  svg .ok { stroke: var(--blue); stroke-width: 2; fill: none; }
+  svg .bad { stroke: #a33; stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+  svg .x { fill: #a33; font-family: var(--sans); font-weight: 700; font-size: 18px; }
+  svg .chk { fill: var(--blue); font-family: var(--sans); font-weight: 700; font-size: 18px; }
+
+  .note {
+    border-left: 3px solid var(--blue);
+    padding: 0.1rem 0 0.1rem 1rem;
+    margin: 1.2rem 0 1.4rem;
+    font-size: 0.95rem;
+  }
+  a { color: var(--blue); }
+  .sources li { font-size: 0.92rem; }
+  .colophon {
+    margin-top: 4rem;
+    border-top: 3px solid var(--blue);
+    padding-top: 0.8rem;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  @media (max-width: 520px) {
+    body { font-size: 17px; }
+    pre { padding-left: 0.6rem; font-size: 0.78rem; }
+    .bigmark { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="cover">
+  <p class="series">Murray Hill Nights &middot; Python Toolchain</p>
+  <div class="bigmark" aria-hidden="true">N</div>
+  <h1>Typing Numerical Python<span class="with">numpy, pandas, and where the checker gives up</span></h1>
+  <p class="byline">A field guide for ngstats</p>
+</header>
+
+<div class="runhead"><span>Typing Numerical Python</span><span>Murray Hill Nights</span></div>
+
+<p class="lede">The scientific Python stack is typed unevenly. numpy ships detailed type information of its own. pandas and scipy have separate stub packages. statsmodels has nothing. Even where types exist, precision drains away as values pass through arithmetic, indexing and reductions. Writing a strictly typed library on top of this stack means knowing what the checker can see, how precise it is, and where it stops, and then drawing your own typed boundary around the rest.</p>
+<p>This essay is a field guide for that, aimed at ngstats. Every <code>reveal_type</code> result quoted below came from actually running pyright 1.1.414 against numpy 2.5.3, pandas 3.0.5 with pandas-stubs, scipy 1.18.1 with scipy-stubs, and statsmodels 0.15.0, in October 2026. These stubs change quickly, so check your own versions with <code>reveal_type</code> before relying on any specific result.</p>
+
+<figure>
+<svg viewBox="0 0 560 300" role="img" aria-label="ngstats public API and internals sit on numpy, pandas, scipy and statsmodels, which have decreasing type coverage">
+  <rect class="box" x="10" y="10" width="540" height="50"/>
+  <text class="lblb" x="26" y="41">ngstats public API</text>
+  <text class="sm" x="534" y="41" text-anchor="end">fully typed, py.typed</text>
+  <rect class="box" x="10" y="68" width="540" height="50"/>
+  <text class="lblb" x="26" y="99">ngstats internals</text>
+  <text class="sm" x="534" y="99" text-anchor="end">NDArray[np.float64], float</text>
+  <g>
+    <rect class="band" x="10" y="126" width="129" height="140"/>
+    <rect class="band" x="147" y="126" width="129" height="140"/>
+    <rect class="band" x="284" y="126" width="129" height="140"/>
+    <rect class="band" x="421" y="126" width="129" height="140"/>
+    <text class="lblb" x="74" y="152" text-anchor="middle">numpy</text>
+    <text class="lblb" x="211" y="152" text-anchor="middle">pandas</text>
+    <text class="lblb" x="348" y="152" text-anchor="middle">scipy</text>
+    <text class="lblb" x="485" y="152" text-anchor="middle">statsmodels</text>
+    <text class="sm" x="74" y="174" text-anchor="middle">ships own</text>
+    <text class="sm" x="74" y="190" text-anchor="middle">types</text>
+    <text class="sm" x="211" y="174" text-anchor="middle">pandas-stubs</text>
+    <text class="sm" x="211" y="190" text-anchor="middle">(dev dep)</text>
+    <text class="sm" x="348" y="174" text-anchor="middle">scipy-stubs</text>
+    <text class="sm" x="348" y="190" text-anchor="middle">(dev dep)</text>
+    <text class="sm" x="485" y="174" text-anchor="middle">no types</text>
+    <rect x="24" y="216" width="100" height="14" fill="#fff" stroke="#1d4f91" stroke-width="1"/>
+    <rect x="24" y="216" width="90" height="14" fill="#1d4f91"/>
+    <rect x="161" y="216" width="100" height="14" fill="#fff" stroke="#1d4f91" stroke-width="1"/>
+    <rect x="161" y="216" width="60" height="14" fill="#1d4f91"/>
+    <rect x="298" y="216" width="100" height="14" fill="#fff" stroke="#1d4f91" stroke-width="1"/>
+    <rect x="298" y="216" width="72" height="14" fill="#1d4f91"/>
+    <rect x="435" y="216" width="100" height="14" fill="#fff" stroke="#1d4f91" stroke-width="1"/>
+    <rect x="435" y="216" width="6" height="14" fill="#1d4f91"/>
+    <text class="sm" x="74" y="252" text-anchor="middle">dtype-aware</text>
+    <text class="sm" x="211" y="252" text-anchor="middle">columns untyped</text>
+    <text class="sm" x="348" y="252" text-anchor="middle">typed results</text>
+    <text class="sm" x="485" y="252" text-anchor="middle">wrap it</text>
+  </g>
+  <text class="sm" x="280" y="290" text-anchor="middle">bars: how much of each library the checker can see (qualitative)</text>
+</svg>
+<figcaption><b>Figure 1</b>Type coverage beneath ngstats.</figcaption>
+</figure>
+
+<h2><span class="num">1</span>Who ships types, and how to get them</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Library</th>
+<th>Type information</th>
+<th>Install</th>
+<th>What pyright sees</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>numpy</td>
+<td>Ships its own (<code>py.typed</code>)</td>
+<td>Nothing extra</td>
+<td>Detailed: dtypes, and shapes in some places</td>
+</tr>
+<tr>
+<td>pandas</td>
+<td>Separate <code>pandas-stubs</code>, maintained by pandas-dev</td>
+<td><code>uv add --dev pandas-stubs</code></td>
+<td><code>Series[float]</code>, but DataFrame columns are untyped</td>
+</tr>
+<tr>
+<td>scipy</td>
+<td>Separate <code>scipy-stubs</code>, &ldquo;the official type stubs for SciPy&rdquo;</td>
+<td><code>uv add --dev scipy-stubs</code></td>
+<td>Typed result objects, e.g. <code>TtestResult[float64, float64]</code></td>
+</tr>
+<tr>
+<td>statsmodels</td>
+<td>None</td>
+<td>Nothing available</td>
+<td>Strict pyright: &ldquo;Stub file not found,&rdquo; partially unknown types</td>
+</tr>
+</tbody>
+</table></div>
+<p>Stub packages go in the <strong>dev</strong> dependency group. Only the type checker needs them, so the people who install ngstats don&rsquo;t pay for them. Users who type-check their own code install the stubs themselves.</p>
+<p>mypy is stricter than pyright here. For a package with neither <code>py.typed</code> nor stubs, mypy reports a missing-stubs error and treats the module as untyped. pyright infers what it can from the library&rsquo;s source and then, in strict mode, complains about everything it couldn&rsquo;t work out.</p>
+<h2><span class="num">2</span>numpy: two annotations do most of the work</h2>
+<p>You need two names from <code>numpy.typing</code>:</p>
+<ul>
+<li><strong><code>ArrayLike</code></strong> for inputs: &ldquo;anything numpy can turn into an array.&rdquo;</li>
+<li><strong><code>NDArray[np.float64]</code></strong> for arrays you hold and return.</li>
+</ul>
+<p><code>ArrayLike</code> is a union of protocols covering buffers, objects with <code>__array__</code>, nested sequences and scalars. Lists, tuples, Series and arrays all pass, and a <code>dict</code> is rejected. One surprise: <strong>a <code>str</code> passes</strong>, because a string is a sequence. <code>np.asarray("abc", dtype=np.float64)</code> then fails at runtime with <code>ValueError: could not convert string to float: 'abc'</code>, and <code>np.asarray("1.5", dtype=np.float64)</code> quietly succeeds. <code>ArrayLike</code> documents intent. The real gatekeeping is still coercion plus value checks at the top of each public function.</p>
+<h3><span class="num">2.1</span>Pass <code>np.float64</code>, not <code>float</code></h3>
+<p>This was the most useful finding while researching this essay:</p>
+<pre><code class="language-python">np.asarray([1, 2, 3], dtype=np.float64)   # ndarray[tuple[int], dtype[float64]]
+np.asarray([1, 2, 3], dtype=float)        # ndarray[tuple[int], dtype[Any]]
+</code></pre>
+<p>At runtime the two are identical. To the type checker, <code>dtype=float</code> throws away the dtype and leaves <code>Any</code>, which then spreads through everything computed from that array. Write <code>dtype=np.float64</code> everywhere you coerce.</p>
+<h3><span class="num">2.2</span>Precision drains through operations</h3>
+<p>Start with <code>x</code>, a 1-D float64 array, and watch what pyright knows after each step:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Revealed type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>x</code></td>
+<td><code>ndarray[tuple[int], dtype[float64]]</code></td>
+</tr>
+<tr>
+<td><code>x + 1</code></td>
+<td><code>ndarray[tuple[int], dtype[float64]]</code></td>
+</tr>
+<tr>
+<td><code>x * 2.5</code></td>
+<td><code>ndarray[tuple[Any, ...], dtype[float64]]</code>: shape lost</td>
+</tr>
+<tr>
+<td><code>np.sqrt(x)</code></td>
+<td><code>ndarray[tuple[Any, ...], dtype[Any]]</code>: dtype lost too</td>
+</tr>
+<tr>
+<td><code>x[0]</code></td>
+<td><code>Any</code>: everything lost</td>
+</tr>
+<tr>
+<td><code>x.mean()</code>, <code>x.std()</code>, <code>x.sum()</code></td>
+<td><code>float64</code></td>
+</tr>
+<tr>
+<td><code>np.isnan(x).any()</code></td>
+<td><code>numpy.bool</code></td>
+</tr>
+</tbody>
+</table></div>
+
+<figure>
+<svg viewBox="0 0 560 134" role="img" aria-label="Type precision lost step by step: x keeps shape and dtype, x times 2.5 loses shape, np.sqrt loses dtype, x[0] is Any">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d4f91"/></marker>
+    <marker id="ahk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/></marker>
+  </defs>
+  <rect class="band" x="4" y="20" width="110" height="46"/>
+  <text class="lblb" x="59" y="49" text-anchor="middle">x</text>
+  <rect class="box" x="148" y="20" width="110" height="46"/>
+  <text class="lbl" x="203" y="49" text-anchor="middle">x * 2.5</text>
+  <rect class="box" x="292" y="20" width="120" height="46"/>
+  <text class="lbl" x="352" y="49" text-anchor="middle">np.sqrt(x)</text>
+  <rect class="box" x="446" y="20" width="110" height="46" stroke-dasharray="5 4"/>
+  <text class="lbl" x="501" y="49" text-anchor="middle">x[0]</text>
+  <path class="ln" d="M114,43 L146,43" marker-end="url(#ahk)"/>
+  <path class="ln" d="M258,43 L290,43" marker-end="url(#ahk)"/>
+  <path class="ln" d="M412,43 L444,43" marker-end="url(#ahk)"/>
+  <text class="sm" x="22" y="94">shape</text><text class="chk" x="80" y="96">&#x2713;</text>
+  <text class="sm" x="22" y="118">dtype</text><text class="chk" x="80" y="120">&#x2713;</text>
+  <text class="sm" x="166" y="94">shape</text><text class="x" x="224" y="96">&#x2717;</text>
+  <text class="sm" x="166" y="118">dtype</text><text class="chk" x="224" y="120">&#x2713;</text>
+  <text class="sm" x="316" y="94">shape</text><text class="x" x="374" y="96">&#x2717;</text>
+  <text class="sm" x="316" y="118">dtype</text><text class="x" x="374" y="120">&#x2717;</text>
+  <text class="lblb" x="501" y="108" text-anchor="middle">Any</text>
+</svg>
+<figcaption><b>Figure 2</b>What pyright still knows after each step.</figcaption>
+</figure>
+
+<p>The lesson: <strong>don&rsquo;t chase precise types for intermediate values.</strong> Annotate function signatures, let the checker hold each function to its declared return type, and re-establish precision where it matters, either with <code>np.asarray(..., dtype=np.float64)</code> or with an explicit annotation (<code>r: NDArray[np.float64] = np.sqrt(x)</code> is accepted, because <code>Any</code> is assignable to anything).</p>
+<h3><span class="num">2.3</span>Shapes are a bonus, not a contract</h3>
+<p>Recent numpy stubs track shape in some places. A 1-D <code>asarray</code> reveals <code>tuple[int]</code>, and <code>np.zeros((3, 4))</code> reveals <code>tuple[Literal[3], Literal[4]]</code>. But the <code>NDArray</code> alias accepts any shape, many operations drop the shape, and there&rsquo;s no way to say &ldquo;the same length as the other argument.&rdquo; Treat shape information as a pleasant extra and enforce shape at runtime, as <code>_as_1d_float</code> does with its <code>ndim</code> check.</p>
+<p>If you want shapes written into signatures for readers, the third-party <code>jaxtyping</code> package supports annotations like <code>Float[np.ndarray, "n"]</code>, and it can check them at runtime when paired with <code>beartype</code>. pyright doesn&rsquo;t verify those shapes statically.</p>
+<h2><span class="num">3</span>numpy scalars versus Python floats</h2>
+<p>Reductions return numpy scalars, not Python floats. How much that matters depends on which scalar:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Value</th>
+<th><code>isinstance(v, float)</code></th>
+<th><code>json.dumps(v)</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>np.float64(1.5)</code></td>
+<td><code>True</code></td>
+<td><code>1.5</code></td>
+</tr>
+<tr>
+<td><code>np.float32(1.5)</code></td>
+<td><code>False</code></td>
+<td><code>TypeError</code></td>
+</tr>
+<tr>
+<td><code>np.int64(3)</code></td>
+<td><code>False</code></td>
+<td><code>TypeError</code></td>
+</tr>
+<tr>
+<td><code>np.bool_(True)</code></td>
+<td><code>False</code></td>
+<td><code>TypeError</code></td>
+</tr>
+<tr>
+<td><code>float("nan")</code></td>
+<td><code>True</code></td>
+<td><code>NaN</code>, which is not valid JSON</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>np.float64</code> subclasses <code>float</code>, both at runtime and in the stubs, so a function declared <code>-&gt; float</code> may return <code>x.mean()</code> without complaint. The other numpy scalars don&rsquo;t, and they break JSON serialization. NaN is a trap of a different kind: Python&rsquo;s <code>json</code> module emits a bare <code>NaN</code> by default, which is not valid JSON, so many clients will reject the response.</p>
+<p>Practical rule: <strong>convert with <code>float()</code>, <code>int()</code> and <code>bool()</code> where values leave the numerical core</strong>, meaning in the constructor arguments of your result dataclasses. Then decide NaN policy once, at the API layer.</p>
+<h2><span class="num">4</span>pandas with pandas-stubs</h2>
+<p>With pandas-stubs installed:</p>
+<pre><code class="language-python">s = pd.Series([1.0, 2.0])     # Series[float]
+s.mean()                      # float
+df[&quot;a&quot;]                       # Series[Any]
+df.to_numpy()                 # ndarray[tuple[int, int], dtype[Any]]
+</code></pre>
+<p><code>Series</code> is generic over its element type, but <strong>DataFrame columns are untyped</strong>: <code>df["a"]</code> is <code>Series[Any]</code> whatever the column holds. There&rsquo;s no static way to declare &ldquo;a DataFrame with a float column called <code>a</code>.&rdquo;</p>
+<p>Conversion has a sharp edge:</p>
+<pre><code class="language-python">def from_series(s: &quot;pd.Series[float]&quot;) -&gt; NDArray[np.float64]:
+    return s.to_numpy(dtype=np.float64)   # error: floating[Any] is not float64
+
+
+def from_series(s: &quot;pd.Series[float]&quot;) -&gt; NDArray[np.float64]:
+    return np.asarray(s, dtype=np.float64)   # OK
+</code></pre>
+<p><code>to_numpy</code> is typed as returning <code>floating[Any]</code> even when you pass <code>dtype=np.float64</code>. <code>np.asarray</code> with an explicit dtype gives the checker what you want, so the coercion step at the top of each public function is also the typing fix.</p>
+<p>The quotes around <code>"pd.Series[float]"</code> keep the subscript out of runtime evaluation. <code>from __future__ import annotations</code> at the top of the module does the same for every annotation in the file.</p>
+<p>For ngstats, keep pandas out of public signatures. Accept <code>ArrayLike</code> (a Series qualifies) and coerce.</p>
+<h2><span class="num">5</span>scipy with scipy-stubs</h2>
+<p>scipy-stubs gives result objects real types:</p>
+<pre><code class="language-python">res = stats.ttest_ind(x, y, equal_var=False)   # TtestResult[float64, float64]
+res.statistic                                  # float64
+res.pvalue                                     # float64
+stats.mannwhitneyu(x, y).pvalue                # float64
+</code></pre>
+<p>Still wrap the values in <code>float()</code> before they go into your results, for the scalar reasons above. Without the stubs, pyright falls back to inferring from scipy&rsquo;s source, and strict mode reports a stream of unknown types.</p>
+<h2><span class="num">6</span>statsmodels: build a typed edge</h2>
+<p>statsmodels ships no type information. In strict mode, pyright reports:</p>
+<pre><code>error: Stub file not found for &quot;statsmodels.api&quot; (reportMissingTypeStubs)
+error: Type of &quot;fit&quot; is partially unknown
+error: Type of &quot;add_constant&quot; is partially unknown
+</code></pre>
+<p>and <code>model.params</code> comes back as <code>Any</code>. The fix is containment: <strong>one module touches statsmodels, relaxes the strict rules for itself only, and exposes plain typed functions.</strong></p>
+<pre><code class="language-python"># pyright: reportMissingTypeStubs=false, reportUnknownMemberType=false, reportUnknownVariableType=false, reportUnknownArgumentType=false
+&quot;&quot;&quot;ngstats/_statsmodels_edge.py: the only module in ngstats that imports statsmodels.&quot;&quot;&quot;
+import numpy as np
+from numpy.typing import NDArray
+import statsmodels.api as sm
+
+
+def ols_slope(x: NDArray[np.float64], y: NDArray[np.float64]) -&gt; tuple[float, float]:
+    &quot;&quot;&quot;Return (slope, p-value) for y ~ 1 + x.&quot;&quot;&quot;
+    model = sm.OLS(y, sm.add_constant(x)).fit()
+    return float(model.params[1]), float(model.pvalues[1])
+</code></pre>
+<p>The <code># pyright:</code> comment on the first line turns those rules off for this file only. Everywhere else, strict mode applies, and callers see <code>ols_slope(...) -&gt; tuple[float, float]</code> with nothing unknown leaking through.</p>
+<p>import-linter can keep the boundary from eroding. This contract fails if any other ngstats module imports statsmodels:</p>
+<pre><code class="language-toml">[tool.importlinter]
+root_package = &quot;ngstats&quot;
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = &quot;Only the edge module imports statsmodels&quot;
+type = &quot;forbidden&quot;
+source_modules = [&quot;ngstats&quot;]
+forbidden_modules = [&quot;statsmodels&quot;]
+ignore_imports = [&quot;ngstats._statsmodels_edge -&gt; statsmodels&quot;]
+</code></pre>
+<p>A test run with a stray <code>import statsmodels</code> in another module reported <code>ngstats.naughty -&gt; statsmodels (l.1)</code> and failed, as intended.</p>
+<h2><span class="num">7</span><code>Any</code> is silent</h2>
+<p>Strict mode flags <em>unknown</em> types, the ones pyright couldn&rsquo;t infer. It does not flag <em>explicit</em> <code>Any</code> coming from stubs. This passes strict mode with no complaint:</p>
+<pre><code class="language-python">def first(x: NDArray[np.float64]) -&gt; float:
+    return x[0]          # x[0] is Any, so nothing is checked
+</code></pre>
+<p>Three tools help:</p>
+<ul>
+<li><strong><code>reveal_type(expr)</code></strong> is the debugger for types. Drop it in while writing and pyright prints what it actually knows. <code>from typing import reveal_type</code> makes it importable at runtime too.</li>
+<li><strong><code>pyright --verifytypes ngstats</code></strong> checks your installed package&rsquo;s public API and reports which exported symbols have missing or partially unknown types. It&rsquo;s a completeness score for what you ship with <code>py.typed</code>.</li>
+<li><strong>Ruff&rsquo;s <code>ANN401</code></strong> bans <code>Any</code> in your own annotations, so at least you never introduce it on purpose.</li>
+</ul>
+<h2><span class="num">8</span>A recipe for ngstats</h2>
+<ol>
+<li>Annotate public inputs as <code>ArrayLike</code> and outputs as plain Python types or frozen dataclasses of them.</li>
+<li>Coerce at the top of every public function with <code>np.asarray(data, dtype=np.float64)</code>: <code>np.float64</code>, never <code>float</code>. Check <code>ndim</code>, size and NaNs right there.</li>
+<li>Annotate internals with <code>NDArray[np.float64]</code>. Don&rsquo;t chase precise types for intermediate values.</li>
+<li>Convert numpy scalars with <code>float()</code>, <code>int()</code> and <code>bool()</code> before they enter result objects.</li>
+<li>Install <code>pandas-stubs</code> and <code>scipy-stubs</code> as dev dependencies.</li>
+<li>Confine statsmodels to one edge module with relaxed rules, and guard it with an import-linter contract.</li>
+<li>Use <code>reveal_type</code> freely while writing, <code>pyright --verifytypes</code> before releasing, and <code>ANN401</code> to keep <code>Any</code> out of your own code.</li>
+</ol>
+<h2><span class="num">9</span>Conclusion</h2>
+<p>Numerical Python will never be as precisely typed as a Java codebase. Array shapes, DataFrame columns and dtypes after arbitrary operations are beyond what today&rsquo;s checkers can follow. That&rsquo;s not a reason to give up on typing the library. It&rsquo;s a reason to put the precision where it pays off: at the public surface, where the checker can hold every function to a clear contract, and at the edges, where untyped code is wrapped so its uncertainty doesn&rsquo;t spread. Inside those walls, let the checker be approximate and let runtime checks handle what types can&rsquo;t say.</p>
+<h2>Sources</h2>
+<ul>
+<li><a href="https://numpy.org/doc/stable/reference/typing.html">numpy.typing, NumPy documentation</a></li>
+<li><a href="https://github.com/pandas-dev/pandas-stubs">pandas-stubs on GitHub</a></li>
+<li><a href="https://github.com/scipy/scipy-stubs">scipy-stubs on GitHub</a></li>
+<li><a href="https://microsoft.github.io/pyright/#/comments">Pyright: comments and file-level configuration</a></li>
+<li><a href="https://microsoft.github.io/pyright/#/typed-libraries">Pyright: typed libraries and <code>--verifytypes</code></a></li>
+<li><a href="https://github.com/patrick-kidger/jaxtyping">jaxtyping on GitHub</a></li>
+<li><a href="https://import-linter.readthedocs.io/en/latest/contract_types/forbidden/">Import Linter: Forbidden contracts</a></li>
+</ul>
+
+<div class="colophon">Murray Hill Nights</div>
+</div>
+</body>
+</html>
