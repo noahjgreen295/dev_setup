@@ -2,17 +2,17 @@
 
 Field guides to the Python ecosystem. Each guide charts one part of the Python world, names the modern default at every layer, and keeps a Dog Solitude for the tools that didn't make it. Mapped October 2026.
 
-For the styled hub, open [sprawl_map.html](../html/sprawl_map.html) in a browser.
+For the styled hub, open [sprawl_map.html](html/sprawl_map.html) in a browser.
 
 ## Charted sectors
 
 | Code | Guide | Shape | Tools | Dead | Signature picks |
 |---|---|---|---|---|---|
-| TCS | [Python Toolchain Stack](python_toolchain_stack.md) | 10 layers | 68 | 41 | uv, Ruff, Pyright |
-| DOC | [Python Docs Switchboard](python_docs_switchboard.md) | 4 routes | 48 | 9 | Sphinx + MyST, OpenAPI 3.1, Jupyter Book 2 |
-| API | [Python API Stack](python_api_stack.md) | 10 layers + 4 sidecars | 88 | 16 | FastAPI, Pydantic, PostgreSQL |
-| DAT | [Data Engineering Stack](python_data_stack.md) | 10 layers + 4 sidecars | 76 | 12 | dlt, Iceberg, dbt |
-| DEP | [Python Deployment Stack](python_deploy_stack.md) | 10 layers + 3 sidecars | 63 | 16 | python:slim, Cloud Run, GitHub Actions |
+| TCS | [Python Toolchain Stack](md/python_toolchain_stack.md) | 10 layers | 68 | 41 | uv, Ruff, Pyright |
+| DOC | [Python Docs Switchboard](md/python_docs_switchboard.md) | 4 routes | 48 | 9 | Sphinx + MyST, OpenAPI 3.1, Jupyter Book 2 |
+| API | [Python API Stack](md/python_api_stack.md) | 10 layers + 4 sidecars | 88 | 16 | FastAPI, Pydantic, PostgreSQL |
+| DAT | [Data Engineering Stack](md/python_data_stack.md) | 10 layers + 4 sidecars | 76 | 12 | dlt, Iceberg, dbt |
+| DEP | [Python Deployment Stack](md/python_deploy_stack.md) | 10 layers + 3 sidecars | 63 | 16 | python:slim, Cloud Run, GitHub Actions |
 
 Each guide also has a styled HTML version with the same name.
 
@@ -47,4 +47,4 @@ Tools that cross sector lines. The more sectors a tool appears in, the more wort
 
 ## Also in this folder
 
-- [python_obsolete_practices.md](python_obsolete_practices.md): condensed notes on outdated Python coding patterns and their replacements.
+- [python_obsolete_practices.md](md/python_obsolete_practices.md): condensed notes on outdated Python coding patterns and their replacements.

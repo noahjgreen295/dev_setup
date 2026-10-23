@@ -2,7 +2,7 @@
 
 Data only flows one way. It starts as rows in someone else's system, gets captured and landed, settles into object storage as files, gets organized into tables, crunched by an engine, modeled into something trustworthy, and finally served to the people and machines that make decisions with it. Orchestration, quality checks and lineage run alongside the whole way.
 
-Part of [the Sprawl](README.md). State as of October 2026. For the styled, interactive version, open [python_data_stack.html](../html/python_data_stack.html) in a browser.
+Part of [the Sprawl](../README.md). State as of October 2026. For the styled, interactive version, open [python_data_stack.html](../html/python_data_stack.html) in a browser.
 
 **Status key:** **PICK** = modern default · alt = solid alternative · ⚠️ edge = maintained, but teetering, too new, or overtaken · ◆×N = appears in N places
 
