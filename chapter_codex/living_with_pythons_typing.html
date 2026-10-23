@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Living With Python's Typing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --blue: #1d4f91;
+    --blue-light: #e8eef7;
+    --rule: #1d4f91;
+    --muted: #555;
+    --serif: "Tinos", "Times New Roman", Times, serif;
+    --mono: "Courier Prime", "Courier New", Courier, monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  .page {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 0 16px 6rem;
+  }
+
+  /* ---- cover ---- */
+  .cover {
+    border-bottom: 3px solid var(--blue);
+    padding: 3.5rem 0 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .series {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin: 0 0 2.5rem;
+  }
+  .cover h1 {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(2.4rem, 8vw, 4.2rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.2rem;
+  }
+  .cover h1 .with {
+    display: block;
+    font-weight: 400;
+    font-size: 0.45em;
+    letter-spacing: 0;
+    margin-top: 0.6rem;
+    color: var(--ink);
+  }
+  .cover h1 code {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--blue);
+  }
+  .bigmark {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(5rem, 22vw, 9rem);
+    line-height: 0.8;
+    float: right;
+    margin: -0.2rem 0 0 1rem;
+    user-select: none;
+  }
+  .cover .byline {
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ---- running head ---- */
+  .runhead {
+    display: flex;
+    justify-content: space-between;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-bottom: 1px solid #bbb;
+    padding-bottom: 0.25rem;
+    margin: 0 0 2rem;
+  }
+
+  /* ---- text ---- */
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 2.8rem 0 0.8rem;
+  }
+  h2 .num, h3 .num {
+    color: var(--blue);
+    margin-right: 0.6em;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    font-weight: 700;
+    margin: 2rem 0 0.6rem;
+  }
+  p { margin: 0 0 1rem; hyphens: auto; }
+  .lede::first-letter {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    float: left;
+    font-size: 3.4rem;
+    line-height: 0.85;
+    margin: 0.3rem 0.4rem 0 0;
+  }
+  ul { padding-left: 1.4rem; margin: 0 0 1rem; }
+  li { margin-bottom: 0.35rem; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.92em;
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    line-height: 1.4;
+    margin: 0.4rem 0 1.4rem;
+    padding: 0 0 0 1.5rem;
+    overflow-x: auto;
+    background: none;
+    border: none;
+  }
+  pre code { font-size: inherit; }
+  .cmt { color: var(--muted); font-style: italic; }
+  .key { font-weight: 700; }
+
+  /* ---- tables: ruled top and bottom, nothing else ---- */
+  .tablewrap { overflow-x: auto; margin: 0.6rem 0 1.6rem; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+    border-top: 1.5px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+  }
+  thead th {
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 1px solid var(--ink);
+    padding: 0.4rem 0.6rem 0.3rem 0;
+    vertical-align: bottom;
+  }
+  td {
+    padding: 0.32rem 0.6rem 0.32rem 0;
+    vertical-align: top;
+  }
+
+  /* ---- figures ---- */
+  figure {
+    margin: 1.6rem 0 2rem;
+    padding: 0;
+  }
+  figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 36rem;
+    margin: 0 auto;
+  }
+  figcaption {
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 0.7rem;
+  }
+  figcaption b {
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+    color: var(--blue);
+    margin-right: 0.4em;
+  }
+  svg text {
+    font-family: var(--mono);
+    fill: var(--ink);
+  }
+  svg .lbl { font-size: 15px; }
+  svg .lblb { font-size: 15px; font-weight: 700; }
+  svg .sm { font-size: 12.5px; fill: #555; }
+  svg .box { fill: #fff; stroke: var(--blue); stroke-width: 2; }
+  svg .band { fill: var(--blue-light); stroke: var(--blue); stroke-width: 1.5; }
+  svg .outer { fill: none; stroke: var(--blue); stroke-width: 2.5; }
+  svg .ln { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+  svg .ok { stroke: var(--blue); stroke-width: 2; fill: none; }
+  svg .bad { stroke: #a33; stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+  svg .x { fill: #a33; font-family: var(--sans); font-weight: 700; font-size: 18px; }
+  svg .chk { fill: var(--blue); font-family: var(--sans); font-weight: 700; font-size: 18px; }
+
+  .note {
+    border-left: 3px solid var(--blue);
+    padding: 0.1rem 0 0.1rem 1rem;
+    margin: 1.2rem 0 1.4rem;
+    font-size: 0.95rem;
+  }
+  a { color: var(--blue); }
+  .sources li { font-size: 0.92rem; }
+  .colophon {
+    margin-top: 4rem;
+    border-top: 3px solid var(--blue);
+    padding-top: 0.8rem;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  @media (max-width: 520px) {
+    body { font-size: 17px; }
+    pre { padding-left: 0.6rem; font-size: 0.78rem; }
+    .bigmark { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="cover">
+  <p class="series">Chapter Codex &middot; Python Toolchain</p>
+  <div class="bigmark" aria-hidden="true">D</div>
+  <h1>Living With Python&rsquo;s Typing<span class="with">for the C, C++, and Java programmer</span></h1>
+  <p class="byline">Technique and temperament</p>
+</header>
+
+<div class="runhead"><span>Living With Python&rsquo;s Typing</span><span>Chapter Codex</span></div>
+
+<p class="lede">Modern Python can give a C, C++, or Java developer most of what they miss about strong typing, as long as type checking is treated as part of the build rather than a suggestion.</p>
+<h2><span class="num">1</span>Technical</h2>
+<p><strong>Run the checker as if it were the compiler.</strong> Use pyright or mypy in strict mode, wired into pre-commit and CI, and treat a type error as a failed build. Python then behaves like a compiled language with <code>-Wall -Werror</code>, except the compile step is separate from running. Ruff&rsquo;s <code>ANN</code> rules flag missing annotations so nothing slips through untyped.</p>
+<p><strong>Use <code>Protocol</code> for duck typing with a contract.</strong> A <code>Protocol</code> is an interface that a class satisfies by having the right methods, with no inheritance declared. It is structural typing: duck typing written down and checked statically. You get a self-documenting interface without forcing callers into your class hierarchy.</p>
+<p><strong>Accept broadly, return precisely.</strong> In ngstats, annotate inputs as <code>numpy.typing.ArrayLike</code>, which documents &ldquo;anything array-ish.&rdquo; Annotate internals and outputs as <code>NDArray[np.float64]</code> or concrete types. The signature still tells the reader exactly what is acceptable.</p>
+<p><strong>Use the rest of the type toolbox:</strong></p>
+<ul>
+<li><code>Literal["two-sided", "less", "greater"]</code> instead of bare <code>str</code></li>
+<li>Frozen dataclasses for value objects</li>
+<li><code>Final</code> for constants</li>
+<li><code>@overload</code> where the return type depends on the arguments</li>
+<li><code>NewType</code> when two floats mean different things</li>
+</ul>
+<p><strong>Optional runtime enforcement in tests.</strong> <code>beartype</code> is a decorator that checks hints at runtime cheaply. Some people enable it only in the test suite, so violations surface in tests without costing anything in production.</p>
+<p><strong>Wall off untyped code.</strong> scipy and statsmodels are only partly typed, so <code>Any</code> will leak in from them. Wrap them at the edge and expose fully typed signatures. That is literally what ngstats is: a typed facade over loosely typed libraries.</p>
+<h2><span class="num">2</span>Psychological</h2>
+<p><strong>You have done duck typing before.</strong> C++ templates are compile-time duck typing: a template works with any type that has the operations it uses, and nothing declares that up front. C++20 concepts were added to write those requirements down, which is exactly what <code>Protocol</code> does for Python. Python&rsquo;s version is structural typing checked by a separate tool instead of the compiler. That is a different arrangement from what you know, not an absence of typing.</p>
+
+<figure>
+<svg viewBox="0 0 560 220" role="img" aria-label="C++ templates and concepts compared with Python duck typing and Protocol">
+  <text class="sm" x="217" y="20" text-anchor="middle">requirements implicit</text>
+  <text class="sm" x="442" y="20" text-anchor="middle">requirements declared</text>
+  <text class="lblb" x="20" y="74">C++</text>
+  <text class="lblb" x="20" y="164">Python</text>
+  <rect class="box" x="110" y="36" width="215" height="66"/>
+  <text class="lbl" x="217" y="66" text-anchor="middle">templates</text>
+  <text class="sm" x="217" y="86" text-anchor="middle">checked by compiler</text>
+  <rect class="band" x="335" y="36" width="215" height="66"/>
+  <text class="lbl" x="442" y="66" text-anchor="middle">concepts (C++20)</text>
+  <text class="sm" x="442" y="86" text-anchor="middle">checked by compiler</text>
+  <rect class="box" x="110" y="126" width="215" height="66"/>
+  <text class="lbl" x="217" y="156" text-anchor="middle">duck typing</text>
+  <text class="sm" x="217" y="176" text-anchor="middle">at runtime, if at all</text>
+  <rect class="band" x="335" y="126" width="215" height="66"/>
+  <text class="lbl" x="442" y="156" text-anchor="middle">Protocol</text>
+  <text class="sm" x="442" y="176" text-anchor="middle">by pyright / mypy</text>
+</svg>
+<figcaption><b>Figure 1</b>The same idea in two languages: structural typing, implicit or written down.</figcaption>
+</figure>
+<p><strong>The types have not gone away.</strong> Enforcing them became optional, and you choose to enforce them. In your own code, Python can be nearly as strict as Java. What you give up is the guarantee that other people&rsquo;s code is typed, and that is a boundary problem you handle by wrapping.</p>
+<p><strong>Expect the checker to be unsound sometimes, and don&rsquo;t take it personally.</strong> There will be <code># type: ignore</code> lines and <code>cast()</code> calls at the edges where untyped libraries come in. Keep them few, keep them at the boundary, and add a comment explaining each one. Tests cover the remaining gap, which is the Python community&rsquo;s real answer to &ldquo;how do you trust this.&rdquo;</p>
+<p><strong>The convention bending you most is not checking types at runtime.</strong> The C/Java instinct says guard every input. The Python instinct is to coerce what you can (<code>np.asarray</code>), validate what affects correctness, and let static checking handle the rest. Once that split is clear, most of the discomfort goes away.</p>
+
+<div class="colophon">Chapter Codex</div>
+</div>
+</body>
+</html>

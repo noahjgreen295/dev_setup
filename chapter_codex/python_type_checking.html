@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Type Checking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --blue: #1d4f91;
+    --blue-light: #e8eef7;
+    --rule: #1d4f91;
+    --muted: #555;
+    --serif: "Tinos", "Times New Roman", Times, serif;
+    --mono: "Courier Prime", "Courier New", Courier, monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  .page {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 0 16px 6rem;
+  }
+
+  /* ---- cover ---- */
+  .cover {
+    border-bottom: 3px solid var(--blue);
+    padding: 3.5rem 0 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .series {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin: 0 0 2.5rem;
+  }
+  .cover h1 {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(2.4rem, 8vw, 4.2rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.2rem;
+  }
+  .cover h1 .with {
+    display: block;
+    font-weight: 400;
+    font-size: 0.45em;
+    letter-spacing: 0;
+    margin-top: 0.6rem;
+    color: var(--ink);
+  }
+  .cover h1 code {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--blue);
+  }
+  .bigmark {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(5rem, 22vw, 9rem);
+    line-height: 0.8;
+    float: right;
+    margin: -0.2rem 0 0 1rem;
+    user-select: none;
+  }
+  .cover .byline {
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ---- running head ---- */
+  .runhead {
+    display: flex;
+    justify-content: space-between;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-bottom: 1px solid #bbb;
+    padding-bottom: 0.25rem;
+    margin: 0 0 2rem;
+  }
+
+  /* ---- text ---- */
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 2.8rem 0 0.8rem;
+  }
+  h2 .num, h3 .num {
+    color: var(--blue);
+    margin-right: 0.6em;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    font-weight: 700;
+    margin: 2rem 0 0.6rem;
+  }
+  p { margin: 0 0 1rem; hyphens: auto; }
+  .lede::first-letter {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--blue);
+    float: left;
+    font-size: 3.4rem;
+    line-height: 0.85;
+    margin: 0.3rem 0.4rem 0 0;
+  }
+  ul { padding-left: 1.4rem; margin: 0 0 1rem; }
+  li { margin-bottom: 0.35rem; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.92em;
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    line-height: 1.4;
+    margin: 0.4rem 0 1.4rem;
+    padding: 0 0 0 1.5rem;
+    overflow-x: auto;
+    background: none;
+    border: none;
+  }
+  pre code { font-size: inherit; }
+  .cmt { color: var(--muted); font-style: italic; }
+  .key { font-weight: 700; }
+
+  /* ---- tables: ruled top and bottom, nothing else ---- */
+  .tablewrap { overflow-x: auto; margin: 0.6rem 0 1.6rem; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+    border-top: 1.5px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+  }
+  thead th {
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 1px solid var(--ink);
+    padding: 0.4rem 0.6rem 0.3rem 0;
+    vertical-align: bottom;
+  }
+  td {
+    padding: 0.32rem 0.6rem 0.32rem 0;
+    vertical-align: top;
+  }
+
+  /* ---- figures ---- */
+  figure {
+    margin: 1.6rem 0 2rem;
+    padding: 0;
+  }
+  figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 36rem;
+    margin: 0 auto;
+  }
+  figcaption {
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 0.7rem;
+  }
+  figcaption b {
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+    color: var(--blue);
+    margin-right: 0.4em;
+  }
+  svg text {
+    font-family: var(--mono);
+    fill: var(--ink);
+  }
+  svg .lbl { font-size: 15px; }
+  svg .lblb { font-size: 15px; font-weight: 700; }
+  svg .sm { font-size: 12.5px; fill: #555; }
+  svg .box { fill: #fff; stroke: var(--blue); stroke-width: 2; }
+  svg .band { fill: var(--blue-light); stroke: var(--blue); stroke-width: 1.5; }
+  svg .outer { fill: none; stroke: var(--blue); stroke-width: 2.5; }
+  svg .ln { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+  svg .ok { stroke: var(--blue); stroke-width: 2; fill: none; }
+  svg .bad { stroke: #a33; stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+  svg .x { fill: #a33; font-family: var(--sans); font-weight: 700; font-size: 18px; }
+  svg .chk { fill: var(--blue); font-family: var(--sans); font-weight: 700; font-size: 18px; }
+
+  .note {
+    border-left: 3px solid var(--blue);
+    padding: 0.1rem 0 0.1rem 1rem;
+    margin: 1.2rem 0 1.4rem;
+    font-size: 0.95rem;
+  }
+  a { color: var(--blue); }
+  .sources li { font-size: 0.92rem; }
+  .colophon {
+    margin-top: 4rem;
+    border-top: 3px solid var(--blue);
+    padding-top: 0.8rem;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  @media (max-width: 520px) {
+    body { font-size: 17px; }
+    pre { padding-left: 0.6rem; font-size: 0.78rem; }
+    .bigmark { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="cover">
+  <p class="series">Chapter Codex &middot; Python Toolchain</p>
+  <div class="bigmark" aria-hidden="true">T</div>
+  <h1>Python Type Checking<span class="with">from the API down</span></h1>
+  <p class="byline">Who checks what, and where</p>
+</header>
+
+<div class="runhead"><span>Python Type Checking</span><span>Chapter Codex</span></div>
+
+<p class="lede">How much checking data needs depends on where it came from and who you trust to have produced it. Data from the wire is untrusted and gets parsed at runtime. Data from a programmer in the same process is trusted and gets checked statically, plus a few runtime checks for mistakes types can&rsquo;t express. This guide walks the layers of an ngstats-style project from the outside in.</p>
+<h2>The layers at a glance</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What arrives</th>
+<th>Trust</th>
+<th>Mechanism</th>
+<th>A failure becomes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. API boundary</td>
+<td>JSON bodies, query params, env vars</td>
+<td>None</td>
+<td>Pydantic models</td>
+<td>HTTP 422 with every error listed</td>
+</tr>
+<tr>
+<td>2. API handlers</td>
+<td>Validated pydantic objects</td>
+<td>Full</td>
+<td>Static types, explicit translation</td>
+<td>HTTP error mapped from library exceptions</td>
+</tr>
+<tr>
+<td>3. Library public surface</td>
+<td>Whatever a programmer passes</td>
+<td>Mostly</td>
+<td>Static hints + <code>py.typed</code>, coercion, value checks</td>
+<td><code>ValueError</code> / numpy error</td>
+</tr>
+<tr>
+<td>4. Library internals</td>
+<td>Coerced arrays</td>
+<td>Full</td>
+<td>Static types only</td>
+<td>Type-checker error at build time</td>
+</tr>
+<tr>
+<td>5. Untyped third-party edge</td>
+<td>scipy / statsmodels results</td>
+<td>Partial</td>
+<td>Wrap, normalize, <code>cast</code> sparingly</td>
+<td>Contained <code>Any</code></td>
+</tr>
+</tbody>
+</table></div>
+<figure>
+<svg viewBox="0 0 560 420" role="img" aria-label="Five checking layers from the API boundary down to the untyped third-party edge">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d4f91"/></marker>
+    <marker id="ahk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/></marker>
+  </defs>
+  <text class="sm" x="300" y="16" text-anchor="middle">HTTP / JSON &#xb7; env vars  (untrusted)</text>
+  <path class="ln" d="M300,24 L300,46" marker-end="url(#ahk)"/>
+  <rect class="box" x="120" y="50" width="420" height="58"/>
+  <text class="lblb" x="136" y="74">1  API boundary</text>
+  <text class="sm" x="136" y="95">pydantic parses &#x2192; 422 on failure</text>
+  <rect class="box" x="120" y="116" width="420" height="58"/>
+  <text class="lblb" x="136" y="140">2  API handlers</text>
+  <text class="sm" x="136" y="161">translate request &#x2192; call &#x2192; response</text>
+  <rect class="band" x="120" y="196" width="420" height="58"/>
+  <text class="lblb" x="136" y="220">3  Library public surface</text>
+  <text class="sm" x="136" y="241">py.typed hints &#xb7; np.asarray &#xb7; ValueError</text>
+  <rect class="band" x="120" y="262" width="420" height="58"/>
+  <text class="lblb" x="136" y="286">4  Library internals</text>
+  <text class="sm" x="136" y="307">static types only</text>
+  <rect class="band" x="120" y="328" width="420" height="58"/>
+  <text class="lblb" x="136" y="352">5  Untyped third-party edge</text>
+  <text class="sm" x="136" y="373">wrap scipy / statsmodels &#xb7; float() &#xb7; cast</text>
+  <path class="ok" d="M100,52 L90,52 L90,172 L100,172"/>
+  <text class="lblb" x="78" y="116" text-anchor="end">ngstats</text>
+  <text class="lblb" x="78" y="134" text-anchor="end">_api</text>
+  <path class="ok" d="M100,198 L90,198 L90,384 L100,384"/>
+  <text class="lblb" x="78" y="296" text-anchor="end">ngstats</text>
+  <text class="sm" x="330" y="410" text-anchor="middle">pyright / mypy strict runs across every layer</text>
+</svg>
+<figcaption><b>Figure 1</b>The checking layers, outside in.</figcaption>
+</figure>
+
+<p>Cross-cutting all five: pyright or mypy in strict mode, run in CI as if it were the compiler.</p>
+<h2><span class="num">1</span>The API boundary &mdash; parse untrusted input</h2>
+<p>Pydantic&rsquo;s real subject is <strong>data crossing into your program from outside</strong>, not user-defined types as such. That outside data includes JSON request bodies, config files, environment variables, message queue payloads, and rows from a database or CSV. Pydantic takes that loosely typed input and hands you a typed, trusted Python object, or a structured list of everything wrong with it. The models you define are just how you describe the shape you expect. The point is the boundary.</p>
+<pre><code class="language-python">from typing import Literal
+from pydantic import BaseModel, Field, model_validator
+
+class PairedTTestRequest(BaseModel):
+    a: list[float] = Field(min_length=2)
+    b: list[float] = Field(min_length=2)
+    alternative: Literal[&quot;two-sided&quot;, &quot;less&quot;, &quot;greater&quot;] = &quot;two-sided&quot;
+
+    @model_validator(mode=&quot;after&quot;)
+    def same_length(self) -&gt; &quot;PairedTTestRequest&quot;:
+        if len(self.a) != len(self.b):
+            raise ValueError(&quot;a and b must have the same length for a paired test&quot;)
+        return self
+</code></pre>
+<p>With FastAPI, declaring this as a handler parameter is enough. Bad input never reaches your code, and the client gets a 422 listing every problem with its location. The same models generate the JSON Schema that becomes your OpenAPI document, so the validation rules and the published spec can&rsquo;t drift apart.</p>
+<p>Environment variables and config are also boundary data. Use <code>pydantic-settings</code> for them:</p>
+<pre><code class="language-python">from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix=&quot;NGSTATS_API_&quot;)
+    log_level: Literal[&quot;debug&quot;, &quot;info&quot;, &quot;warning&quot;] = &quot;info&quot;
+    max_sample_size: int = 1_000_000
+</code></pre>
+<p>A container started with <code>NGSTATS_API_MAX_SAMPLE_SIZE=abc</code> then fails at startup with a clear message, rather than at 3 a.m. on the first large request.</p>
+<h2><span class="num">2</span>API handlers &mdash; translate between worlds</h2>
+<p>Handlers receive validated objects, so they do no validation of their own. Their job is translation in both directions:</p>
+<ul>
+<li><strong>Inbound:</strong> pydantic request model → plain library call.</li>
+<li><strong>Outbound:</strong> library result → pydantic response model. This is where serialization policy lives: converting numpy scalars to <code>float</code>, deciding what NaN or inf becomes in JSON (JSON has no NaN), flattening tuples, choosing which fields to expose.</li>
+<li><strong>Errors:</strong> library <code>ValueError</code> → an HTTP error with a useful message.</li>
+</ul>
+<pre><code class="language-python">@app.post(&quot;/v1/ttest/paired&quot;, response_model=TestResultResponse)
+def paired_ttest(req: PairedTTestRequest) -&gt; TestResultResponse:
+    try:
+        result = ngstats.ttest_rel(req.a, req.b, alternative=req.alternative)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    return TestResultResponse.from_result(result)
+</code></pre>
+<p>Handlers are ordinary typed Python, checked statically like everything else.</p>
+<p><strong>On duplicated checks:</strong> the length check above also exists in the library. That&rsquo;s deliberate. The library&rsquo;s check is authoritative because the library is used outside the API too. The API repeats only the rules worth publishing in the OpenAPI schema and reporting in pydantic&rsquo;s structured format. Anything else the API leaves to the library and translates the resulting <code>ValueError</code>.</p>
+<h2><span class="num">3</span>The library&rsquo;s public surface &mdash; trusted callers, static contract</h2>
+<p>Here the caller is a programmer in the same process. Type checking is mostly static:</p>
+<ul>
+<li><strong>Annotate the public API fully and ship a <code>py.typed</code> marker.</strong> That empty file in the package tells mypy, pyright, and IDEs that your library&rsquo;s hints are meant to be trusted. Their tooling then flags <code>ttest("abc", b)</code> while they type, at zero runtime cost. Your job is to provide good hints, and their job is to run a checker.</li>
+<li><strong>Accept broadly, return precisely.</strong> Annotate inputs as <code>numpy.typing.ArrayLike</code> and outputs as concrete types such as a frozen dataclass of floats.</li>
+<li><strong>Coerce rather than police types.</strong> Call <code>np.asarray(a, dtype=float)</code> at the top, and lists, tuples, Series, and arrays all just work. Garbage fails right there with numpy&rsquo;s own error. This is the duck-typing convention numpy and scipy follow, and <code>isinstance</code> checks are generally avoided.</li>
+<li>
+<p><strong>Hand-code runtime checks only for what types can&rsquo;t express,</strong> especially mistakes that would otherwise produce a wrong answer silently rather than crash:</p>
+<ul>
+<li><code>alpha</code> not between 0 and 1</li>
+<li>fewer than 2 observations</li>
+<li>2-D input where 1-D is expected</li>
+<li>NaNs present (raise, drop, or follow a <code>nan_policy</code> argument, as scipy does)</li>
+<li>unequal lengths for paired tests</li>
+</ul>
+<p>Raise <code>ValueError</code> with a clear message.</p>
+</li>
+</ul>
+<pre><code class="language-python">from typing import Literal
+import numpy as np
+from numpy.typing import ArrayLike, NDArray
+
+Alternative = Literal[&quot;two-sided&quot;, &quot;less&quot;, &quot;greater&quot;]
+
+def ttest_rel(a: ArrayLike, b: ArrayLike, *, alternative: Alternative = &quot;two-sided&quot;) -&gt; TestResult:
+    x = _as_1d_float(a, &quot;a&quot;)
+    y = _as_1d_float(b, &quot;b&quot;)
+    if x.size != y.size:
+        raise ValueError(f&quot;paired test needs equal lengths, got {x.size} and {y.size}&quot;)
+    return _ttest_rel_impl(x, y, alternative)
+
+def _as_1d_float(data: ArrayLike, name: str) -&gt; NDArray[np.float64]:
+    arr = np.asarray(data, dtype=np.float64)
+    if arr.ndim != 1:
+        raise ValueError(f&quot;{name} must be 1-D, got shape {arr.shape}&quot;)
+    if arr.size &lt; 2:
+        raise ValueError(f&quot;{name} needs at least 2 observations, got {arr.size}&quot;)
+    if np.isnan(arr).any():
+        raise ValueError(f&quot;{name} contains NaN&quot;)
+    return arr
+</code></pre>
+<p><strong>Not pydantic at this layer.</strong> The in-process caller is trusted, the data is arrays (which pydantic handles poorly), validation in hot loops such as bootstraps costs real time, and every library dependency becomes a version constraint on everyone who installs you. Heavy dependencies belong to applications, not libraries.</p>
+<p>Pydantic does have <code>@validate_call</code>, which validates function arguments at runtime. It&rsquo;s a side feature, and the problem it addresses is normally handled by type hints plus a checker before the code ever runs.</p>
+<h2><span class="num">4</span>Library internals &mdash; fully static</h2>
+<p>Once <code>_as_1d_float</code> has returned, every internal function receives <code>NDArray[np.float64]</code> and can rely on it. No further runtime checking. Use the type toolbox to make signatures self-documenting:</p>
+<ul>
+<li><code>Literal[...]</code> for string options instead of bare <code>str</code></li>
+<li>Frozen dataclasses for result and value objects</li>
+<li><code>Final</code> for constants</li>
+<li><code>@overload</code> where the return type depends on the arguments</li>
+<li><code>NewType</code> when two floats mean different things</li>
+<li><code>Protocol</code> when a function needs &ldquo;anything with these methods&rdquo;: structural typing, which is duck typing written down and checked</li>
+</ul>
+<p>Use <code>assert</code> only for internal invariants that indicate a bug in your own code, never for validating caller input, since asserts can be disabled with <code>python -O</code>.</p>
+<h2><span class="num">5</span>The untyped edge &mdash; scipy and statsmodels</h2>
+<p>scipy and statsmodels are only partly typed, so <code>Any</code> leaks in from them. Contain it right where it enters:</p>
+<pre><code class="language-python">from scipy import stats
+
+def _ttest_rel_impl(x: NDArray[np.float64], y: NDArray[np.float64], alternative: Alternative) -&gt; TestResult:
+    res = stats.ttest_rel(x, y, alternative=alternative)
+    statistic = float(res.statistic)   # normalize numpy scalars / Any to plain float
+    p_value = float(res.pvalue)
+    ...
+</code></pre>
+<p>Converting to plain Python types immediately both normalizes the values and turns <code>Any</code> back into something the checker understands. Where you truly can&rsquo;t express a type, use <code>cast()</code> or <code># type: ignore[code]</code>, keep them few, keep them at this edge, and comment each one. ngstats as a whole is a typed facade over loosely typed libraries, so this layer is the reason it exists.</p>
+<h2>Tooling across all layers</h2>
+<ul>
+<li><strong>Pyright or mypy in strict mode</strong> in pre-commit and CI. A type error fails the build, like a compiler with <code>-Wall -Werror</code>.</li>
+<li><strong>Ruff&rsquo;s <code>ANN</code> rules</strong> flag missing annotations.</li>
+<li><strong><code>beartype</code> in the test suite (optional).</strong> A decorator that checks hints at runtime cheaply. Enabling it only under test surfaces violations without production cost.</li>
+<li><strong>Tests</strong> cover what the checker can&rsquo;t: value rules, the untyped edge, and the API&rsquo;s error translation.</li>
+</ul>
+<h2>Where each kind of mistake gets caught</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Mistake</th>
+<th>Caught at</th>
+<th>By</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client sends <code>"a": "oops"</code></td>
+<td>Layer 1</td>
+<td>Pydantic → 422</td>
+</tr>
+<tr>
+<td>Container misconfigured env var</td>
+<td>Layer 1</td>
+<td>pydantic-settings, at startup</td>
+</tr>
+<tr>
+<td>Client sends a sample containing NaN</td>
+<td>Layer 3</td>
+<td>Library <code>ValueError</code> → handler → 422</td>
+</tr>
+<tr>
+<td>Programmer calls <code>ttest_rel("abc", b)</code></td>
+<td>Before running</td>
+<td>Their IDE / type checker, via <code>py.typed</code></td>
+</tr>
+<tr>
+<td>Programmer passes a 2-D array</td>
+<td>Layer 3</td>
+<td><code>_as_1d_float</code> → <code>ValueError</code></td>
+</tr>
+<tr>
+<td>You return a numpy scalar where <code>float</code> is declared</td>
+<td>Build time</td>
+<td>Your type checker, plus the Layer 5 normalization</td>
+</tr>
+<tr>
+<td>scipy changes a return attribute</td>
+<td>Test time</td>
+<td>Your tests at Layer 5</td>
+</tr>
+</tbody>
+</table></div>
+
+<div class="colophon">Chapter Codex</div>
+</div>
+</body>
+</html>
