@@ -2,7 +2,7 @@
 
 A layered map of the modern Python toolchain, read like the OSI model: the editor at the top (L9) sits on the layers below it, all the way down to the language itself (L0). Each layer names the current default pick, then the other live options. State as of October 2026.
 
-For the styled, interactive version, open [python_toolchain_stack.html](python_toolchain_stack.html) in a browser.
+For the styled, interactive version, open [python_toolchain_stack.html](../html/python_toolchain_stack.html) in a browser.
 
 **Status key:** **PICK** = modern default · alt = solid alternative · ⚠️ edge = maintained, but teetering or superseded · ◆×N = tool appears in N layers
 

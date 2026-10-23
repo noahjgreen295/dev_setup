@@ -2,7 +2,7 @@
 
 Which Python documentation tools to use, routed by what you are shipping. Companion to [the Python Toolchain Stack](python_toolchain_stack.md). State as of October 2026.
 
-For the styled version, open [python_docs_switchboard.html](python_docs_switchboard.html) in a browser.
+For the styled version, open [python_docs_switchboard.html](../html/python_docs_switchboard.html) in a browser.
 
 **Status key:** **PICK** = modern default · alt = solid alternative · ⚠️ edge = maintained, but teetering, too new, or overtaken
 

@@ -2,7 +2,7 @@
 
 Field guides to the Python ecosystem. Each guide charts one part of the Python world, names the modern default at every layer, and keeps a Dog Solitude for the tools that didn't make it. Mapped October 2026.
 
-For the styled hub, open [sprawl_map.html](sprawl_map.html) in a browser.
+For the styled hub, open [sprawl_map.html](../html/sprawl_map.html) in a browser.
 
 ## Charted sectors
 

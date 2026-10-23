@@ -2,7 +2,7 @@
 
 How a commit becomes a running service. Your locked dependencies and code go in at the top, get layered onto a base image by a Dockerfile, built, scanned and signed, pushed to a registry, and pulled down by something that runs and scales it, all on infrastructure you declared in code. Watch the packet: it starts as code and gets boxed into a container on the way down.
 
-Part of [the Sprawl](README.md). State as of October 2026. For the styled, interactive version, open [python_deploy_stack.html](python_deploy_stack.html) in a browser.
+Part of [the Sprawl](README.md). State as of October 2026. For the styled, interactive version, open [python_deploy_stack.html](../html/python_deploy_stack.html) in a browser.
 
 **Status key:** **PICK** = modern default · alt = solid alternative · ⚠️ edge = maintained, but teetering, too new, or overtaken · ◆×N = appears in N places
 

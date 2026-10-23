@@ -2,7 +2,7 @@
 
 Follow one request down the wire. It enters through the contract you published, passes the edge, gets picked up by a server process, routed by the framework, checked for identity, validated, handled by your code, turned into a query, sent through a driver, and finally hits disk. Then the response climbs back up. Every slab is a choice.
 
-Companion to [the Python Toolchain Stack](python_toolchain_stack.md) and [the Python Docs Switchboard](python_docs_switchboard.md). State as of October 2026. For the styled, interactive version, open [python_api_stack.html](python_api_stack.html) in a browser.
+Companion to [the Python Toolchain Stack](python_toolchain_stack.md) and [the Python Docs Switchboard](python_docs_switchboard.md). State as of October 2026. For the styled, interactive version, open [python_api_stack.html](../html/python_api_stack.html) in a browser.
 
 **Status key:** **PICK** = modern default · alt = solid alternative · ⚠️ edge = maintained, but teetering, too new, or overtaken · ◆×N = appears in N places
 
