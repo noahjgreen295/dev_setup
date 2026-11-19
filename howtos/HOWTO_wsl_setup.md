@@ -2,6 +2,8 @@
 
 How to install WSL (Windows Subsystem for Linux) with Ubuntu on Windows and get it ready to use. The other HOWTOs in this repo assume this is done.
 
+On a Mac, use [HOWTO_mac_setup.md](HOWTO_mac_setup.md) instead.
+
 ## What you need
 
 - Windows 11, or Windows 10 version 2004 (build 19041) or later. Check with **Win + R** > `winver`.

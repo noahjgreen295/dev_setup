@@ -2,6 +2,10 @@
 
 How to give Claude GitHub access from three places: Claude chat, Claude Code in VS Code on WSL, and Claude Code on the WSL command line. Full access here means the permissions set on the token in Preliminaries. Do Preliminaries first, then the section for each place you use.
 
+## On a Mac
+
+Nothing changes except the names. Read "WSL VS Code" as VS Code and "WSL command line" as Terminal: the token goes in the same VS Code setting and the same line in `~/.zshrc`, and `~/.claude/CLAUDE.md` lives in your Mac home folder. Use **Cmd+Shift+P** for the Command Palette.
+
 ## Preliminaries
 
 Each place gets GitHub access its own way, and none of them shares it with the others:

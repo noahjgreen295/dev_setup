@@ -2,6 +2,10 @@
 
 How to turn on VS Code's built-in Settings Sync, so settings, keyboard shortcuts and extensions follow you to every computer where you sign in.
 
+## On a Mac
+
+Turning sync on works the same way; use **Cmd+Shift+P** where this guide says **Ctrl+Shift+P**. The WSL section doesn't apply: extensions sync straight onto the Mac with no extra step. Keyboard shortcuts are kept separately per OS by default, so a Windows machine and a Mac can share one sync account without their shortcuts overwriting each other.
+
 ## Do I need SSH keys for this?
 
 No. Settings Sync doesn't use git or SSH. You sign in to a GitHub (or Microsoft) account in the browser, and VS Code stores your settings in Microsoft's sync service. It doesn't go into a repo.

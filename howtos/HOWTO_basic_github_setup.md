@@ -1,6 +1,33 @@
 # HOWTO: Basic GitHub setup
 
-How to set up a computer so `git` can push to and pull from GitHub on the command line without asking you to log in each time. Written for WSL (Ubuntu); the same steps work on macOS and Linux.
+How to set up a computer so `git` can push to and pull from GitHub on the command line without asking you to log in each time. Written for WSL (Ubuntu); the same steps work on Linux, and on a Mac with the changes below.
+
+## On a Mac
+
+Everything is the same except steps 3 and 4:
+
+- **Step 3: no `keychain`.** macOS runs an SSH agent for you and can keep the passphrase in the Mac's Keychain, so skip installing `keychain` and don't add its line to `~/.zshrc`. Instead, add `UseKeychain yes` to the `~/.ssh/config` block (leave it out if the key has no passphrase):
+
+    ```
+    Host github.com
+      HostName github.com
+      User git
+      IdentityFile ~/.ssh/id_ed25519
+      AddKeysToAgent yes
+      UseKeychain yes
+    ```
+
+    Then store the passphrase once:
+
+    ```
+    ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+    ```
+
+    Use the `ssh-add` that comes with macOS, not one from Homebrew; only Apple's has `--apple-use-keychain`. After this, no passphrase prompts, even after a restart.
+
+- **Step 4: copying the key.** `pbcopy < ~/.ssh/id_ed25519.pub` puts the public key on the clipboard.
+
+A Mac has only one `~/.ssh`, so the note below about WSL and Windows keeping separate keys doesn't apply.
 
 ## Tell git who you are
 

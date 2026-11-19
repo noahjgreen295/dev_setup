@@ -4,6 +4,17 @@ How to install and set up Claude Code on Windows with WSL, for two places: the W
 
 For GitHub access, see [HOWTO_claude_to_github.md](HOWTO_claude_to_github.md).
 
+## On a Mac
+
+Claude Code runs directly on macOS (13 or later). Read "WSL command line" as "Terminal" and "WSL VS Code" as "VS Code". The differences:
+
+- **Skip the WSL parts.** The WSL 2 check, the note about keeping projects out of `/mnt/c/`, and steps 1 and 2 of the VS Code section (the WSL extension and opening a WSL window) don't apply; open your project with `code .` from Terminal. In VS Code, the install button just says **Install**.
+- **Install.** The same `curl` command works in Terminal. There's also a Homebrew version (`brew install --cask claude-code`), but it doesn't update itself; the `curl` install does.
+- **Sign in.** The browser usually hands the login back to the terminal on its own, so the paste-a-code workaround is rarely needed.
+- **Shortcuts.** `Cmd+Esc` switches focus between your code and the Claude panel, `Option+K` inserts a file reference, and `Cmd+Shift+Esc` opens a new conversation tab (the Task Manager clash is Windows-only). Use **Cmd+Shift+P** for the Command Palette.
+- **`Cmd+Esc` does nothing.** On macOS Tahoe and later, the system's Game Overlay shortcut takes `Cmd+Esc`. Turn it off in **System Settings** > **Keyboard** > **Keyboard Shortcuts** > **Game Controllers** by clearing **Game Overlay**, or rebind **Claude Code: Focus input** in VS Code's Keyboard Shortcuts editor.
+- **Troubleshooting.** The `Exec format error` and Windows-Node items don't apply. The `command not found` fix (adding `~/.local/bin` to PATH in `~/.zshrc`) is the same.
+
 ## Preliminaries
 
 ### What you need

@@ -2,6 +2,8 @@
 
 How to install VS Code on Windows, use it on projects inside WSL, and add the extensions I use, mainly for Python. Assumes [HOWTO_wsl_setup.md](HOWTO_wsl_setup.md) is done.
 
+On a Mac, use [HOWTO_vs_code_install_mac.md](HOWTO_vs_code_install_mac.md) instead.
+
 ## How VS Code and WSL fit together
 
 You install VS Code **once, on Windows**. You don't install a Linux copy of VS Code inside WSL.

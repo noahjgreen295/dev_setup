@@ -2,6 +2,15 @@
 
 How to switch WSL (Ubuntu) from bash to zsh, add Oh My Zsh, and set up the aliases and theme I use. Assumes [HOWTO_wsl_setup.md](HOWTO_wsl_setup.md) is done.
 
+## On a Mac
+
+Assumes [HOWTO_mac_setup.md](HOWTO_mac_setup.md) is done. The differences:
+
+- **Skip steps 1 to 3.** zsh is already the default shell on macOS. Start at step 4, Oh My Zsh, which installs the same way.
+- **The `ls` alias.** `--color=tty` is a Linux `ls` option. On a Mac, use `alias ls="ls -FG"`; `-G` turns on colour.
+- **No `python3-venv` package.** Homebrew's Python includes venv, so `pvv` works as is.
+- **Troubleshooting.** The `chsh` and `wsl --shutdown` items don't apply.
+
 ## Install zsh
 
 ### 1. Install it
