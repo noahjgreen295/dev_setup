@@ -149,7 +149,7 @@ Python, pytest and Ruff all leave cache folders behind (`__pycache__`, `.pytest_
 
 The `**/` prefix matches at any depth. This only hides the folders in VS Code (Explorer and search); they're still on disk, and VS Code still finds and uses the `.venv` interpreter.
 
-Alternatively, turn on `explorer.excludeGitIgnore` to hide everything your `.gitignore` lists, which in a uv project covers all of the above.
+Alternatively, turn on `explorer.excludeGitIgnore` to hide everything your `.gitignore` lists. A standard Python `.gitignore` already lists all of the above.
 
 ## Installing extensions in Windows and in WSL
 

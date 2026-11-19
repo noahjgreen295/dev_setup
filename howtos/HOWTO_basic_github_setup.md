@@ -2,6 +2,21 @@
 
 How to set up a computer so `git` can push to and pull from GitHub on the command line without asking you to log in each time. Written for WSL (Ubuntu); the same steps work on macOS and Linux.
 
+## Tell git who you are
+
+Every commit records a name and email. Until you set them, git refuses to commit and asks you to. Set them once per environment (WSL and Windows each keep their own):
+
+```
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+git config --global init.defaultBranch main
+```
+
+- **Email.** Use an email address on your GitHub account, so GitHub links the commits to you. To keep your real address out of public commit history, go to GitHub **Settings** > **Emails**, tick **Keep my email addresses private**, and use the `...@users.noreply.github.com` address it shows.
+- **Default branch.** New repos made with `git init` start on `main`, matching what GitHub uses, instead of `master`.
+
+Check them with `git config --global --list`. They're stored in `~/.gitconfig`.
+
 ## SSH keys
 
 You make a key pair on your computer. The private key stays on the computer; the public key goes on GitHub. When git talks to GitHub over SSH, the two are matched and no password is needed.
@@ -100,6 +115,8 @@ git remote set-url origin git@github.com:<owner>/<repo>.git
 
 ## Sources
 
+- [First-time Git setup (Pro Git book)](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup)
+- [Setting your commit email address (GitHub docs)](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address)
 - [Generating a new SSH key and adding it to the ssh-agent (GitHub docs)](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 - [Adding a new SSH key to your GitHub account (GitHub docs)](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
 - [Testing your SSH connection (GitHub docs)](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/testing-your-ssh-connection)
